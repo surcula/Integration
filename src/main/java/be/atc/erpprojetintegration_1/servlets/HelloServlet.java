@@ -1,4 +1,4 @@
-package be.atc.erpprojetintegration_1;
+package be.atc.erpprojetintegration_1.servlets;
 
 import java.io.*;
 import javax.servlet.http.*;

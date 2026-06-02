@@ -1,46 +1,58 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "training_centers")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "training_centers")
 public class TrainingCenter {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.persistence.Column(name = "training_career_name", length = 200)
-private java.lang.String trainingCareerName;
+    @Size(max = 200)
+    @Column(name = "training_career_name", length = 200)
+    private String trainingCareerName;
 
-@javax.validation.constraints.Size(max = 20)
-@javax.persistence.Column(name = "phone", length = 20)
-private java.lang.String phone;
+    @Size(max = 20)
+    @Column(name = "phone", length = 20)
+    private String phone;
 
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)
-@javax.persistence.JoinColumn(name = "address_id")
-private be.atc.erpprojetintegration_1.Address address;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private Address address;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getTrainingCareerName() {
-  return trainingCareerName;
-}public void setTrainingCareerName(java.lang.String trainingCareerName) {
-  this.trainingCareerName = trainingCareerName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.String getPhone() {
-  return phone;
-}public void setPhone(java.lang.String phone) {
-  this.phone = phone;
-}
+    public String getTrainingCareerName() {
+        return trainingCareerName;
+    }
 
-public be.atc.erpprojetintegration_1.Address getAddress() {
-  return address;
-}public void setAddress(be.atc.erpprojetintegration_1.Address address) {
-  this.address = address;
-}
+    public void setTrainingCareerName(String trainingCareerName) {
+        this.trainingCareerName = trainingCareerName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
 }

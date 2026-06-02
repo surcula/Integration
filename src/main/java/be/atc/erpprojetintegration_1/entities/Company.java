@@ -1,107 +1,132 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "companies")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "companies")
 public class Company {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "name", nullable = false, length = 200)
-private java.lang.String name;
+    @Size(max = 200)
+    @NotNull
+    @Column(name = "name", nullable = false, length = 200)
+    private String name;
 
-@javax.validation.constraints.Size(max = 20)
-@javax.persistence.Column(name = "phone", length = 20)
-private java.lang.String phone;
+    @Size(max = 20)
+    @Column(name = "phone", length = 20)
+    private String phone;
 
-@javax.validation.constraints.Size(max = 100)
-@javax.persistence.Column(name = "bank", length = 100)
-private java.lang.String bank;
+    @Size(max = 100)
+    @Column(name = "bank", length = 100)
+    private String bank;
 
-@javax.validation.constraints.Size(max = 34)
-@javax.persistence.Column(name = "iban", length = 34)
-private java.lang.String iban;
+    @Size(max = 34)
+    @Column(name = "iban", length = 34)
+    private String iban;
 
-@javax.validation.constraints.Size(max = 500)
-@javax.persistence.Column(name = "logo", length = 500)
-private java.lang.String logo;
+    @Size(max = 500)
+    @Column(name = "logo", length = 500)
+    private String logo;
 
-@javax.validation.constraints.Size(max = 150)
-@javax.persistence.Column(name = "email", length = 150)
-private java.lang.String email;
+    @Size(max = 150)
+    @Column(name = "email", length = 150)
+    private String email;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.Size(max = 255)
-@javax.persistence.Column(name = "website")
-private java.lang.String website;
+    @Size(max = 255)
+    @Column(name = "website")
+    private String website;
 
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)
-@javax.persistence.JoinColumn(name = "address_id")
-private be.atc.erpprojetintegration_1.Address address;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private Address address;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getName() {
-  return name;
-}public void setName(java.lang.String name) {
-  this.name = name;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.String getPhone() {
-  return phone;
-}public void setPhone(java.lang.String phone) {
-  this.phone = phone;
-}
+    public String getName() {
+        return name;
+    }
 
-public java.lang.String getBank() {
-  return bank;
-}public void setBank(java.lang.String bank) {
-  this.bank = bank;
-}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-public java.lang.String getIban() {
-  return iban;
-}public void setIban(java.lang.String iban) {
-  this.iban = iban;
-}
+    public String getPhone() {
+        return phone;
+    }
 
-public java.lang.String getLogo() {
-  return logo;
-}public void setLogo(java.lang.String logo) {
-  this.logo = logo;
-}
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
-public java.lang.String getEmail() {
-  return email;
-}public void setEmail(java.lang.String email) {
-  this.email = email;
-}
+    public String getBank() {
+        return bank;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setBank(String bank) {
+        this.bank = bank;
+    }
 
-public java.lang.String getWebsite() {
-  return website;
-}public void setWebsite(java.lang.String website) {
-  this.website = website;
-}
+    public String getIban() {
+        return iban;
+    }
 
-public be.atc.erpprojetintegration_1.Address getAddress() {
-  return address;
-}public void setAddress(be.atc.erpprojetintegration_1.Address address) {
-  this.address = address;
-}
+    public void setIban(String iban) {
+        this.iban = iban;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
 }

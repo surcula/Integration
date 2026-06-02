@@ -5,9 +5,15 @@
     http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd">
 
     <application>
+        <locale-config>
+            <default-locale>fr</default-locale>
+            <supported-locale>fr</supported-locale>
+            <supported-locale>en</supported-locale>
+        </locale-config>
+
         <resource-bundle>
             <base-name>be.atc.messages.messages</base-name>
-            <var>bundle</var>
+            <var>msg</var>
         </resource-bundle>
     </application>
 </faces-config>

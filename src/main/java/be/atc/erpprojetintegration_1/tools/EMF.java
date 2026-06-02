@@ -1,4 +1,4 @@
-package be.atc.erpprojetintegration_1.dto;
+package be.atc.erpprojetintegration_1.tools;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

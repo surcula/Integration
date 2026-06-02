@@ -1,58 +1,73 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "evaluations_objectives")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "evaluations_objectives")
 public class EvaluationsObjective {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.persistence.Column(name = "evaluation_objectives_name", length = 200)
-private java.lang.String evaluationObjectivesName;
+    @Size(max = 200)
+    @Column(name = "evaluation_objectives_name", length = 200)
+    private String evaluationObjectivesName;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "objective_id", nullable = false)
-private be.atc.erpprojetintegration_1.Objective objective;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "objective_id", nullable = false)
+    private Objective objective;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "evaluation_id", nullable = false)
-private be.atc.erpprojetintegration_1.Evaluation evaluation;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "evaluation_id", nullable = false)
+    private Evaluation evaluation;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getEvaluationObjectivesName() {
-  return evaluationObjectivesName;
-}public void setEvaluationObjectivesName(java.lang.String evaluationObjectivesName) {
-  this.evaluationObjectivesName = evaluationObjectivesName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public String getEvaluationObjectivesName() {
+        return evaluationObjectivesName;
+    }
 
-public be.atc.erpprojetintegration_1.Objective getObjective() {
-  return objective;
-}public void setObjective(be.atc.erpprojetintegration_1.Objective objective) {
-  this.objective = objective;
-}
+    public void setEvaluationObjectivesName(String evaluationObjectivesName) {
+        this.evaluationObjectivesName = evaluationObjectivesName;
+    }
 
-public be.atc.erpprojetintegration_1.Evaluation getEvaluation() {
-  return evaluation;
-}public void setEvaluation(be.atc.erpprojetintegration_1.Evaluation evaluation) {
-  this.evaluation = evaluation;
-}
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Objective getObjective() {
+        return objective;
+    }
+
+    public void setObjective(Objective objective) {
+        this.objective = objective;
+    }
+
+    public Evaluation getEvaluation() {
+        return evaluation;
+    }
+
+    public void setEvaluation(Evaluation evaluation) {
+        this.evaluation = evaluation;
+    }
 
 }

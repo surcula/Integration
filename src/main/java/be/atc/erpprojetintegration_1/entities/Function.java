@@ -1,115 +1,142 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "functions")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "functions")
 public class Function {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 150)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "function_name", nullable = false, length = 150)
-private java.lang.String functionName;
+    @Size(max = 150)
+    @NotNull
+    @Column(name = "function_name", nullable = false, length = 150)
+    private String functionName;
 
-@javax.persistence.Column(name = "mandatory")
-private java.lang.Boolean mandatory;
+    @Column(name = "mandatory")
+    private Boolean mandatory;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "description")
-private java.lang.String description;
+    @Lob
+    @Column(name = "description")
+    private String description;
 
-@javax.persistence.Column(name = "number_of_open_positions")
-private java.lang.Integer numberOfOpenPositions;
+    @Column(name = "number_of_open_positions")
+    private Integer numberOfOpenPositions;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "job_description")
-private java.lang.String jobDescription;
+    @Lob
+    @Column(name = "job_description")
+    private String jobDescription;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "comments")
-private java.lang.String comments;
+    @Lob
+    @Column(name = "comments")
+    private String comments;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.persistence.Column(name = "status", length = 50)
-private java.lang.String status;
+    @Size(max = 50)
+    @Column(name = "status", length = 50)
+    private String status;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)
-@javax.persistence.JoinColumn(name = "function_id")
-private be.atc.erpprojetintegration_1.Function function;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "function_id")
+    private Function function;
 
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)
-@javax.persistence.JoinColumn(name = "city_id")
-private be.atc.erpprojetintegration_1.City city;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id")
+    private City city;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getFunctionName() {
-  return functionName;
-}public void setFunctionName(java.lang.String functionName) {
-  this.functionName = functionName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.Boolean getMandatory() {
-  return mandatory;
-}public void setMandatory(java.lang.Boolean mandatory) {
-  this.mandatory = mandatory;
-}
+    public String getFunctionName() {
+        return functionName;
+    }
 
-public java.lang.String getDescription() {
-  return description;
-}public void setDescription(java.lang.String description) {
-  this.description = description;
-}
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
 
-public java.lang.Integer getNumberOfOpenPositions() {
-  return numberOfOpenPositions;
-}public void setNumberOfOpenPositions(java.lang.Integer numberOfOpenPositions) {
-  this.numberOfOpenPositions = numberOfOpenPositions;
-}
+    public Boolean getMandatory() {
+        return mandatory;
+    }
 
-public java.lang.String getJobDescription() {
-  return jobDescription;
-}public void setJobDescription(java.lang.String jobDescription) {
-  this.jobDescription = jobDescription;
-}
+    public void setMandatory(Boolean mandatory) {
+        this.mandatory = mandatory;
+    }
 
-public java.lang.String getComments() {
-  return comments;
-}public void setComments(java.lang.String comments) {
-  this.comments = comments;
-}
+    public String getDescription() {
+        return description;
+    }
 
-public java.lang.String getStatus() {
-  return status;
-}public void setStatus(java.lang.String status) {
-  this.status = status;
-}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public Integer getNumberOfOpenPositions() {
+        return numberOfOpenPositions;
+    }
 
-public be.atc.erpprojetintegration_1.Function getFunction() {
-  return function;
-}public void setFunction(be.atc.erpprojetintegration_1.Function function) {
-  this.function = function;
-}
+    public void setNumberOfOpenPositions(Integer numberOfOpenPositions) {
+        this.numberOfOpenPositions = numberOfOpenPositions;
+    }
 
-public be.atc.erpprojetintegration_1.City getCity() {
-  return city;
-}public void setCity(be.atc.erpprojetintegration_1.City city) {
-  this.city = city;
-}
+    public String getJobDescription() {
+        return jobDescription;
+    }
+
+    public void setJobDescription(String jobDescription) {
+        this.jobDescription = jobDescription;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Function getFunction() {
+        return function;
+    }
+
+    public void setFunction(Function function) {
+        this.function = function;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
 
 }

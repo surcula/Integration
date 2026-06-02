@@ -1,58 +1,73 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "roles_authorization")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "roles_authorization")
 public class RolesAuthorization {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 150)
-@javax.persistence.Column(name = "role_authorization_name", length = 150)
-private java.lang.String roleAuthorizationName;
+    @Size(max = 150)
+    @Column(name = "role_authorization_name", length = 150)
+    private String roleAuthorizationName;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "role_id", nullable = false)
-private be.atc.erpprojetintegration_1.Role role;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "authorization_id", nullable = false)
-private be.atc.erpprojetintegration_1.Authorization authorization;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "authorization_id", nullable = false)
+    private Authorization authorization;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getRoleAuthorizationName() {
-  return roleAuthorizationName;
-}public void setRoleAuthorizationName(java.lang.String roleAuthorizationName) {
-  this.roleAuthorizationName = roleAuthorizationName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public String getRoleAuthorizationName() {
+        return roleAuthorizationName;
+    }
 
-public be.atc.erpprojetintegration_1.Role getRole() {
-  return role;
-}public void setRole(be.atc.erpprojetintegration_1.Role role) {
-  this.role = role;
-}
+    public void setRoleAuthorizationName(String roleAuthorizationName) {
+        this.roleAuthorizationName = roleAuthorizationName;
+    }
 
-public be.atc.erpprojetintegration_1.Authorization getAuthorization() {
-  return authorization;
-}public void setAuthorization(be.atc.erpprojetintegration_1.Authorization authorization) {
-  this.authorization = authorization;
-}
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public Authorization getAuthorization() {
+        return authorization;
+    }
+
+    public void setAuthorization(Authorization authorization) {
+        this.authorization = authorization;
+    }
 
 }

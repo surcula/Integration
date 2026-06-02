@@ -1,78 +1,98 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "job_offers_candidates")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "job_offers_candidates")
 public class JobOffersCandidate {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.persistence.Column(name = "job_offer_name", length = 200)
-private java.lang.String jobOfferName;
+    @Size(max = 200)
+    @Column(name = "job_offer_name", length = 200)
+    private String jobOfferName;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "application_date", nullable = false)
-private java.time.LocalDate applicationDate;
+    @NotNull
+    @Column(name = "application_date", nullable = false)
+    private LocalDate applicationDate;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.persistence.Column(name = "application_status", length = 50)
-private java.lang.String applicationStatus;
+    @Size(max = 50)
+    @Column(name = "application_status", length = 50)
+    private String applicationStatus;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "job_offers_id", nullable = false)
-private be.atc.erpprojetintegration_1.JobOffer jobOffers;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "job_offers_id", nullable = false)
+    private JobOffer jobOffers;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "candidate_id", nullable = false)
-private be.atc.erpprojetintegration_1.Candidate candidate;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "candidate_id", nullable = false)
+    private Candidate candidate;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getJobOfferName() {
-  return jobOfferName;
-}public void setJobOfferName(java.lang.String jobOfferName) {
-  this.jobOfferName = jobOfferName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.time.LocalDate getApplicationDate() {
-  return applicationDate;
-}public void setApplicationDate(java.time.LocalDate applicationDate) {
-  this.applicationDate = applicationDate;
-}
+    public String getJobOfferName() {
+        return jobOfferName;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setJobOfferName(String jobOfferName) {
+        this.jobOfferName = jobOfferName;
+    }
 
-public java.lang.String getApplicationStatus() {
-  return applicationStatus;
-}public void setApplicationStatus(java.lang.String applicationStatus) {
-  this.applicationStatus = applicationStatus;
-}
+    public LocalDate getApplicationDate() {
+        return applicationDate;
+    }
 
-public be.atc.erpprojetintegration_1.JobOffer getJobOffers() {
-  return jobOffers;
-}public void setJobOffers(be.atc.erpprojetintegration_1.JobOffer jobOffers) {
-  this.jobOffers = jobOffers;
-}
+    public void setApplicationDate(LocalDate applicationDate) {
+        this.applicationDate = applicationDate;
+    }
 
-public be.atc.erpprojetintegration_1.Candidate getCandidate() {
-  return candidate;
-}public void setCandidate(be.atc.erpprojetintegration_1.Candidate candidate) {
-  this.candidate = candidate;
-}
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public String getApplicationStatus() {
+        return applicationStatus;
+    }
+
+    public void setApplicationStatus(String applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
+    public JobOffer getJobOffers() {
+        return jobOffers;
+    }
+
+    public void setJobOffers(JobOffer jobOffers) {
+        this.jobOffers = jobOffers;
+    }
+
+    public Candidate getCandidate() {
+        return candidate;
+    }
+
+    public void setCandidate(Candidate candidate) {
+        this.candidate = candidate;
+    }
 
 }

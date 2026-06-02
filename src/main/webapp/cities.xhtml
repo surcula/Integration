@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<f:view locale="#{languageBean.locale}">
+
+    <h:head>
+        <title>#{msg['cities.title']}</title>
+        <link rel="stylesheet" href="#{request.contextPath}/css/stylesheet.css"/>
+    </h:head>
+
+    <h:body>
+        <main class="page">
+
+            <h:form>
+                <h:commandButton value="FR" action="#{languageBean.setFrench}" />
+                <h:commandButton value="EN" action="#{languageBean.setEnglish}" />
+            </h:form>
+
+            <h1>
+                <h:outputText value="#{msg['cities.title']}" />
+            </h1>
+
+            <h:dataTable value="#{cityBean.cities}" var="city" styleClass="data-table">
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msg['city.id']}" />
+                    </f:facet>
+                    <h:outputText value="#{city.id}"/>
+                </h:column>
+
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msg['city.name']}" />
+                    </f:facet>
+                    <h:outputText value="#{city.cityName}"/>
+                </h:column>
+
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msg['city.zipCode']}" />
+                    </f:facet>
+                    <h:outputText value="#{city.zipCode}"/>
+                </h:column>
+
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msg['city.active']}" />
+                    </f:facet>
+                    <h:outputText value="#{city.isActive}"/>
+                </h:column>
+            </h:dataTable>
+        </main>
+    </h:body>
+
+</f:view>
+</html>

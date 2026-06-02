@@ -1,77 +1,97 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "contracts")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "contracts")
 public class Contract {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "contract_code", nullable = false, length = 50)
-private java.lang.String contractCode;
+    @Size(max = 50)
+    @NotNull
+    @Column(name = "contract_code", nullable = false, length = 50)
+    private String contractCode;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "start_date", nullable = false)
-private java.time.LocalDate startDate;
+    @NotNull
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
-@javax.persistence.Column(name = "end_date")
-private java.time.LocalDate endDate;
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.persistence.Column(name = "status", length = 50)
-private java.lang.String status;
+    @Size(max = 50)
+    @Column(name = "status", length = 50)
+    private String status;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "employee_id", nullable = false)
-private be.atc.erpprojetintegration_1.Employee employee;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getContractCode() {
-  return contractCode;
-}public void setContractCode(java.lang.String contractCode) {
-  this.contractCode = contractCode;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.time.LocalDate getStartDate() {
-  return startDate;
-}public void setStartDate(java.time.LocalDate startDate) {
-  this.startDate = startDate;
-}
+    public String getContractCode() {
+        return contractCode;
+    }
 
-public java.time.LocalDate getEndDate() {
-  return endDate;
-}public void setEndDate(java.time.LocalDate endDate) {
-  this.endDate = endDate;
-}
+    public void setContractCode(String contractCode) {
+        this.contractCode = contractCode;
+    }
 
-public java.lang.String getStatus() {
-  return status;
-}public void setStatus(java.lang.String status) {
-  this.status = status;
-}
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
 
-public be.atc.erpprojetintegration_1.Employee getEmployee() {
-  return employee;
-}public void setEmployee(be.atc.erpprojetintegration_1.Employee employee) {
-  this.employee = employee;
-}
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
 
 }

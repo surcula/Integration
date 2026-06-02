@@ -1,94 +1,119 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "plannings")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+@Entity
+@Table(name = "plannings")
 public class Planning {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "date", nullable = false)
-private java.time.LocalDate date;
+    @NotNull
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
 
-@javax.persistence.Column(name = "start_hour")
-private java.time.LocalTime startHour;
+    @Column(name = "start_hour")
+    private LocalTime startHour;
 
-@javax.persistence.Column(name = "end_hour")
-private java.time.LocalTime endHour;
+    @Column(name = "end_hour")
+    private LocalTime endHour;
 
-@javax.validation.constraints.Size(max = 255)
-@javax.persistence.Column(name = "note")
-private java.lang.String note;
+    @Size(max = 255)
+    @Column(name = "note")
+    private String note;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.persistence.Column(name = "type", length = 50)
-private java.lang.String type;
+    @Size(max = 50)
+    @Column(name = "type", length = 50)
+    private String type;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "description")
-private java.lang.String description;
+    @Lob
+    @Column(name = "description")
+    private String description;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)
-@javax.persistence.JoinColumn(name = "department_id")
-private be.atc.erpprojetintegration_1.Department department;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.time.LocalDate getDate() {
-  return date;
-}public void setDate(java.time.LocalDate date) {
-  this.date = date;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.time.LocalTime getStartHour() {
-  return startHour;
-}public void setStartHour(java.time.LocalTime startHour) {
-  this.startHour = startHour;
-}
+    public LocalDate getDate() {
+        return date;
+    }
 
-public java.time.LocalTime getEndHour() {
-  return endHour;
-}public void setEndHour(java.time.LocalTime endHour) {
-  this.endHour = endHour;
-}
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
-public java.lang.String getNote() {
-  return note;
-}public void setNote(java.lang.String note) {
-  this.note = note;
-}
+    public LocalTime getStartHour() {
+        return startHour;
+    }
 
-public java.lang.String getType() {
-  return type;
-}public void setType(java.lang.String type) {
-  this.type = type;
-}
+    public void setStartHour(LocalTime startHour) {
+        this.startHour = startHour;
+    }
 
-public java.lang.String getDescription() {
-  return description;
-}public void setDescription(java.lang.String description) {
-  this.description = description;
-}
+    public LocalTime getEndHour() {
+        return endHour;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setEndHour(LocalTime endHour) {
+        this.endHour = endHour;
+    }
 
-public be.atc.erpprojetintegration_1.Department getDepartment() {
-  return department;
-}public void setDepartment(be.atc.erpprojetintegration_1.Department department) {
-  this.department = department;
-}
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
 
 }

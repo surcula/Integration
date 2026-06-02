@@ -1,114 +1,143 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "evaluations")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "evaluations")
 public class Evaluation {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "evaluation_name", nullable = false, length = 200)
-private java.lang.String evaluationName;
+    @Size(max = 200)
+    @NotNull
+    @Column(name = "evaluation_name", nullable = false, length = 200)
+    private String evaluationName;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.persistence.Column(name = "evaluation_date")
-private java.time.LocalDate evaluationDate;
+    @Column(name = "evaluation_date")
+    private LocalDate evaluationDate;
 
-@javax.persistence.Column(name = "period_start")
-private java.time.LocalDate periodStart;
+    @Column(name = "period_start")
+    private LocalDate periodStart;
 
-@javax.persistence.Column(name = "period_end")
-private java.time.LocalDate periodEnd;
+    @Column(name = "period_end")
+    private LocalDate periodEnd;
 
-@javax.persistence.Column(name = "global_score", precision = 10, scale = 2)
-private java.math.BigDecimal globalScore;
+    @Column(name = "global_score", precision = 10, scale = 2)
+    private BigDecimal globalScore;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "comments")
-private java.lang.String comments;
+    @Lob
+    @Column(name = "comments")
+    private String comments;
 
-@javax.persistence.Column(name = "self_global_score", precision = 10, scale = 2)
-private java.math.BigDecimal selfGlobalScore;
+    @Column(name = "self_global_score", precision = 10, scale = 2)
+    private BigDecimal selfGlobalScore;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "evaluator_id", nullable = false)
-private be.atc.erpprojetintegration_1.Employee evaluator;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "evaluator_id", nullable = false)
+    private Employee evaluator;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "employee_id", nullable = false)
-private be.atc.erpprojetintegration_1.Employee employee;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getEvaluationName() {
-  return evaluationName;
-}public void setEvaluationName(java.lang.String evaluationName) {
-  this.evaluationName = evaluationName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public String getEvaluationName() {
+        return evaluationName;
+    }
 
-public java.time.LocalDate getEvaluationDate() {
-  return evaluationDate;
-}public void setEvaluationDate(java.time.LocalDate evaluationDate) {
-  this.evaluationDate = evaluationDate;
-}
+    public void setEvaluationName(String evaluationName) {
+        this.evaluationName = evaluationName;
+    }
 
-public java.time.LocalDate getPeriodStart() {
-  return periodStart;
-}public void setPeriodStart(java.time.LocalDate periodStart) {
-  this.periodStart = periodStart;
-}
+    public Boolean getIsActive() {
+        return isActive;
+    }
 
-public java.time.LocalDate getPeriodEnd() {
-  return periodEnd;
-}public void setPeriodEnd(java.time.LocalDate periodEnd) {
-  this.periodEnd = periodEnd;
-}
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 
-public java.math.BigDecimal getGlobalScore() {
-  return globalScore;
-}public void setGlobalScore(java.math.BigDecimal globalScore) {
-  this.globalScore = globalScore;
-}
+    public LocalDate getEvaluationDate() {
+        return evaluationDate;
+    }
 
-public java.lang.String getComments() {
-  return comments;
-}public void setComments(java.lang.String comments) {
-  this.comments = comments;
-}
+    public void setEvaluationDate(LocalDate evaluationDate) {
+        this.evaluationDate = evaluationDate;
+    }
 
-public java.math.BigDecimal getSelfGlobalScore() {
-  return selfGlobalScore;
-}public void setSelfGlobalScore(java.math.BigDecimal selfGlobalScore) {
-  this.selfGlobalScore = selfGlobalScore;
-}
+    public LocalDate getPeriodStart() {
+        return periodStart;
+    }
 
-public be.atc.erpprojetintegration_1.Employee getEvaluator() {
-  return evaluator;
-}public void setEvaluator(be.atc.erpprojetintegration_1.Employee evaluator) {
-  this.evaluator = evaluator;
-}
+    public void setPeriodStart(LocalDate periodStart) {
+        this.periodStart = periodStart;
+    }
 
-public be.atc.erpprojetintegration_1.Employee getEmployee() {
-  return employee;
-}public void setEmployee(be.atc.erpprojetintegration_1.Employee employee) {
-  this.employee = employee;
-}
+    public LocalDate getPeriodEnd() {
+        return periodEnd;
+    }
+
+    public void setPeriodEnd(LocalDate periodEnd) {
+        this.periodEnd = periodEnd;
+    }
+
+    public BigDecimal getGlobalScore() {
+        return globalScore;
+    }
+
+    public void setGlobalScore(BigDecimal globalScore) {
+        this.globalScore = globalScore;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public BigDecimal getSelfGlobalScore() {
+        return selfGlobalScore;
+    }
+
+    public void setSelfGlobalScore(BigDecimal selfGlobalScore) {
+        this.selfGlobalScore = selfGlobalScore;
+    }
+
+    public Employee getEvaluator() {
+        return evaluator;
+    }
+
+    public void setEvaluator(Employee evaluator) {
+        this.evaluator = evaluator;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
 
 }

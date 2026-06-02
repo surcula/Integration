@@ -1,65 +1,82 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "trainings")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "trainings")
 public class Training {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.persistence.Column(name = "training_certificate_name", length = 200)
-private java.lang.String trainingCertificateName;
+    @Size(max = 200)
+    @Column(name = "training_certificate_name", length = 200)
+    private String trainingCertificateName;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.persistence.Column(name = "code", length = 50)
-private java.lang.String code;
+    @Size(max = 50)
+    @Column(name = "code", length = 50)
+    private String code;
 
-@javax.persistence.Column(name = "validity_months")
-private java.lang.Integer validityMonths;
+    @Column(name = "validity_months")
+    private Integer validityMonths;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "description")
-private java.lang.String description;
+    @Lob
+    @Column(name = "description")
+    private String description;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getTrainingCertificateName() {
-  return trainingCertificateName;
-}public void setTrainingCertificateName(java.lang.String trainingCertificateName) {
-  this.trainingCertificateName = trainingCertificateName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.String getCode() {
-  return code;
-}public void setCode(java.lang.String code) {
-  this.code = code;
-}
+    public String getTrainingCertificateName() {
+        return trainingCertificateName;
+    }
 
-public java.lang.Integer getValidityMonths() {
-  return validityMonths;
-}public void setValidityMonths(java.lang.Integer validityMonths) {
-  this.validityMonths = validityMonths;
-}
+    public void setTrainingCertificateName(String trainingCertificateName) {
+        this.trainingCertificateName = trainingCertificateName;
+    }
 
-public java.lang.String getDescription() {
-  return description;
-}public void setDescription(java.lang.String description) {
-  this.description = description;
-}
+    public String getCode() {
+        return code;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Integer getValidityMonths() {
+        return validityMonths;
+    }
+
+    public void setValidityMonths(Integer validityMonths) {
+        this.validityMonths = validityMonths;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 
 }

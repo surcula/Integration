@@ -1,68 +1,85 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "addresses")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "addresses")
 public class Address {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "street_name", nullable = false, length = 50)
-private java.lang.String streetName;
+    @Size(max = 50)
+    @NotNull
+    @Column(name = "street_name", nullable = false, length = 50)
+    private String streetName;
 
-@javax.validation.constraints.Size(max = 11)
-@javax.persistence.Column(name = "street_number", length = 11)
-private java.lang.String streetNumber;
+    @Size(max = 11)
+    @Column(name = "street_number", length = 11)
+    private String streetNumber;
 
-@javax.validation.constraints.Size(max = 5)
-@javax.persistence.Column(name = "box_number", length = 5)
-private java.lang.String boxNumber;
+    @Size(max = 5)
+    @Column(name = "box_number", length = 5)
+    private String boxNumber;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "city_id", nullable = false)
-private be.atc.erpprojetintegration_1.City city;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getStreetName() {
-  return streetName;
-}public void setStreetName(java.lang.String streetName) {
-  this.streetName = streetName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.String getStreetNumber() {
-  return streetNumber;
-}public void setStreetNumber(java.lang.String streetNumber) {
-  this.streetNumber = streetNumber;
-}
+    public String getStreetName() {
+        return streetName;
+    }
 
-public java.lang.String getBoxNumber() {
-  return boxNumber;
-}public void setBoxNumber(java.lang.String boxNumber) {
-  this.boxNumber = boxNumber;
-}
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public String getStreetNumber() {
+        return streetNumber;
+    }
 
-public be.atc.erpprojetintegration_1.City getCity() {
-  return city;
-}public void setCity(be.atc.erpprojetintegration_1.City city) {
-  this.city = city;
-}
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    public String getBoxNumber() {
+        return boxNumber;
+    }
+
+    public void setBoxNumber(String boxNumber) {
+        this.boxNumber = boxNumber;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
 
 }

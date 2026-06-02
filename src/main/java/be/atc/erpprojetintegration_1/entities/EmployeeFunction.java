@@ -1,55 +1,70 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "employee_functions")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "employee_functions")
 public class EmployeeFunction {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.persistence.Column(name = "start_date")
-private java.time.LocalDate startDate;
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
-@javax.persistence.Column(name = "end_date")
-private java.time.LocalDate endDate;
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "function_id", nullable = false)
-private be.atc.erpprojetintegration_1.Function function;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "function_id", nullable = false)
+    private Function function;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.time.LocalDate getStartDate() {
-  return startDate;
-}public void setStartDate(java.time.LocalDate startDate) {
-  this.startDate = startDate;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.time.LocalDate getEndDate() {
-  return endDate;
-}public void setEndDate(java.time.LocalDate endDate) {
-  this.endDate = endDate;
-}
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
 
-public be.atc.erpprojetintegration_1.Function getFunction() {
-  return function;
-}public void setFunction(be.atc.erpprojetintegration_1.Function function) {
-  this.function = function;
-}
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Function getFunction() {
+        return function;
+    }
+
+    public void setFunction(Function function) {
+        this.function = function;
+    }
 
 }

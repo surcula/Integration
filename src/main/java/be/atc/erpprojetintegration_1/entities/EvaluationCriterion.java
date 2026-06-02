@@ -1,76 +1,95 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "evaluation_criteria")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "evaluation_criteria")
 public class EvaluationCriterion {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.persistence.Column(name = "note", precision = 10, scale = 2)
-private java.math.BigDecimal note;
+    @Column(name = "note", precision = 10, scale = 2)
+    private BigDecimal note;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "comment")
-private java.lang.String comment;
+    @Lob
+    @Column(name = "comment")
+    private String comment;
 
-@javax.persistence.Column(name = "self_evaluation", precision = 10, scale = 2)
-private java.math.BigDecimal selfEvaluation;
+    @Column(name = "self_evaluation", precision = 10, scale = 2)
+    private BigDecimal selfEvaluation;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "evaluation_id", nullable = false)
-private be.atc.erpprojetintegration_1.Evaluation evaluation;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "evaluation_id", nullable = false)
+    private Evaluation evaluation;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "criterion_id", nullable = false)
-private be.atc.erpprojetintegration_1.Criterion criterion;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "criterion_id", nullable = false)
+    private Criterion criterion;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.math.BigDecimal getNote() {
-  return note;
-}public void setNote(java.math.BigDecimal note) {
-  this.note = note;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.String getComment() {
-  return comment;
-}public void setComment(java.lang.String comment) {
-  this.comment = comment;
-}
+    public BigDecimal getNote() {
+        return note;
+    }
 
-public java.math.BigDecimal getSelfEvaluation() {
-  return selfEvaluation;
-}public void setSelfEvaluation(java.math.BigDecimal selfEvaluation) {
-  this.selfEvaluation = selfEvaluation;
-}
+    public void setNote(BigDecimal note) {
+        this.note = note;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public String getComment() {
+        return comment;
+    }
 
-public be.atc.erpprojetintegration_1.Evaluation getEvaluation() {
-  return evaluation;
-}public void setEvaluation(be.atc.erpprojetintegration_1.Evaluation evaluation) {
-  this.evaluation = evaluation;
-}
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-public be.atc.erpprojetintegration_1.Criterion getCriterion() {
-  return criterion;
-}public void setCriterion(be.atc.erpprojetintegration_1.Criterion criterion) {
-  this.criterion = criterion;
-}
+    public BigDecimal getSelfEvaluation() {
+        return selfEvaluation;
+    }
+
+    public void setSelfEvaluation(BigDecimal selfEvaluation) {
+        this.selfEvaluation = selfEvaluation;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Evaluation getEvaluation() {
+        return evaluation;
+    }
+
+    public void setEvaluation(Evaluation evaluation) {
+        this.evaluation = evaluation;
+    }
+
+    public Criterion getCriterion() {
+        return criterion;
+    }
+
+    public void setCriterion(Criterion criterion) {
+        this.criterion = criterion;
+    }
 
 }

@@ -1,96 +1,122 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "job_offers")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "job_offers")
 public class JobOffer {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "job_offer_name", nullable = false, length = 200)
-private java.lang.String jobOfferName;
+    @Size(max = 200)
+    @NotNull
+    @Column(name = "job_offer_name", nullable = false, length = 200)
+    private String jobOfferName;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "description")
-private java.lang.String description;
+    @Lob
+    @Column(name = "description")
+    private String description;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "create_at", nullable = false)
-private java.time.Instant createAt;
+    @NotNull
+    @Column(name = "create_at", nullable = false)
+    private LocalDateTime createAt;
 
-@javax.persistence.Column(name = "publish_start_date")
-private java.time.LocalDate publishStartDate;
+    @Column(name = "publish_start_date")
+    private LocalDate publishStartDate;
 
-@javax.persistence.Column(name = "publish_end_date")
-private java.time.LocalDate publishEndDate;
+    @Column(name = "publish_end_date")
+    private LocalDate publishEndDate;
 
-@javax.validation.constraints.Size(max = 50)
-@javax.persistence.Column(name = "status", length = 50)
-private java.lang.String status;
+    @Size(max = 50)
+    @Column(name = "status", length = 50)
+    private String status;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-@javax.persistence.JoinColumn(name = "function_id", nullable = false)
-private be.atc.erpprojetintegration_1.Function function;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "function_id", nullable = false)
+    private Function function;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getJobOfferName() {
-  return jobOfferName;
-}public void setJobOfferName(java.lang.String jobOfferName) {
-  this.jobOfferName = jobOfferName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.String getDescription() {
-  return description;
-}public void setDescription(java.lang.String description) {
-  this.description = description;
-}
+    public String getJobOfferName() {
+        return jobOfferName;
+    }
 
-public java.time.Instant getCreateAt() {
-  return createAt;
-}public void setCreateAt(java.time.Instant createAt) {
-  this.createAt = createAt;
-}
+    public void setJobOfferName(String jobOfferName) {
+        this.jobOfferName = jobOfferName;
+    }
 
-public java.time.LocalDate getPublishStartDate() {
-  return publishStartDate;
-}public void setPublishStartDate(java.time.LocalDate publishStartDate) {
-  this.publishStartDate = publishStartDate;
-}
+    public String getDescription() {
+        return description;
+    }
 
-public java.time.LocalDate getPublishEndDate() {
-  return publishEndDate;
-}public void setPublishEndDate(java.time.LocalDate publishEndDate) {
-  this.publishEndDate = publishEndDate;
-}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-public java.lang.String getStatus() {
-  return status;
-}public void setStatus(java.lang.String status) {
-  this.status = status;
-}
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
+    }
 
-public be.atc.erpprojetintegration_1.Function getFunction() {
-  return function;
-}public void setFunction(be.atc.erpprojetintegration_1.Function function) {
-  this.function = function;
-}
+    public LocalDate getPublishStartDate() {
+        return publishStartDate;
+    }
+
+    public void setPublishStartDate(LocalDate publishStartDate) {
+        this.publishStartDate = publishStartDate;
+    }
+
+    public LocalDate getPublishEndDate() {
+        return publishEndDate;
+    }
+
+    public void setPublishEndDate(LocalDate publishEndDate) {
+        this.publishEndDate = publishEndDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Function getFunction() {
+        return function;
+    }
+
+    public void setFunction(Function function) {
+        this.function = function;
+    }
 
 }

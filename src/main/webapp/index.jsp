@@ -9,5 +9,11 @@
 </h1>
 <br/>
 <a href="hello-servlet">Hellowwwwww </a>
+<br/>
+<a href="cities.xhtml">
+    <button type="button">Voir les villes</button>
+</a>
+
+
 </body>
 </html>

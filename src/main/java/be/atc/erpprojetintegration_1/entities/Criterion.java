@@ -1,67 +1,84 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "criteria")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Entity
+@Table(name = "criteria")
 public class Criterion {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 200)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "criterion_name", nullable = false, length = 200)
-private java.lang.String criterionName;
+    @Size(max = 200)
+    @NotNull
+    @Column(name = "criterion_name", nullable = false, length = 200)
+    private String criterionName;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-@javax.persistence.Lob
-@javax.persistence.Column(name = "description")
-private java.lang.String description;
+    @Lob
+    @Column(name = "description")
+    private String description;
 
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)
-@javax.persistence.JoinColumn(name = "category_id")
-private be.atc.erpprojetintegration_1.Category category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)
-@javax.persistence.JoinColumn(name = "function_criterion_id")
-private be.atc.erpprojetintegration_1.CriteriaFunction functionCriterion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "function_criterion_id")
+    private CriteriaFunction functionCriterion;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getCriterionName() {
-  return criterionName;
-}public void setCriterionName(java.lang.String criterionName) {
-  this.criterionName = criterionName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public String getCriterionName() {
+        return criterionName;
+    }
 
-public java.lang.String getDescription() {
-  return description;
-}public void setDescription(java.lang.String description) {
-  this.description = description;
-}
+    public void setCriterionName(String criterionName) {
+        this.criterionName = criterionName;
+    }
 
-public be.atc.erpprojetintegration_1.Category getCategory() {
-  return category;
-}public void setCategory(be.atc.erpprojetintegration_1.Category category) {
-  this.category = category;
-}
+    public Boolean getIsActive() {
+        return isActive;
+    }
 
-public be.atc.erpprojetintegration_1.CriteriaFunction getFunctionCriterion() {
-  return functionCriterion;
-}public void setFunctionCriterion(be.atc.erpprojetintegration_1.CriteriaFunction functionCriterion) {
-  this.functionCriterion = functionCriterion;
-}
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public CriteriaFunction getFunctionCriterion() {
+        return functionCriterion;
+    }
+
+    public void setFunctionCriterion(CriteriaFunction functionCriterion) {
+        this.functionCriterion = functionCriterion;
+    }
 
 }

@@ -1,47 +1,71 @@
-package be.atc.erpprojetintegration_1;
-@javax.persistence.Entity
-@javax.persistence.Table(name = "cities")
+package be.atc.erpprojetintegration_1.entities;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllActiveCities",
+                query = "SELECT c FROM City c WHERE c.active = true ORDER BY c.cityName"
+        ),
+        @NamedQuery(
+                name = "getActiveCitiesByZip",
+                query = "SELECT c FROM City c WHERE c.active = true AND c.zipCode = :zip ORDER BY c.cityName"
+        )
+})
+@Entity
+@Table(name = "cities")
 public class City {
-@javax.persistence.Id
-@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-@javax.persistence.Column(name = "id", nullable = false)
-private java.lang.Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-@javax.validation.constraints.Size(max = 100)
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "city_name", nullable = false, length = 100)
-private java.lang.String cityName;
+    @Size(max = 100)
+    @NotNull
+    @Column(name = "city_name", nullable = false, length = 100)
+    private String cityName;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "zip_code", nullable = false)
-private java.lang.Integer zipCode;
+    @NotNull
+    @Column(name = "zip_code", nullable = false)
+    private Integer zipCode;
 
-@javax.validation.constraints.NotNull
-@javax.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean active;
 
-public java.lang.Integer getId() {
-  return id;
-}public void setId(java.lang.Integer id) {
-  this.id = id;
-}
+    public Integer getId() {
+        return id;
+    }
 
-public java.lang.String getCityName() {
-  return cityName;
-}public void setCityName(java.lang.String cityName) {
-  this.cityName = cityName;
-}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-public java.lang.Integer getZipCode() {
-  return zipCode;
-}public void setZipCode(java.lang.Integer zipCode) {
-  this.zipCode = zipCode;
-}
+    public String getCityName() {
+        return cityName;
+    }
 
-public java.lang.Boolean getIsActive() {
-  return isActive;
-}public void setIsActive(java.lang.Boolean isActive) {
-  this.isActive = isActive;
-}
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public Integer getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(Integer zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public Boolean getIsActive() {
+        return active;
+    }
+
+    public void setIsActive(Boolean active) {
+        this.active = active;
+    }
 
 }

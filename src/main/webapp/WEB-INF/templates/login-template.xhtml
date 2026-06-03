@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<f:view locale="#{languageBean.locale}">
+    <h:head>
+        <title>
+            <ui:insert name="title">
+                #{msg['login.pageTitle']}
+            </ui:insert>
+        </title>
+
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+        <link rel="icon" type="image/png" href="#{request.contextPath}/images/icons/favicon.ico"/>
+
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/vendor/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/fonts/font-awesome-4.7.0/css/font-awesome.min.css"/>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/fonts/Linearicons-Free-v1.0.0/icon-font.min.css"/>
+
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/css/CSSLogin2.css"/>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/css/CSSLogin.css"/>
+    </h:head>
+
+    <h:body>
+        <h:form styleClass="language-switcher">
+            <button type="button" class="language-globe">
+                <i class="fa fa-globe"></i>
+            </button>
+
+            <div class="language-menu">
+                <h:commandLink action="#{languageBean.setFrench}" styleClass="language-option">
+                    Français
+                </h:commandLink>
+
+                <h:commandLink action="#{languageBean.setEnglish}" styleClass="language-option">
+                    English
+                </h:commandLink>
+            </div>
+        </h:form>
+
+        <div class="limiter">
+            <div class="container-login100" style="background-image: url('#{request.contextPath}/images/bg-01.jpg');">
+                <div class="wrap-login100 p-t-30 p-b-50">
+                    <ui:insert name="content"/>
+                </div>
+            </div>
+        </div>
+
+        <script src="#{request.contextPath}/vendor/jquery/jquery-3.2.1.min.js"></script>
+        <script src="#{request.contextPath}/vendor/bootstrap/js/popper.js"></script>
+        <script src="#{request.contextPath}/vendor/bootstrap/js/bootstrap.min.js"></script>
+        <script src="#{request.contextPath}/js/JSLogin.js"></script>
+    </h:body>
+</f:view>
+</html>

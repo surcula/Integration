@@ -1,109 +1,50 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<f:view locale="#{languageBean.locale}">
-    <h:head>
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-        <title>#{msg['login.pageTitle']}</title>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <!--===============================================================================================-->
-        <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="fonts/Linearicons-Free-v1.0.0/icon-font.min.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="css/CSSLogin2.css"/>
-        <link rel="stylesheet" type="text/css" href="css/CSSLogin.css"/>
-        <!--===============================================================================================-->
-    </h:head>
-    <h:body>
-        <h:form styleClass="language-switcher">
-            <button type="button" class="language-globe">
-                <i class="fa fa-globe"></i>
-            </button>
+<ui:composition template="/WEB-INF/templates/login-template.xhtml">
 
-            <div class="language-menu">
-                <h:commandLink action="#{languageBean.setFrench}" styleClass="language-option">
-                    Français
-                </h:commandLink>
+    <ui:define name="title">
+        #{msg['login.pageTitle']}
+    </ui:define>
 
-                <h:commandLink action="#{languageBean.setEnglish}" styleClass="language-option">
-                    English
-                </h:commandLink>
+    <ui:define name="content">
+
+        <span class="login100-form-title p-b-41">
+            #{msg['login.title']}
+        </span>
+
+        <h:form styleClass="login100-form validate-form p-b-33 p-t-5">
+
+            <div class="wrap-input100 validate-input" data-validate="#{msg['login.emailRequired']}">
+                <input class="input100"
+                       type="email"
+                       name="email"
+                       placeholder="#{msg['login.email']}"
+                       data-required-message="#{msg['login.emailRequired']}"
+                       data-invalid-message="#{msg['login.emailInvalid']}"/>
+                <span class="focus-input100" data-placeholder="&#xe82a;"></span>
             </div>
+
+            <div class="wrap-input100 validate-input" data-validate="#{msg['login.passwordRequired']}">
+                <input class="input100"
+                       type="password"
+                       name="password"
+                       placeholder="#{msg['login.password']}"
+                       data-required-message="#{msg['login.passwordRequired']}"/>
+                <span class="focus-input100" data-placeholder="&#xe80f;"></span>
+            </div>
+
+            <div class="container-login100-form-btn m-t-32">
+                <button class="login100-form-btn login-button" disabled="disabled">
+                    #{msg['login.submit']}
+                </button>
+            </div>
+
         </h:form>
 
-        <div class="limiter">
-            <div class="container-login100" style="background-image: url('images/bg-01.jpg');">
-                <div class="wrap-login100 p-t-30 p-b-50">
-				<span class="login100-form-title p-b-41">
-					#{msg['login.title']}
-				</span>
-                    <h:form styleClass="login100-form validate-form p-b-33 p-t-5">
+    </ui:define>
 
-                        <div class="wrap-input100 validate-input" data-validate="#{msg['login.emailRequired']}">
-                            <input class="input100" type="email" name="email" placeholder="#{msg['login.email']}"
-                                   data-required-message="#{msg['login.emailRequired']}"
-                                   data-invalid-message="#{msg['login.emailInvalid']}"/>
-                            <span class="focus-input100" data-placeholder="&#xe82a;"></span>
-                        </div>
-
-                        <div class="wrap-input100 validate-input"
-                             data-validate="#{msg['login.passwordRequired']}">
-                            <input class="input100"
-                                   type="password"
-                                   name="password"
-                                   placeholder="#{msg['login.password']}"
-                                   data-required-message="#{msg['login.passwordRequired']}"/>
-                            <span class="focus-input100" data-placeholder="&#xe80f;"></span>
-                        </div>
-
-                        <div class="container-login100-form-btn m-t-32">
-                            <button class="login100-form-btn login-button" disabled="disabled">
-                                #{msg['login.submit']}
-                            </button>
-                        </div>
-
-                    </h:form>
-                </div>
-            </div>
-        </div>
-
-
-        <div id="dropDownSelect1"></div>
-
-        <!--===============================================================================================-->
-        <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/animsition/js/animsition.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/bootstrap/js/popper.js"></script>
-        <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/select2/select2.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/daterangepicker/moment.min.js"></script>
-        <script src="vendor/daterangepicker/daterangepicker.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/countdowntime/countdowntime.js"></script>
-        <!--===============================================================================================-->
-        <script src="js/JSLogin.js"></script>
-
-    </h:body>
-</f:view>
+</ui:composition>
 </html>

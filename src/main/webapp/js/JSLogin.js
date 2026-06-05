@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector(".login100-form");
-    const emailInput = document.querySelector("input[name='email']");
-    const passwordInput = document.querySelector("input[name='password']");
+    const emailInput = document.querySelector(".login-email-input");
+    const passwordInput = document.querySelector(".login-password-input");
     const loginButton = document.querySelector(".login-button");
 
     if (!form || !emailInput || !passwordInput || !loginButton) {

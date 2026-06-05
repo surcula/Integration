@@ -523,6 +523,17 @@ iframe {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.login-error-message {
+  color: #c80000;
+  text-align: center;
+  font-size: 14px;
+  margin: 16px 20px 0;
+  padding: 0;
+}
+
+.login-error-message li {
+  list-style: none;
+}
 
 
 

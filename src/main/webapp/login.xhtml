@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 <ui:composition template="/WEB-INF/templates/login-template.xhtml">
 
@@ -18,28 +19,36 @@
         <h:form styleClass="login100-form validate-form p-b-33 p-t-5">
 
             <div class="wrap-input100 validate-input" data-validate="#{msg['login.emailRequired']}">
-                <input class="input100"
-                       type="email"
-                       name="email"
-                       placeholder="#{msg['login.email']}"
-                       data-required-message="#{msg['login.emailRequired']}"
-                       data-invalid-message="#{msg['login.emailInvalid']}"/>
+                <h:inputText styleClass="input100 login-email-input"
+                             value="#{employeeBean.email}"
+                             id="email"
+                             pt:type="email"
+                             pt:placeholder="#{msg['login.email']}"
+                             pt:data-required-message="#{msg['login.emailRequired']}"
+                             pt:data-invalid-message="#{msg['login.emailInvalid']}"/>
                 <span class="focus-input100" data-placeholder="&#xe82a;"></span>
             </div>
 
             <div class="wrap-input100 validate-input" data-validate="#{msg['login.passwordRequired']}">
-                <input class="input100"
-                       type="password"
-                       name="password"
-                       placeholder="#{msg['login.password']}"
-                       data-required-message="#{msg['login.passwordRequired']}"/>
+                <h:inputSecret styleClass="input100 login-password-input"
+                               value="#{employeeBean.password}"
+                               id="password"
+                               pt:placeholder="#{msg['login.password']}"
+                               pt:data-required-message="#{msg['login.passwordRequired']}"/>
                 <span class="focus-input100" data-placeholder="&#xe80f;"></span>
             </div>
 
+
+            <h:messages globalOnly="true"
+                        layout="list"
+                        styleClass="login-error-message"/>
+
             <div class="container-login100-form-btn m-t-32">
-                <button class="login100-form-btn login-button" disabled="disabled">
-                    #{msg['login.submit']}
-                </button>
+                <h:commandButton id="loginButton"
+                                 styleClass="login100-form-btn login-button"
+                                 value="#{msg['login.submit']}"
+                                 action="#{employeeBean.login}"
+                                 />
             </div>
 
         </h:form>

@@ -5,6 +5,26 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getEmployeeById",
+                query = "SELECT e FROM Employee e WHERE e.id = :id"
+        ),
+        @NamedQuery(
+                name = "getEmployeeByEmail",
+                query = "SELECT e FROM Employee e WHERE e.email = :email"
+        ),
+        @NamedQuery(
+                name = "getAllActiveEmployees",
+                query = "SELECT e FROM Employee e WHERE e.isActive = true ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
+                name = "getAllEmployees",
+                query = "SELECT e FROM Employee e ORDER BY e.lastName, e.firstName"
+        )
+})
+
+
 @Entity
 @Table(name = "employees")
 public class Employee {

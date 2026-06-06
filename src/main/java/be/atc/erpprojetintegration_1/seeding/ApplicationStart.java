@@ -13,6 +13,7 @@ public class ApplicationStart implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        System.out.println("APPLICATION START - SEEDING");
         employeeStart.createDefaultAdminIfNotExists();
     }
 

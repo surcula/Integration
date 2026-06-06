@@ -1,31 +1,16 @@
 package be.atc.erpprojetintegration_1.tools;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import java.util.ResourceBundle;
 
-/**
- * Utility class used to retrieve localized messages from the JSF resource bundle.
- * <p>
- * This class centralizes access to the application's message files, such as
- * {@code messages_fr.properties} and {@code messages_en.properties}.
- * It uses the current JSF view locale to return the message in the active language.
- */
 public final class MessageUtils {
 
     private static final String BUNDLE_NAME = "be.atc.messages.messages";
 
-    /**
-     * Private constructor to prevent instantiation of this utility class.
-     */
     private MessageUtils() {
     }
 
-    /**
-     * Retrieves a localized message from the application's resource bundle.
-     *
-     * @param key the key of the message to retrieve
-     * @return the localized message matching the given key and current JSF locale
-     */
     public static String getMessage(String key) {
         FacesContext context = FacesContext.getCurrentInstance();
 
@@ -35,5 +20,30 @@ public final class MessageUtils {
         );
 
         return bundle.getString(key);
+    }
+
+    public static void addErrorMessages(Result<?> result, String defaultMessageKey) {
+        if (result == null || result.getErrors() == null || result.getErrors().isEmpty()) {
+            addErrorMessage(defaultMessageKey);
+            return;
+        }
+
+        for (String messageKey : result.getErrors().values()) {
+            addErrorMessage(messageKey);
+        }
+    }
+
+    public static void addErrorMessage(String messageKey) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        getMessage(messageKey),
+                        null));
+    }
+
+    public static void addInfoMessage(String messageKey) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        getMessage(messageKey),
+                        null));
     }
 }

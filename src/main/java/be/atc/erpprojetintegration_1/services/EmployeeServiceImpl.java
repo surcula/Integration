@@ -6,6 +6,7 @@ import be.atc.erpprojetintegration_1.tools.EMF;
 import be.atc.erpprojetintegration_1.tools.Result;
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +18,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
     // Log4j
     private static final Logger log = Logger.getLogger(EmployeeServiceImpl.class);
 
-    @Override
-    public Result<Employee> login(String email, String password) {
-        return null;
-    }
 
     @Override
     public Result<Employee> getById(Integer id) {
@@ -52,7 +49,33 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Result<Employee> getByEmail(String email) {
-        return null;
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching employee by email: " + email);
+
+            Employee employee = em.createNamedQuery("getEmployeeByEmail", Employee.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+
+            log.info("Employee found with email: " + email);
+            return Result.ok(employee);
+
+        } catch (NoResultException ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("notFound", "Aucun employee trouvé avec l'email " + email);
+            log.warn("No employee found with email: " + email);
+            return Result.fail(errors);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+            log.error("Error while searching employee by email: " + email, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -67,7 +90,32 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Result<Employee> create(Employee employee) {
-        return null;
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Creating employee");
+
+            em.getTransaction().begin();
+            em.persist(employee);
+            em.getTransaction().commit();
+
+            log.info("Employee created with id: " + employee.getId());
+            return Result.ok(employee);
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while creating employee", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
     }
 
     @Override

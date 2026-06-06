@@ -4,13 +4,11 @@ import be.atc.erpprojetintegration_1.business.EmployeeBusiness;
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
-import java.util.ResourceBundle;
-import javax.faces.context.FacesContext;
-import javax.faces.application.FacesMessage;
 import javax.enterprise.context.RequestScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 
 @Named
 @RequestScoped
@@ -20,6 +18,17 @@ public class EmployeeBean {
 
     @Inject
     private EmployeeBusiness employeeBusiness;
+
+    public String login() {
+        Result<Employee> result = employeeBusiness.login(email, password);
+
+        if (result == null || !result.isSuccess()) {
+            MessageUtils.addErrorMessages(result,"login.error.invalid");
+            return null;
+        }
+
+        return "hub?faces-redirect=true";
+    }
 
     public String getEmail() {
         return email;
@@ -36,33 +45,4 @@ public class EmployeeBean {
     public void setPassword(String password) {
         this.password = password;
     }
-
-
-
-    public String login(){
-        Result<Employee> result = employeeBusiness.login(email,password);
-
-        if ( result == null || !result.isSuccess()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            MessageUtils.getMessage("login.error.invalid"),
-                            null
-                    ));
-            return null;
-        }
-
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-
-        facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Connexion réussie",
-                        "Vous êtes connectée"));
-
-        facesContext.getExternalContext().getFlash().setKeepMessages(true);
-
-        return "hub?faces-redirect=true";
-
-    }
-
-
 }

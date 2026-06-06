@@ -1,5 +1,6 @@
 package be.atc.erpprojetintegration_1.business;
 
+import be.atc.erpprojetintegration_1.dto.ConnectedEmployeeDto;
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.interfaces.IEmployeeService;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -24,7 +25,7 @@ public class EmployeeBusiness {
      * @param password
      * @return
      */
-    public Result<Employee> login(String email, String password) {
+    public Result<ConnectedEmployeeDto> login(String email, String password) {
 
         Result<Void> validationResult = validateLoginForm(email, password);
         if (!validationResult.isSuccess()) {

@@ -1,9 +1,14 @@
 package be.atc.erpprojetintegration_1.entities;
 
+import be.atc.erpprojetintegration_1.enums.Civilite;
+import be.atc.erpprojetintegration_1.enums.Gender;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @NamedQueries({
         @NamedQuery(
@@ -21,6 +26,15 @@ import java.time.LocalDate;
         @NamedQuery(
                 name = "getAllEmployees",
                 query = "SELECT e FROM Employee e ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
+                name = "getAllActiveEmployeesWithDepartments",
+                query = "SELECT DISTINCT e " +
+                        "FROM Employee e " +
+                        "LEFT JOIN FETCH e.employeeDepartments ed " +
+                        "LEFT JOIN FETCH ed.department d " +
+                        "WHERE e.isActive = true " +
+                        "ORDER BY e.lastName, e.firstName"
         )
 })
 
@@ -64,13 +78,13 @@ public class Employee {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Size(max = 10)
-    @Column(name = "civilite", length = 10)
-    private String civilite;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "civilite", length = 20)
+    private Civilite civilite;
 
-    @Size(max = 10)
-    @Column(name = "gender", length = 10)
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", length = 20)
+    private Gender gender;
 
     @Size(max = 50)
     @Column(name = "employment_status", length = 50)
@@ -93,6 +107,17 @@ public class Employee {
     @JoinColumn(name = "role_id")
     private Role role;
 
+
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private List<EmployeeDepartment> employeeDepartments = new ArrayList<>();
+
+    public List<EmployeeDepartment> getEmployeeDepartments() {
+        return employeeDepartments;
+    }
+
+    public void setEmployeeDepartments(List<EmployeeDepartment> employeeDepartments) {
+        this.employeeDepartments = employeeDepartments;
+    }
     public Integer getId() {
         return id;
     }
@@ -157,19 +182,19 @@ public class Employee {
         this.password = password;
     }
 
-    public String getCivilite() {
+    public Civilite getCivilite() {
         return civilite;
     }
 
-    public void setCivilite(String civilite) {
+    public void setCivilite(Civilite civilite) {
         this.civilite = civilite;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 

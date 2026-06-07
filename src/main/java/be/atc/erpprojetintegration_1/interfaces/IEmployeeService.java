@@ -1,5 +1,6 @@
 package be.atc.erpprojetintegration_1.interfaces;
 
+import be.atc.erpprojetintegration_1.dto.EmployeeProfileDto;
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.tools.Result;
 
@@ -29,6 +30,14 @@ public interface IEmployeeService {
      * @return a Result containing the list of active employees, or an error if the operation fails
      */
     Result<List<Employee>> getAllActive();
+
+    /**
+     * Retrieves all active employees with their department relation when one exists.
+     *
+     * @return a Result containing the list of active employees with department data,
+     *         or an error if the operation fails
+     */
+    Result<List<Employee>> getAllActiveWithDepartments();
 
     /**
      * Retrieves all employees, including inactive ones.
@@ -63,4 +72,6 @@ public interface IEmployeeService {
      *         or an error if no employee matches the given id or if the operation fails
      */
     Result<Void> deactivate(Integer id);
+
+
 }

@@ -1616,3 +1616,107 @@ html[data-theme="dark"] {
   border-top-color: var(--admin-sidebar-border);
   color: var(--admin-sidebar-text);
 }
+
+.erp-data-table.ui-datatable,
+.erp-data-table .ui-datatable-tablewrapper,
+.erp-data-table .ui-datatable-tablewrapper table {
+  border: 0;
+  background: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+}
+
+.erp-data-table.ui-widget,
+.erp-data-table .ui-widget-content,
+.erp-data-table .ui-datatable-data {
+  background: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+}
+
+.erp-data-table thead th,
+.erp-data-table .ui-datatable-thead > tr > th {
+  border: 0;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-surface-soft) !important;
+  color: var(--admin-muted) !important;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.erp-data-table tbody td,
+.erp-data-table .ui-datatable-data > tr > td {
+  border: 0;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+  padding: 1rem;
+}
+
+.erp-data-table tbody tr,
+.erp-data-table .ui-datatable-data > tr {
+  border: 0;
+  background: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+}
+
+.erp-data-table tbody tr:hover,
+.erp-data-table .ui-datatable-data > tr:hover {
+  background: var(--admin-surface-soft) !important;
+}
+
+.erp-data-table tbody tr:hover td,
+.erp-data-table .ui-datatable-data > tr:hover > td {
+  background: var(--admin-surface-soft) !important;
+}
+
+.erp-data-table .ui-paginator {
+  border: 0;
+  background: var(--admin-surface) !important;
+  color: var(--admin-muted) !important;
+  padding: 1rem 0 0;
+}
+
+.erp-data-table .ui-paginator-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 0 1rem;
+}
+
+.erp-data-table .ui-paginator-top .ui-paginator-first,
+.erp-data-table .ui-paginator-top .ui-paginator-prev,
+.erp-data-table .ui-paginator-top .ui-paginator-pages,
+.erp-data-table .ui-paginator-top .ui-paginator-next,
+.erp-data-table .ui-paginator-top .ui-paginator-last {
+  display: none;
+}
+
+.erp-data-table .ui-paginator-bottom .ui-paginator-rpp-options {
+  display: none;
+}
+
+.erp-data-table .ui-paginator .ui-paginator-page,
+.erp-data-table .ui-paginator .ui-paginator-first,
+.erp-data-table .ui-paginator .ui-paginator-prev,
+.erp-data-table .ui-paginator .ui-paginator-next,
+.erp-data-table .ui-paginator .ui-paginator-last {
+  min-width: 2rem;
+  height: 2rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-muted);
+}
+
+.erp-data-table .ui-paginator .ui-state-active {
+  border-color: var(--admin-primary);
+  background: var(--admin-primary);
+  color: #ffffff;
+}
+
+.erp-data-table .ui-paginator .ui-paginator-rpp-options {
+  height: 2rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}

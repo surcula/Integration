@@ -4,49 +4,108 @@
       xmlns:h="http://java.sun.com/jsf/html">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-
     <ui:define name="title">
-        Profil
+        #{msg['profile.pageTitle']}
     </ui:define>
-
     <ui:define name="content">
-
-
-                <div class="page-heading">
-                    <div class="page-heading-copy">
-                        <span class="badge text-bg-primary">#{authBean.connectedEmployeeRoleName}</span>
-                        <div>
-                            <p class="eyebrow mb-1">Account</p>
-                            <h1 class="h3 mb-1">Profile</h1>
-                            <p class="text-muted mb-0">Manage your personal details</p>
-                        </div>
-                    </div>
-                    <h:messages globalOnly="true" styleClass="text-danger"/>
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon">
+                    <i class="bi bi-person-badge" aria-hidden="true"></i>
+                </span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['profile.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['profile.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['profile.subtitle']}</p>
                 </div>
-
-                <section class="row g-3">
-                    <div class="col-12 col-xl-4">
-                        <div class="panel h-100 text-center profile-card">
-                            <h2 class="h5 mt-3 mb-1">#{authBean.connectedEmployeeFullName}</h2>
-                            <p class="text-muted mb-3">#{authBean.connectedEmployeeRoleName}</p>
-
-                            <div class="info-list mt-4 text-start">
-                                <div>
-                                    <span>Email</span>
-                                    <strong>#{authBean.connectedEmployee.email}</strong>
-                                </div>
-                                <div>
-                                    <span>Department</span>
-                                    <strong>-</strong>
-                                </div>
-                            </div>
+            </div>
+            <h:messages globalOnly="true" styleClass="text-danger"/>
+        </div>
+        <section class="row g-3">
+            <div class="col-12 col-xl-4">
+                <div class="panel h-100 text-center profile-card">
+                    <img class="avatar-img avatar-xl profile-photo"
+                         src="#{request.contextPath}/app-assets/images/avatar/avatar.jpg"
+                         alt="#{msg['profile.userPicture']}"/>
+                    <h2 class="h5 mt-3 mb-1">
+                        #{profileBean.employeeProfileDto.firstName} #{profileBean.employeeProfileDto.lastName}
+                    </h2>
+                    <div class="info-list mt-4 text-start">
+                        <div>
+                            <span>#{msg['profile.email']}</span>
+                            <strong>#{profileBean.employeeProfileDto.email}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.department']}</span>
+                            <strong>#{profileBean.employeeProfileDto.departmentName}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.employeeNumber']}</span>
+                            <strong>#{profileBean.employeeProfileDto.employeeNumber}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.address']}</span>
+                            <strong>
+                                #{profileBean.employeeProfileDto.streetName}
+                                #{profileBean.employeeProfileDto.streetNumber}
+                                #{profileBean.employeeProfileDto.boxNumber}
+                            </strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.city']}</span>
+                            <strong>
+                                #{profileBean.employeeProfileDto.zipCode}
+                                #{profileBean.employeeProfileDto.cityName}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-8">
+                <div class="panel h-100">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="h5 mb-1 section-title">
+                                <i class="bi bi-person-lines-fill" aria-hidden="true"></i>
+                                <span>#{msg['profile.personalInformation']}</span>
+                            </h2>
+                            <p class="text-muted mb-0">#{msg['profile.readOnly']}</p>
                         </div>
                     </div>
 
-                </section>
-
-
+                    <div class="info-list text-start">
+                        <div>
+                            <span>#{msg['profile.firstName']}</span>
+                            <strong>#{profileBean.employeeProfileDto.firstName}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.lastName']}</span>
+                            <strong>#{profileBean.employeeProfileDto.lastName}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.phone']}</span>
+                            <strong>#{profileBean.employeeProfileDto.phone}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.birthDate']}</span>
+                            <strong>#{profileBean.employeeProfileDto.birthDate}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.placeOfBirth']}</span>
+                            <strong>#{profileBean.employeeProfileDto.placeOfBirth}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.civilite']}</span>
+                            <strong>#{profileBean.employeeProfileDto.civilite}</strong>
+                        </div>
+                        <div>
+                            <span>#{msg['profile.gender']}</span>
+                            <strong>#{profileBean.employeeProfileDto.gender}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </ui:define>
-
 </ui:composition>
 </html>

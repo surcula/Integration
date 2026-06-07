@@ -14,6 +14,11 @@ public class EmployeeProfileDto {
     private String employeeNumber;
     private String departmentName;
     private String firstName;
+    private String streetName;
+    private String streetNumber;
+    private String boxNumber;
+    private String cityName;
+    private Integer zipCode;
 
     public String getFirstName() {
         return firstName;
@@ -95,5 +100,44 @@ public class EmployeeProfileDto {
         this.departmentName = departmentName;
     }
 
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public String getStreetNumber() {
+        return streetNumber;
+    }
+
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    public String getBoxNumber() {
+        return boxNumber;
+    }
+
+    public void setBoxNumber(String boxNumber) {
+        this.boxNumber = boxNumber;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public Integer getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(Integer zipCode) {
+        this.zipCode = zipCode;
+    }
 
 }

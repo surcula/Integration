@@ -84,6 +84,32 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
+    public Result<List<Employee>> getAllActiveWithDepartments() {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching all active employees with departments");
+
+            List<Employee> employees = em
+                    .createNamedQuery("getAllActiveEmployeesWithDepartments", Employee.class)
+                    .getResultList();
+
+            log.info("Active employees found: " + employees.size());
+            return Result.ok(employees);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while searching all active employees with departments", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<List<Employee>> getAll() {
         return null;
     }

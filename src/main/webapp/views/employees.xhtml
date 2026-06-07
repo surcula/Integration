@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+
+    <ui:define name="title">
+        #{msg['employees.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon">
+                    <i class="bi bi-people"></i>
+                </span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['employees.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['employees.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['employees.subtitle']}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="employeesForm">
+                    <p:dataTable value="#{employeesBean.employees}"
+                                 var="employee"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="both"
+                                 emptyMessage="#{msg['employees.empty']}">
+
+                        <p:column headerText="#{msg['employees.fullName']}" sortBy="#{employee.fullName}">
+                            <strong>
+                                #{employee.fullName}
+                            </strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['employees.department']}" sortBy="#{employee.departmentName}">
+                            #{employee.departmentName}
+                        </p:column>
+
+                        <p:column headerText="#{msg['employees.phone']}">
+                            #{employee.phone}
+                        </p:column>
+
+                        <p:column headerText="#{msg['employees.email']}" sortBy="#{employee.email}">
+                            #{employee.email}
+                        </p:column>
+
+                        <p:column headerText="#{msg['employees.action']}" rendered="#{authBean.hrOrAdmin}">
+                            <h:link outcome="/views/employee-edit"
+                                    styleClass="btn btn-sm btn-primary">
+                                #{msg['employees.edit']}
+                                <f:param name="id" value="#{employee.id}"/>
+                            </h:link>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>
+
+</html>

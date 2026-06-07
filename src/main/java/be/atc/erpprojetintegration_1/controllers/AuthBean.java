@@ -98,6 +98,9 @@ public class AuthBean implements Serializable {
 
         return connectedEmployee.getRoleName();
     }
+    public boolean isHrOrAdmin() {
+        return hasRole("HR") || hasRole("ADMIN");
+    }
 
     public String getEmail() {
         return email;

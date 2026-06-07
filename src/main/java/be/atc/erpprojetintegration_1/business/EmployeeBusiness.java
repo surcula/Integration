@@ -18,41 +18,6 @@ public class EmployeeBusiness {
     private IEmployeeService employeeService;
 
 
-    /**
-     * Orchestration LOGIN
-     *
-     * @param email
-     * @param password
-     * @return
-     */
-    public Result<ConnectedEmployeeDto> login(String email, String password) {
-
-        Result<Void> validationResult = validateLoginForm(email, password);
-        if (!validationResult.isSuccess()) {
-            return Result.fail(validationResult.getErrors());
-        }
-
-        Result<Employee> employeeByEmail = employeeService.getByEmail(email);
-
-        if (employeeByEmail == null ||
-                !employeeByEmail.isSuccess() ||
-                employeeByEmail.getData() == null) {
-
-            Map<String, String> errors = new HashMap<>();
-            errors.put("login", "login.error.invalid");
-            return Result.fail(errors);
-        }
-
-        Employee employee = employeeByEmail.getData();
-
-        if (!checkPassword(password, employee.getPassword())) {
-            Map<String, String> errors = new HashMap<>();
-            errors.put("login", "login.error.invalid");
-            return Result.fail(errors);
-        }
-        employee.setPassword(null);
-        return Result.ok(employee);
-    }
 
     private boolean checkPassword(String password, String hashedPassword) {
         return BCrypt.checkpw(password, hashedPassword);
@@ -70,7 +35,7 @@ public class EmployeeBusiness {
      * @param password
      * @return
      */
-    private Result<Void> validateLoginForm(String email, String password) {
+    public Result<Void> validateLoginForm(String email, String password) {
         Map<String, String> errors = new HashMap<>();
 
         FormValidator.required(email, "email", "login.email.required", errors);

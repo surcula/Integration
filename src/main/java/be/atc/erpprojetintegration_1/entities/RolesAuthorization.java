@@ -4,6 +4,19 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+
+@NamedQueries({
+        @NamedQuery(
+                name = "getAuthorizationNamesByRoleId",
+                query = "SELECT ra.authorization.authorizationName " +
+                        "FROM RolesAuthorization ra " +
+                        "WHERE ra.role.id = :roleId " +
+                        "AND ra.isActive = true " +
+                        "AND ra.authorization.isActive = true " +
+                        "AND ra.role.isActive = true"
+        )
+})
+
 @Entity
 @Table(name = "roles_authorization")
 public class RolesAuthorization {

@@ -12,7 +12,7 @@ import java.time.LocalDate;
         ),
         @NamedQuery(
                 name = "getEmployeeByEmail",
-                query = "SELECT e FROM Employee e WHERE e.email = :email"
+                query = "SELECT e FROM Employee e LEFT JOIN FETCH e.role WHERE e.email = :email"
         ),
         @NamedQuery(
                 name = "getAllActiveEmployees",

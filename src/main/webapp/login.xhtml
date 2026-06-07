@@ -20,7 +20,7 @@
 
             <div class="wrap-input100 validate-input" data-validate="#{msg['login.emailRequired']}">
                 <h:inputText styleClass="input100 login-email-input"
-                             value="#{employeeBean.email}"
+                             value="#{authBean.email}"
                              id="email"
                              pt:type="email"
                              pt:placeholder="#{msg['login.email']}"
@@ -31,7 +31,7 @@
 
             <div class="wrap-input100 validate-input" data-validate="#{msg['login.passwordRequired']}">
                 <h:inputSecret styleClass="input100 login-password-input"
-                               value="#{employeeBean.password}"
+                               value="#{authBean.password}"
                                id="password"
                                pt:placeholder="#{msg['login.password']}"
                                pt:data-required-message="#{msg['login.passwordRequired']}"/>
@@ -47,7 +47,7 @@
                 <h:commandButton id="loginButton"
                                  styleClass="login100-form-btn login-button"
                                  value="#{msg['login.submit']}"
-                                 action="#{employeeBean.login}"
+                                 action="#{authBean.login}"
                                  />
             </div>
 

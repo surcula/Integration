@@ -1,10 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-</body>
+<f:view locale="#{languageBean.locale}">
+    <h:head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="description" content="adminHMD professional admin dashboard template"/>
+        <title>
+            <ui:insert name="title">ERP RH</ui:insert>
+        </title>
+
+        <link rel="stylesheet" href="#{request.contextPath}/app-assets/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="#{request.contextPath}/app-assets/vendors/bootstrap-icons/bootstrap-icons.css"/>
+        <link rel="stylesheet" href="#{request.contextPath}/app-assets/css/style.css"/>
+    </h:head>
+
+    <h:body>
+
+        <div class="admin-shell">
+            <div class="sidebar-backdrop" data-sidebar-close="true"></div>
+
+            <aside class="admin-sidebar" id="adminSidebar" aria-label="Main navigation">
+                <div class="sidebar-header">
+                    <a class="brand-mark" href="index.html" aria-label="adminHMD dashboard">
+                        <span class="brand-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span>
+                        <span class="brand-copy">
+            <span class="brand-title">ERP RH</span>
+            <span class="brand-subtitle">Admin Template</span>
+          </span>
+                    </a>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a class="nav-link" href="#{request.contextPath}/hub.xhtml">
+                        <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/employees/list.xhtml">
+                        <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                        <span class="nav-text">Users</span>
+                    </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/employees/create.xhtml">
+                        <span class="nav-icon"><i class="bi bi-person-plus" aria-hidden="true"></i></span>
+                        <span class="nav-text">Planning</span>
+                    </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/profile.xhtml">
+                        <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                    <a class="nav-link" href="charts.html">
+                        <span class="nav-icon"><i class="bi bi-bar-chart-line" aria-hidden="true"></i></span>
+                        <span class="nav-text">Charts</span>
+                    </a>
+                    <a class="nav-link" href="tables.html">
+                        <span class="nav-icon"><i class="bi bi-table" aria-hidden="true"></i></span>
+                        <span class="nav-text">Tables</span>
+                    </a>
+                    <a class="nav-link" href="forms.html">
+                        <span class="nav-icon"><i class="bi bi-ui-checks-grid" aria-hidden="true"></i></span>
+                        <span class="nav-text">Forms</span>
+                    </a>
+                    <a class="nav-link" href="components.html">
+                        <span class="nav-icon"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i></span>
+                        <span class="nav-text">Components</span>
+                    </a>
+                    <a class="nav-link" href="alerts.html">
+                        <span class="nav-icon"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
+                        <span class="nav-text">Alerts</span>
+                    </a>
+                    <a class="nav-link" href="modals.html">
+                        <span class="nav-icon"><i class="bi bi-window-stack" aria-hidden="true"></i></span>
+                        <span class="nav-text">Modals</span>
+                    </a>
+                    <a class="nav-link" href="settings.html">
+                        <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                    <h:form styleClass="sidebar-logout-form">
+                        <h:commandLink action="#{authBean.logout}" styleClass="nav-link">
+                            <span class="nav-icon">
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                            </span>
+                            <span class="nav-text">Déconnexion</span>
+                        </h:commandLink>
+                    </h:form>
+                </nav>
+
+                <div class="sidebar-user">
+                    <img class="avatar-img avatar-md sidebar-user-avatar"
+                         src="#{request.contextPath}/app-assets/images/avatar/avatar.jpg" alt="User picture"/>
+                    <strong>#{authBean.connectedEmployeeFullName}</strong>
+                </div>
+
+                <div class="sidebar-footer">
+                    <span class="status-dot"></span>
+                    <span class="sidebar-footer-text">System running smoothly</span>
+                </div>
+            </aside>
+
+            <div class="admin-main">
+                <nav class="navbar admin-navbar navbar-expand bg-white">
+                    <div class="container-fluid px-3 px-lg-4">
+                        <button class="sidebar-toggle"
+                                type="button"
+                                data-sidebar-toggle="true"
+                                aria-controls="adminSidebar"
+                                aria-expanded="true"
+                                aria-label="Toggle sidebar">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+
+                        <form class="d-none d-md-flex ms-3 flex-grow-1" role="search">
+                            <input class="form-control search-input" type="search"
+                                   placeholder="Search users, orders, reports" aria-label="Search"/>
+                        </form>
+
+                        <div class="navbar-actions ms-auto">
+                            <button class="icon-button theme-toggle" type="button" data-theme-toggle="true"
+                                    aria-label="Switch color theme" title="Switch color theme">
+                                <i class="bi bi-moon-stars" data-theme-icon="true" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown">
+                                <button class="icon-button" type="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false" aria-label="Notifications">
+                                    <span class="notification-dot"></span>
+                                    <i class="bi bi-bell" aria-hidden="true"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end notification-menu">
+                                    <div class="dropdown-header fw-bold text-body">Notifications</div>
+                                    <a class="dropdown-item" href="users.html">
+                                        <span class="notification-title">New user registered</span>
+                                        <span class="notification-time">4 minutes ago</span>
+                                    </a>
+                                    <a class="dropdown-item" href="charts.html">
+                                        <span class="notification-title">Revenue target reached</span>
+                                        <span class="notification-time">32 minutes ago</span>
+                                    </a>
+                                    <a class="dropdown-item" href="settings.html">
+                                        <span class="notification-title">Security review completed</span>
+                                        <span class="notification-time">1 hour ago</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    <img class="avatar-img avatar-sm"
+                                         src="#{request.contextPath}/app-assets/images/avatar/avatar.jpg"
+                                         alt="User picture"/>
+                                    <span class="profile-name d-none d-sm-inline">#{authBean.connectedEmployeeFullName}</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                                    <li><a class="dropdown-item" href="settings.html">Account settings</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider"/>
+                                    </li>
+                                    <li><a class="dropdown-item" href="login.html">Sign out</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <main class="dashboard-content">
+                    <div class="container-fluid px-3 px-lg-4 py-4">
+                        <ui:insert name="content"/>
+                    </div>
+                </main>
+
+                <footer class="admin-footer">
+                    <div class="container-fluid px-3 px-lg-4">
+                        <span>ERP RH Medical - 2026</span>
+                        <span><ui:insert name="footer">Application interne</ui:insert></span>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <script src="#{request.contextPath}/app-assets/js/bootstrap.bundle.min.js"></script>
+        <script src="#{request.contextPath}/app-assets/js/main.js"></script>
+
+    </h:body>
+</f:view>
 </html>

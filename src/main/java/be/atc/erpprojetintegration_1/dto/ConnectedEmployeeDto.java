@@ -1,11 +1,8 @@
 package be.atc.erpprojetintegration_1.dto;
 
-import be.atc.erpprojetintegration_1.entities.Address;
-import be.atc.erpprojetintegration_1.entities.Role;
+import java.io.Serializable;
 
-import java.time.LocalDate;
-
-public class ConnectedEmployeeDto {
+public class ConnectedEmployeeDto implements Serializable {
     private Integer id;
     private String firstName;
     private String lastName;

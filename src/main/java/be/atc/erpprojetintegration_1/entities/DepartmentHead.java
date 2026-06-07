@@ -16,6 +16,11 @@ public class DepartmentHead {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+
     @Column(name = "start_date")
     private LocalDate startDate;
 
@@ -24,12 +29,7 @@ public class DepartmentHead {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "superior_id")
-    private Superior superior;
-
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+    private Employee superior;
 
     public Integer getId() {
         return id;
@@ -43,8 +43,16 @@ public class DepartmentHead {
         return isActive;
     }
 
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
+    public void setIsActive(Boolean active) {
+        isActive = active;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
     public LocalDate getStartDate() {
@@ -63,20 +71,11 @@ public class DepartmentHead {
         this.endDate = endDate;
     }
 
-    public Superior getSuperior() {
+    public Employee getSuperior() {
         return superior;
     }
 
-    public void setSuperior(Superior superior) {
+    public void setSuperior(Employee superior) {
         this.superior = superior;
     }
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
 }

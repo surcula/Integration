@@ -33,9 +33,7 @@ public class Department {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_head_id")
-    private DepartmentHead departmentHead;
+
 
     public Integer getId() {
         return id;
@@ -85,12 +83,5 @@ public class Department {
         this.isActive = isActive;
     }
 
-    public DepartmentHead getDepartmentHead() {
-        return departmentHead;
-    }
-
-    public void setDepartmentHead(DepartmentHead departmentHead) {
-        this.departmentHead = departmentHead;
-    }
 
 }

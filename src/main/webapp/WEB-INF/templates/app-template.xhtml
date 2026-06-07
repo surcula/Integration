@@ -115,38 +115,41 @@
                             <span></span>
                         </button>
 
-                        <form class="d-none d-md-flex ms-3 flex-grow-1" role="search">
-                            <input class="form-control search-input" type="search"
-                                   placeholder="Search users, orders, reports" aria-label="Search"/>
-                        </form>
+
 
                         <div class="navbar-actions ms-auto">
+
+                            <h:form styleClass="language-form">
+                                <div class="dropdown">
+                                    <button class="icon-button dropdown-toggle"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            title="Language">
+                                        <i class="bi bi-globe2" aria-hidden="true"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <h:commandLink styleClass="dropdown-item"
+                                                           action="#{languageBean.setFrench}"
+                                                           value="Français"/>
+                                        </li>
+                                        <li>
+                                            <h:commandLink styleClass="dropdown-item"
+                                                           action="#{languageBean.setEnglish}"
+                                                           value="English"/>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </h:form>
+
+
                             <button class="icon-button theme-toggle" type="button" data-theme-toggle="true"
                                     aria-label="Switch color theme" title="Switch color theme">
                                 <i class="bi bi-moon-stars" data-theme-icon="true" aria-hidden="true"></i>
                             </button>
-                            <div class="dropdown">
-                                <button class="icon-button" type="button" data-bs-toggle="dropdown"
-                                        aria-expanded="false" aria-label="Notifications">
-                                    <span class="notification-dot"></span>
-                                    <i class="bi bi-bell" aria-hidden="true"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end notification-menu">
-                                    <div class="dropdown-header fw-bold text-body">Notifications</div>
-                                    <a class="dropdown-item" href="users.html">
-                                        <span class="notification-title">New user registered</span>
-                                        <span class="notification-time">4 minutes ago</span>
-                                    </a>
-                                    <a class="dropdown-item" href="charts.html">
-                                        <span class="notification-title">Revenue target reached</span>
-                                        <span class="notification-time">32 minutes ago</span>
-                                    </a>
-                                    <a class="dropdown-item" href="settings.html">
-                                        <span class="notification-title">Security review completed</span>
-                                        <span class="notification-time">1 hour ago</span>
-                                    </a>
-                                </div>
-                            </div>
+
 
                             <div class="dropdown">
                                 <button class="profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"

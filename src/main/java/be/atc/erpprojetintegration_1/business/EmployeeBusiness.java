@@ -1,6 +1,7 @@
 package be.atc.erpprojetintegration_1.business;
 
 import be.atc.erpprojetintegration_1.dto.ConnectedEmployeeDto;
+import be.atc.erpprojetintegration_1.dto.EmployeeProfileDto;
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.interfaces.IEmployeeService;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -50,4 +51,7 @@ public class EmployeeBusiness {
     }
 
 
+    public Result<EmployeeProfileDto> getProfile(Integer employeeId) {
+        return null;
+    }
 }

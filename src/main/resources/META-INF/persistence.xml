@@ -13,6 +13,8 @@
         <class>be.atc.erpprojetintegration_1.entities.Role</class>
         <class>be.atc.erpprojetintegration_1.entities.Authorization</class>
         <class>be.atc.erpprojetintegration_1.entities.RolesAuthorization</class>
+        <class>be.atc.erpprojetintegration_1.entities.Department</class>
+        <class>be.atc.erpprojetintegration_1.entities.DepartmentHead</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>

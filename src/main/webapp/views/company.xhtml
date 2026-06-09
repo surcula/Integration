@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">
+        #{msg['company.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon">
+                    <i class="bi bi-building"></i>
+                </span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['company.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['company.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['company.subtitle']}</p>
+                </div>
+            </div>
+        </div>
+
+        <h:panelGroup id="companyContent" layout="block">
+            <h:panelGroup rendered="#{empty companyBean.company}" layout="block" styleClass="panel">
+                <p class="text-muted mb-0">#{msg['company.empty']}</p>
+            </h:panelGroup>
+
+            <h:form id="companyForm" rendered="#{not empty companyBean.company}" styleClass="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-hospital"></i>
+                            <span>#{msg['company.form.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['company.form.subtitle']}</p>
+                    </div>
+                    <p:commandButton styleClass="btn btn-primary"
+                                     value="#{msg['company.edit']}"
+                                     action="#{companyBean.edit}"
+                                     rendered="#{not companyBean.editMode}"
+                                     update=":companyContent"/>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="name" styleClass="form-label" value="#{msg['company.name']}"/>
+                        <h:inputText id="name"
+                                     styleClass="form-control"
+                                     value="#{companyBean.company.name}"
+                                     disabled="#{not companyBean.editMode}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="email" styleClass="form-label" value="#{msg['company.email']}"/>
+                        <h:inputText id="email"
+                                     styleClass="form-control"
+                                     value="#{companyBean.company.email}"
+                                     disabled="#{not companyBean.editMode}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="phone" styleClass="form-label" value="#{msg['company.phone']}"/>
+                        <h:inputText id="phone"
+                                     styleClass="form-control"
+                                     value="#{companyBean.company.phone}"
+                                     disabled="#{not companyBean.editMode}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="website" styleClass="form-label" value="#{msg['company.website']}"/>
+                        <h:inputText id="website"
+                                     styleClass="form-control"
+                                     value="#{companyBean.company.website}"
+                                     disabled="#{not companyBean.editMode}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="bank" styleClass="form-label" value="#{msg['company.bank']}"/>
+                        <h:inputText id="bank"
+                                     styleClass="form-control"
+                                     value="#{companyBean.company.bank}"
+                                     disabled="#{not companyBean.editMode}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="iban" styleClass="form-label" value="#{msg['company.iban']}"/>
+                        <h:inputText id="iban"
+                                     styleClass="form-control"
+                                     value="#{companyBean.company.iban}"
+                                     disabled="#{not companyBean.editMode}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="logo" styleClass="form-label" value="#{msg['company.logo']}"/>
+                        <h:inputText id="logo"
+                                     styleClass="form-control"
+                                     value="#{companyBean.company.logo}"
+                                     disabled="#{not companyBean.editMode}"/>
+                    </div>
+                </div>
+
+                <div class="info-list mt-4 text-start">
+                    <div>
+                        <span>#{msg['company.address']}</span>
+                        <strong>#{companyBean.companyAddress}</strong>
+                    </div>
+                </div>
+
+                <h:panelGroup layout="block"
+                              styleClass="d-flex justify-content-end gap-2 mt-4"
+                              rendered="#{companyBean.editMode}">
+                    <p:commandButton styleClass="btn btn-outline-secondary"
+                                     value="#{msg['company.cancel']}"
+                                     action="#{companyBean.cancel}"
+                                     update=":companyContent :globalGrowl"
+                                     immediate="true"/>
+                    <p:commandButton styleClass="btn btn-primary"
+                                     value="#{msg['company.save']}"
+                                     action="#{companyBean.save}"
+                                     update=":companyContent :globalGrowl"/>
+                </h:panelGroup>
+            </h:form>
+        </h:panelGroup>
+    </ui:define>
+</ui:composition>
+</html>

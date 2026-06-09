@@ -4,6 +4,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllFunctions",
+                query = "SELECT f FROM Function f ORDER BY f.functionName"
+        )
+})
 @Entity
 @Table(name = "functions")
 public class Function {

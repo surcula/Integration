@@ -4,6 +4,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllActiveAuthorizations",
+                query = "SELECT a FROM Authorization a WHERE a.isActive = true ORDER BY a.authorizationName"
+        )
+})
 @Entity
 @Table(name = "authorizations")
 public class Authorization {

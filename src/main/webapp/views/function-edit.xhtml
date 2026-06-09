@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{functionEditBean.functionId}"/>
+    <f:viewAction action="#{functionEditBean.loadFunction}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">
+        #{functionEditBean.createMode ? msg['functions.create.pageTitle'] : msg['functions.edit.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="bi bi-diagram-3"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['functions.section']}</p>
+                    <h1 class="h3 mb-1">
+                        #{functionEditBean.createMode ? msg['functions.create.title'] : msg['functions.edit.title']}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        #{functionEditBean.createMode ? msg['functions.create.subtitle'] : msg['functions.edit.subtitle']}
+                    </p>
+                </div>
+            </div>
+            <h:link outcome="/views/functions" styleClass="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                <span>#{msg['common.back']}</span>
+            </h:link>
+        </div>
+
+        <h:panelGroup id="functionEditContent" layout="block">
+            <h:form id="functionForm" styleClass="panel" rendered="#{not empty functionEditBean.function}">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-diagram-3"></i>
+                            <span>#{msg['functions.form.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['functions.form.subtitle']}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="functionName" styleClass="form-label" value="#{msg['functions.name']}"/>
+                        <h:inputText id="functionName"
+                                     styleClass="form-control function-edit-input function-edit-required"
+                                     value="#{functionEditBean.function.functionName}"
+                                     pt:data-required-message="#{msg['functions.error.name.required']}"
+                                     pt:data-length-message="#{msg['functions.error.name.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="150"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="status" styleClass="form-label" value="#{msg['functions.status']}"/>
+                        <h:inputText id="status"
+                                     styleClass="form-control function-edit-input"
+                                     value="#{functionEditBean.function.status}"
+                                     pt:data-length-message="#{msg['functions.error.status.length']}"
+                                     pt:data-max-length="50"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="numberOfOpenPositions" styleClass="form-label" value="#{msg['functions.openPositions']}"/>
+                        <h:inputText id="numberOfOpenPositions"
+                                     styleClass="form-control function-edit-input function-edit-number"
+                                     value="#{functionEditBean.function.numberOfOpenPositions}"
+                                     pt:data-invalid-message="#{msg['functions.error.openPositions.positive']}"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check">
+                            <h:selectBooleanCheckbox id="mandatory"
+                                                     styleClass="form-check-input"
+                                                     value="#{functionEditBean.function.mandatory}"/>
+                            <h:outputLabel for="mandatory" styleClass="form-check-label" value="#{msg['functions.mandatory']}"/>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="description" styleClass="form-label" value="#{msg['functions.description']}"/>
+                        <h:inputTextarea id="description"
+                                         styleClass="form-control"
+                                         rows="4"
+                                         value="#{functionEditBean.function.description}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="jobDescription" styleClass="form-label" value="#{msg['functions.jobDescription']}"/>
+                        <h:inputTextarea id="jobDescription"
+                                         styleClass="form-control"
+                                         rows="4"
+                                         value="#{functionEditBean.function.jobDescription}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="comments" styleClass="form-label" value="#{msg['functions.comments']}"/>
+                        <h:inputTextarea id="comments"
+                                         styleClass="form-control"
+                                         rows="3"
+                                         value="#{functionEditBean.function.comments}"/>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary function-edit-save-button"
+                                     value="#{msg['functions.save']}"
+                                     action="#{functionEditBean.save}"
+                                     onclick="return window.validateFunctionFormBeforeSubmit &amp;&amp; window.validateFunctionFormBeforeSubmit()"
+                                     oncomplete="window.initFunctionEditValidation &amp;&amp; window.initFunctionEditValidation()"
+                                     update=":functionEditContent :globalGrowl"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+
+        <script src="#{request.contextPath}/app-assets/js/function-edit-validation.js"></script>
+    </ui:define>
+</ui:composition>
+</html>

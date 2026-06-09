@@ -1,18 +1,125 @@
-<!DOCTYPE html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-    <ui:define name="title">#{msg['nav.functions']} | ERP RH</ui:define>
+    <ui:define name="title">#{msg['functions.pageTitle']}</ui:define>
+
     <ui:define name="content">
         <div class="page-heading">
             <div class="page-heading-copy">
-                <span class="page-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                <span class="page-icon"><i class="bi bi-diagram-3"></i></span>
                 <div>
-                    <p class="eyebrow mb-1">#{msg['nav.staff']}</p>
-                    <h1 class="h3 mb-1">#{msg['nav.functions']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+                    <p class="eyebrow mb-1">#{msg['functions.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['functions.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['functions.subtitle']}</p>
                 </div>
+            </div>
+            <h:link outcome="/views/function-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{authBean.hasRole('ADMIN')}">
+                <i class="bi bi-plus-circle"></i>
+                <span>#{msg['functions.add']}</span>
+            </h:link>
+        </div>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="functionsForm">
+                    <p:dataTable value="#{functionsBean.functions}"
+                                 var="function"
+                                 widgetVar="functionsTable"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="both"
+                                 emptyMessage="#{msg['functions.empty']}">
+
+                        <f:facet name="header">
+                            <div class="d-flex justify-content-end">
+                                <span class="p-input-icon-left employee-global-search">
+                                    <i class="bi bi-search"></i>
+                                    <p:inputText id="globalFilter"
+                                                 styleClass="form-control"
+                                                 onkeyup="PF('functionsTable').filter()"
+                                                 placeholder="#{msg['functions.search']}"/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="#{msg['functions.name']}"
+                                  sortBy="#{function.functionName}"
+                                  filterBy="#{function.functionName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            <strong>#{function.functionName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['functions.status']}"
+                                  sortBy="#{function.status}"
+                                  filterBy="#{function.status}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{function.status}
+                        </p:column>
+
+                        <p:column headerText="#{msg['functions.openPositions']}" sortBy="#{function.numberOfOpenPositions}">
+                            #{function.numberOfOpenPositions}
+                        </p:column>
+
+                        <p:column headerText="#{msg['functions.mandatory']}" sortBy="#{function.mandatory}">
+                            #{function.mandatory ? msg['common.yes'] : msg['common.no']}
+                        </p:column>
+
+                        <p:column headerText="#{msg['functions.activeStatus']}" sortBy="#{function.isActive}">
+                            <span class="#{function.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{function.isActive ? msg['functions.status.active'] : msg['functions.status.inactive']}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['functions.action']}" rendered="#{authBean.hasRole('ADMIN')}">
+                            <h:link outcome="/views/function-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['functions.edit']}">
+                                <i class="bi bi-pencil"></i>
+                                <span class="visually-hidden">#{msg['functions.edit']}</span>
+                                <f:param name="id" value="#{function.id}"/>
+                            </h:link>
+
+                            <p:commandLink styleClass="#{function.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                           title="#{function.isActive ? msg['functions.delete'] : msg['functions.activate']}"
+                                           action="#{functionsBean.changeFunctionActiveStatus(function.id, function.isActive)}"
+                                           process="@this"
+                                           immediate="true"
+                                           update="@form :globalGrowl">
+                                <i class="#{function.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
+                                <span class="visually-hidden">
+                                    #{function.isActive ? msg['functions.delete'] : msg['functions.activate']}
+                                </span>
+                                <p:confirm header="#{function.isActive ? msg['functions.delete'] : msg['functions.activate']}"
+                                           message="#{function.isActive ? msg['functions.delete.confirm'] : msg['functions.activate.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"
+                                         icon="pi pi-check"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-secondary"
+                                         icon="pi pi-times"/>
+                    </p:confirmDialog>
+                </h:form>
             </div>
         </div>
     </ui:define>

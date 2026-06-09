@@ -4,6 +4,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllActiveRoles",
+                query = "SELECT r FROM Role r WHERE r.isActive = true ORDER BY r.roleName"
+        )
+})
 @Entity
 @Table(name = "roles")
 public class Role {

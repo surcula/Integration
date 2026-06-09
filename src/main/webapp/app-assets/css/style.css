@@ -1983,6 +1983,79 @@ html[data-theme="dark"] {
   font-size: 0.84rem;
 }
 
+.role-authorizations-grid {
+  display: block;
+}
+
+.role-authorizations-grid .ui-selectmanycheckbox {
+  width: 100%;
+}
+
+.role-authorizations-grid .ui-selectmanycheckbox td {
+  padding: 0.45rem 1rem 0.45rem 0;
+}
+
+.role-authorizations-grid label {
+  margin-left: 0.45rem;
+  color: var(--admin-text);
+  font-weight: 700;
+}
+
+.role-authorizations-picklist {
+  width: 100%;
+}
+
+.role-authorizations-picklist .ui-picklist-list {
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.role-authorizations-picklist .ui-picklist-caption {
+  border: 1px solid var(--admin-border);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--admin-surface-soft);
+  color: var(--admin-text);
+  font-weight: 800;
+}
+
+.role-authorizations-picklist .ui-picklist-item {
+  margin: 0.25rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  color: var(--admin-text);
+  font-weight: 700;
+}
+
+.role-authorizations-picklist .ui-picklist-item.ui-state-highlight {
+  background: var(--admin-primary);
+  color: #fff;
+}
+
+.role-authorizations-picklist .ui-picklist-filter-container {
+  margin-bottom: 0.65rem;
+}
+
+.role-authorizations-picklist .ui-picklist-filter {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.role-authorizations-picklist .ui-picklist-buttons .ui-button {
+  border-radius: 8px;
+  background: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: #fff;
+}
+
 @media (max-width: 991.98px) {
   .planning-calendar {
     grid-template-columns: repeat(2, minmax(0, 1fr));

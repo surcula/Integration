@@ -4,6 +4,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllDepartments",
+                query = "SELECT d FROM Department d ORDER BY d.departmentName"
+        )
+})
 @Entity
 @Table(name = "departments")
 public class Department {

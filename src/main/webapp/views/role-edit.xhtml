@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{roleEditBean.roleId}"/>
+    <f:viewAction action="#{roleEditBean.loadRole}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">
+        #{roleEditBean.createMode ? msg['roles.create.pageTitle'] : msg['roles.edit.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon">
+                    <i class="bi bi-person-lock"></i>
+                </span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['roles.section']}</p>
+                    <h1 class="h3 mb-1">
+                        #{roleEditBean.createMode ? msg['roles.create.title'] : msg['roles.edit.title']}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        #{roleEditBean.createMode ? msg['roles.create.subtitle'] : msg['roles.edit.subtitle']}
+                    </p>
+                </div>
+            </div>
+            <h:link outcome="/views/roles"
+                    styleClass="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                <span>#{msg['common.back']}</span>
+            </h:link>
+        </div>
+
+        <h:panelGroup id="roleEditContent" layout="block">
+            <h:form id="roleForm" styleClass="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-person-lock"></i>
+                            <span>#{msg['roles.form.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['roles.form.subtitle']}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="roleName" styleClass="form-label" value="#{msg['roles.name']}"/>
+                        <h:inputText id="roleName"
+                                     styleClass="form-control role-edit-input role-edit-required"
+                                     value="#{roleEditBean.roleName}"
+                                     disabled="#{roleEditBean.roleCreated}"
+                                     pt:placeholder="#{msg['roles.name.placeholder']}"
+                                     pt:data-required-message="#{msg['roles.error.name.required']}"
+                                     pt:data-length-message="#{msg['roles.error.name.length']}"
+                                     pt:data-min-length="2"
+                                     pt:data-max-length="100"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary role-edit-save-button"
+                                     value="#{msg['roles.create.submit']}"
+                                     action="#{roleEditBean.createRole}"
+                                     disabled="#{roleEditBean.roleCreated}"
+                                     onclick="return window.validateRoleFormBeforeSubmit &amp;&amp; window.validateRoleFormBeforeSubmit()"
+                                     oncomplete="window.initRoleEditValidation &amp;&amp; window.initRoleEditValidation()"
+                                     update=":roleEditContent :globalGrowl"/>
+                </div>
+            </h:form>
+
+            <h:form id="authorizationForm" styleClass="panel mt-4"
+                    rendered="#{roleEditBean.roleCreated}">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-shield-check"></i>
+                            <span>#{msg['roles.authorizations.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['roles.authorizations.subtitle']}</p>
+                    </div>
+                </div>
+
+                <p:pickList id="authorizations"
+                            value="#{roleEditBean.authorizationPickList}"
+                            var="authorization"
+                            itemValue="#{authorization}"
+                            itemLabel="#{authorization.authorizationName}"
+                            converter="authorizationConverter"
+                            styleClass="role-authorizations-picklist"
+                            showSourceFilter="true"
+                            showTargetFilter="false"
+                            filterMatchMode="contains"
+                            responsive="true">
+                    <f:facet name="sourceCaption">#{msg['roles.authorizations.available']}</f:facet>
+                    <f:facet name="targetCaption">#{msg['roles.authorizations.assigned']}</f:facet>
+                </p:pickList>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary"
+                                     value="#{msg['roles.authorizations.save']}"
+                                     action="#{roleEditBean.saveAuthorizations}"
+                                     update=":globalGrowl"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+
+        <script src="#{request.contextPath}/app-assets/js/role-edit-validation.js"></script>
+    </ui:define>
+</ui:composition>
+</html>

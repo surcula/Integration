@@ -1,18 +1,81 @@
-<!DOCTYPE html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-    <ui:define name="title">#{msg['nav.roles']} | ERP RH</ui:define>
+    <ui:define name="title">
+        #{msg['roles.pageTitle']}
+    </ui:define>
+
     <ui:define name="content">
         <div class="page-heading">
             <div class="page-heading-copy">
-                <span class="page-icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
+                <span class="page-icon">
+                    <i class="bi bi-person-lock"></i>
+                </span>
                 <div>
-                    <p class="eyebrow mb-1">#{msg['nav.administration']}</p>
-                    <h1 class="h3 mb-1">#{msg['nav.roles']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+                    <p class="eyebrow mb-1">#{msg['roles.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['roles.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['roles.subtitle']}</p>
                 </div>
+            </div>
+            <h:link outcome="/views/role-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{authBean.hasRole('ADMIN')}">
+                <i class="bi bi-plus-circle"></i>
+                <span>#{msg['roles.add']}</span>
+            </h:link>
+        </div>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="rolesForm">
+                    <p:dataTable value="#{rolesBean.roles}"
+                                 var="role"
+                                 widgetVar="rolesTable"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="both"
+                                 emptyMessage="#{msg['roles.empty']}">
+
+                        <f:facet name="header">
+                            <div class="d-flex justify-content-end">
+                                <span class="p-input-icon-left employee-global-search">
+                                    <i class="bi bi-search"></i>
+                                    <p:inputText id="globalFilter"
+                                                 styleClass="form-control"
+                                                 onkeyup="PF('rolesTable').filter()"
+                                                 placeholder="#{msg['roles.search']}"/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="#{msg['roles.name']}"
+                                  sortBy="#{role.roleName}"
+                                  filterBy="#{role.roleName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            <strong>#{role.roleName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['roles.action']}">
+                            <h:link outcome="/views/role-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['roles.edit']}">
+                                <i class="bi bi-pencil"></i>
+                                <span class="visually-hidden">#{msg['roles.edit']}</span>
+                                <f:param name="id" value="#{role.id}"/>
+                            </h:link>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
             </div>
         </div>
     </ui:define>

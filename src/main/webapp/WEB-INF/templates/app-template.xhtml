@@ -108,13 +108,13 @@
 
                     <span class="nav-section-title">#{msg['nav.administration']}</span>
                     <ui:fragment rendered="#{authBean.hasRole('ADMIN')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/company.xhtml">
+                            <span class="nav-icon"><i class="bi bi-building" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.company']}</span>
+                        </a>
                         <a class="nav-link" href="#{request.contextPath}/views/roles.xhtml">
                             <span class="nav-icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
                             <span class="nav-text">#{msg['nav.roles']}</span>
-                        </a>
-                        <a class="nav-link" href="#{request.contextPath}/views/authorizations.xhtml">
-                            <span class="nav-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
-                            <span class="nav-text">#{msg['nav.authorizations']}</span>
                         </a>
                     </ui:fragment>
                     <a class="nav-link" href="#{request.contextPath}/views/settings.xhtml">

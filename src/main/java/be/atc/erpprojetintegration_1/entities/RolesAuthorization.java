@@ -14,6 +14,29 @@ import javax.validation.constraints.Size;
                         "AND ra.isActive = true " +
                         "AND ra.authorization.isActive = true " +
                         "AND ra.role.isActive = true"
+        ),
+        @NamedQuery(
+                name = "getRoleAuthorizationByRoleAndAuthorization",
+                query = "SELECT ra " +
+                        "FROM RolesAuthorization ra " +
+                        "WHERE ra.role.id = :roleId " +
+                        "AND ra.authorization.id = :authorizationId"
+        ),
+        @NamedQuery(
+                name = "getActiveAuthorizationsByRoleId",
+                query = "SELECT ra.authorization " +
+                        "FROM RolesAuthorization ra " +
+                        "WHERE ra.role.id = :roleId " +
+                        "AND ra.isActive = true " +
+                        "AND ra.authorization.isActive = true " +
+                        "AND ra.role.isActive = true " +
+                        "ORDER BY ra.authorization.authorizationName"
+        ),
+        @NamedQuery(
+                name = "getRoleAuthorizationsByRoleId",
+                query = "SELECT ra " +
+                        "FROM RolesAuthorization ra " +
+                        "WHERE ra.role.id = :roleId"
         )
 })
 

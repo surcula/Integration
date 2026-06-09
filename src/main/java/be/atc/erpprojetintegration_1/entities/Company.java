@@ -4,6 +4,17 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getActiveCompany",
+                query = "SELECT c " +
+                        "FROM Company c " +
+                        "LEFT JOIN FETCH c.address a " +
+                        "LEFT JOIN FETCH a.city " +
+                        "WHERE c.isActive = true " +
+                        "ORDER BY c.id"
+        )
+})
 @Entity
 @Table(name = "companies")
 public class Company {

@@ -2,13 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
 <f:view locale="#{languageBean.locale}">
     <h:head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <meta name="description" content="adminHMD professional admin dashboard template"/>
+        <meta name="description" content="ERP RH medical intranet"/>
         <title>
             <ui:insert name="title">ERP RH</ui:insert>
         </title>
@@ -20,73 +21,117 @@
 
     <h:body>
 
+        <p:growl id="globalGrowl"
+                 globalOnly="true"
+                 showDetail="false"
+                 life="3500"/>
+
         <div class="admin-shell">
             <div class="sidebar-backdrop" data-sidebar-close="true"></div>
 
             <aside class="admin-sidebar" id="adminSidebar" aria-label="Main navigation">
                 <div class="sidebar-header">
-                    <a class="brand-mark" href="index.html" aria-label="adminHMD dashboard">
-                        <span class="brand-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span>
+                    <a class="brand-mark" href="#{request.contextPath}/hub.xhtml" aria-label="ERP RH dashboard">
+                        <span class="brand-icon"><i class="bi bi-hospital-fill" aria-hidden="true"></i></span>
                         <span class="brand-copy">
-            <span class="brand-title">ERP RH</span>
-
-          </span>
+                            <span class="brand-title">ERP RH</span>
+                        </span>
                     </a>
                 </div>
+
                 <nav class="sidebar-nav">
+                    <span class="nav-section-title">#{msg['nav.home']}</span>
                     <a class="nav-link" href="#{request.contextPath}/hub.xhtml">
                         <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
-                        <span class="nav-text">Dashboard</span>
-                    </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/employees.xhtml">
-                        <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
-                        <span class="nav-text">Liste des employés</span>
-                    </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/employees/create.xhtml">
-                        <span class="nav-icon"><i class="bi bi-person-plus" aria-hidden="true"></i></span>
-                        <span class="nav-text">Planning</span>
+                        <span class="nav-text">#{msg['nav.dashboard']}</span>
                     </a>
                     <a class="nav-link" href="#{request.contextPath}/views/profile.xhtml">
                         <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
-                        <span class="nav-text">Profile</span>
+                        <span class="nav-text">#{msg['nav.myProfile']}</span>
                     </a>
-                    <a class="nav-link" href="charts.html">
-                        <span class="nav-icon"><i class="bi bi-bar-chart-line" aria-hidden="true"></i></span>
-                        <span class="nav-text">Charts</span>
+
+                    <span class="nav-section-title">#{msg['nav.staff']}</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/employees.xhtml">
+                        <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.employees']}</span>
                     </a>
-                    <a class="nav-link" href="tables.html">
-                        <span class="nav-icon"><i class="bi bi-table" aria-hidden="true"></i></span>
-                        <span class="nav-text">Tables</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/departments.xhtml">
+                        <span class="nav-icon"><i class="bi bi-hospital" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.departments']}</span>
                     </a>
-                    <a class="nav-link" href="forms.html">
-                        <span class="nav-icon"><i class="bi bi-ui-checks-grid" aria-hidden="true"></i></span>
-                        <span class="nav-text">Forms</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/functions.xhtml">
+                        <span class="nav-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.functions']}</span>
                     </a>
-                    <a class="nav-link" href="components.html">
-                        <span class="nav-icon"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i></span>
-                        <span class="nav-text">Components</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/contracts.xhtml">
+                        <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.contracts']}</span>
                     </a>
-                    <a class="nav-link" href="alerts.html">
-                        <span class="nav-icon"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
-                        <span class="nav-text">Alerts</span>
+
+                    <span class="nav-section-title">#{msg['nav.timePlanning']}</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/planning.xhtml">
+                        <span class="nav-icon"><i class="bi bi-calendar3" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.planning']}</span>
                     </a>
-                    <a class="nav-link" href="modals.html">
-                        <span class="nav-icon"><i class="bi bi-window-stack" aria-hidden="true"></i></span>
-                        <span class="nav-text">Modals</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/absences.xhtml">
+                        <span class="nav-icon"><i class="bi bi-calendar-x" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.absences']}</span>
                     </a>
-                    <a class="nav-link" href="settings.html">
+                    <a class="nav-link" href="#{request.contextPath}/views/public-holidays.xhtml">
+                        <span class="nav-icon"><i class="bi bi-calendar-heart" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.publicHolidays']}</span>
+                    </a>
+
+                    <span class="nav-section-title">#{msg['nav.skills']}</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/evaluations.xhtml">
+                        <span class="nav-icon"><i class="bi bi-clipboard-check" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.evaluations']}</span>
+                    </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/trainings.xhtml">
+                        <span class="nav-icon"><i class="bi bi-mortarboard" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.trainings']}</span>
+                    </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/certifications.xhtml">
+                        <span class="nav-icon"><i class="bi bi-award" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.certifications']}</span>
+                    </a>
+
+                    <span class="nav-section-title">#{msg['nav.recruitment']}</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/job-offers.xhtml">
+                        <span class="nav-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.jobOffers']}</span>
+                    </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/applications.xhtml">
+                        <span class="nav-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.applications']}</span>
+                    </a>
+
+                    <span class="nav-section-title">#{msg['nav.administration']}</span>
+                    <ui:fragment rendered="#{authBean.hasRole('ADMIN')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/roles.xhtml">
+                            <span class="nav-icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.roles']}</span>
+                        </a>
+                        <a class="nav-link" href="#{request.contextPath}/views/authorizations.xhtml">
+                            <span class="nav-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.authorizations']}</span>
+                        </a>
+                    </ui:fragment>
+                    <a class="nav-link" href="#{request.contextPath}/views/settings.xhtml">
                         <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
-                        <span class="nav-text">Settings</span>
+                        <span class="nav-text">#{msg['nav.settings']}</span>
                     </a>
+
                     <h:form styleClass="sidebar-logout-form">
                         <h:commandLink action="#{authBean.logout}" styleClass="nav-link">
                             <span class="nav-icon">
                                 <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                             </span>
-                            <span class="nav-text">Déconnexion</span>
+                            <span class="nav-text">#{msg['nav.logout']}</span>
                         </h:commandLink>
                     </h:form>
                 </nav>
+
                 <div class="sidebar-user">
                     <img class="avatar-img avatar-md sidebar-user-avatar"
                          src="#{request.contextPath}/app-assets/images/avatar/avatar.jpg" alt="User picture"/>
@@ -94,9 +139,10 @@
                 </div>
                 <div class="sidebar-footer">
                     <span class="status-dot"></span>
-                    <span class="sidebar-footer-text">System running smoothly</span>
+                    <span class="sidebar-footer-text">#{msg['nav.footer']}</span>
                 </div>
             </aside>
+
             <div class="admin-main">
                 <nav class="navbar admin-navbar navbar-expand bg-white">
                     <div class="container-fluid px-3 px-lg-4">
@@ -149,12 +195,22 @@
                                     <span class="profile-name d-none d-sm-inline">#{authBean.connectedEmployeeFullName}</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="profile.html">Profile</a></li>
-                                    <li><a class="dropdown-item" href="settings.html">Account settings</a></li>
+                                    <li>
+                                        <a class="dropdown-item" href="#{request.contextPath}/views/profile.xhtml">#{msg['nav.myProfile']}</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#{request.contextPath}/views/settings.xhtml">#{msg['nav.accountSettings']}</a>
+                                    </li>
                                     <li>
                                         <hr class="dropdown-divider"/>
                                     </li>
-                                    <li><a class="dropdown-item" href="login.html">Sign out</a></li>
+                                    <li>
+                                        <h:form>
+                                            <h:commandLink action="#{authBean.logout}"
+                                                           styleClass="dropdown-item"
+                                                           value="#{msg['nav.logout']}"/>
+                                        </h:form>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

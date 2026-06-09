@@ -40,6 +40,14 @@ public interface IEmployeeService {
     Result<List<Employee>> getAllActiveWithDepartments();
 
     /**
+     * Retrieves all employees with their department relation when one exists.
+     *
+     * @return a Result containing the list of employees with department data,
+     *         or an error if the operation fails
+     */
+    Result<List<Employee>> getAllWithDepartments();
+
+    /**
      * Retrieves all employees, including inactive ones.
      *
      * @return a Result containing the list of employees, or an error if the operation fails
@@ -72,6 +80,15 @@ public interface IEmployeeService {
      *         or an error if no employee matches the given id or if the operation fails
      */
     Result<Void> deactivate(Integer id);
+
+    /**
+     * Reactivates an inactive employee.
+     *
+     * @param id the unique identifier of the employee to activate
+     * @return a successful Result if the employee is activated,
+     *         or an error if no employee matches the given id or if the operation fails
+     */
+    Result<Void> activate(Integer id);
 
 
 }

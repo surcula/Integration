@@ -2,6 +2,13 @@ package be.atc.erpprojetintegration_1.dto;
 
 public class EmployeeListDto {
 
+    private Integer id;
+    private String fullName;
+    private String departmentName;
+    private String phone;
+    private String email;
+    private Boolean active;
+
     public Integer getId() {
         return id;
     }
@@ -42,9 +49,15 @@ public class EmployeeListDto {
         this.fullName = fullName;
     }
 
-    private Integer id;
-    private String fullName;
-    private String departmentName;
-    private String phone;
-    private String email;
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public boolean isActive() {
+        return Boolean.TRUE.equals(active);
+    }
 }

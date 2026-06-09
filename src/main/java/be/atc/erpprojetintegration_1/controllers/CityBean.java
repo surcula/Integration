@@ -19,11 +19,19 @@ public class CityBean {
 
     private Result<List<City>> cities;
 
+    /**
+     * Loads active cities when the page is initialized.
+     */
     @PostConstruct
     public void init() {
         cities = cityService.getAllActiveCities();
     }
 
+    /**
+     * Returns active cities for the JSF page.
+     *
+     * @return active city list
+     */
     public List<City> getCities() {
         if (cities == null || !cities.isSuccess() || cities.getData() == null) {
             return new ArrayList<>();

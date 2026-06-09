@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">#{msg['nav.planning']} | ERP RH</ui:define>
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="bi bi-calendar3" aria-hidden="true"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['nav.timePlanning']}</p>
+                    <h1 class="h3 mb-1">#{msg['nav.planning']}</h1>
+                    <p class="text-muted mb-0">Vue mensuelle du planning des équipes.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="row g-3">
+            <div class="col-12 col-xl-9">
+                <div class="panel planning-calendar-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="h5 mb-1 section-title">
+                                <i class="bi bi-calendar-week" aria-hidden="true"></i>
+                                <span>Juin 2026</span>
+                            </h2>
+                            <p class="text-muted mb-0">Exemple de planning hebdomadaire par type de présence.</p>
+                        </div>
+                    </div>
+
+                    <div class="planning-calendar">
+                        <div class="planning-day-name">Lun</div>
+                        <div class="planning-day-name">Mar</div>
+                        <div class="planning-day-name">Mer</div>
+                        <div class="planning-day-name">Jeu</div>
+                        <div class="planning-day-name">Ven</div>
+                        <div class="planning-day-name">Sam</div>
+                        <div class="planning-day-name">Dim</div>
+
+                        <div class="planning-day">
+                            <span class="planning-date">1</span>
+                            <span class="planning-chip planning-chip-work">Urgences</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">2</span>
+                            <span class="planning-chip planning-chip-work">Cardiologie</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">3</span>
+                            <span class="planning-chip planning-chip-rest">Repos</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">4</span>
+                            <span class="planning-chip planning-chip-work">Pédiatrie</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">5</span>
+                            <span class="planning-chip planning-chip-recovery">Récup</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">6</span>
+                            <span class="planning-chip planning-chip-rest">Repos</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">7</span>
+                            <span class="planning-chip planning-chip-rest">Repos</span>
+                        </div>
+
+                        <div class="planning-day">
+                            <span class="planning-date">8</span>
+                            <span class="planning-chip planning-chip-work">Bloc opératoire</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">9</span>
+                            <span class="planning-chip planning-chip-work">Urgences</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">10</span>
+                            <span class="planning-chip planning-chip-holiday">Férié</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">11</span>
+                            <span class="planning-chip planning-chip-work">Radiologie</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">12</span>
+                            <span class="planning-chip planning-chip-vacation">Vacances</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">13</span>
+                            <span class="planning-chip planning-chip-vacation">Vacances</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">14</span>
+                            <span class="planning-chip planning-chip-rest">Repos</span>
+                        </div>
+
+                        <div class="planning-day">
+                            <span class="planning-date">15</span>
+                            <span class="planning-chip planning-chip-work">Cardiologie</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">16</span>
+                            <span class="planning-chip planning-chip-work">Urgences</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">17</span>
+                            <span class="planning-chip planning-chip-recovery">Récup</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">18</span>
+                            <span class="planning-chip planning-chip-work">Pédiatrie</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">19</span>
+                            <span class="planning-chip planning-chip-work">Nuit</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">20</span>
+                            <span class="planning-chip planning-chip-rest">Repos</span>
+                        </div>
+                        <div class="planning-day">
+                            <span class="planning-date">21</span>
+                            <span class="planning-chip planning-chip-rest">Repos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-3">
+                <div class="panel h-100">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="h5 mb-1 section-title">
+                                <i class="bi bi-palette" aria-hidden="true"></i>
+                                <span>Légende</span>
+                            </h2>
+                            <p class="text-muted mb-0">Code couleur du planning.</p>
+                        </div>
+                    </div>
+
+                    <div class="planning-legend">
+                        <div class="planning-legend-item">
+                            <span class="planning-legend-color planning-legend-work"></span>
+                            <div>
+                                <strong>Service</strong>
+                                <span>Jour de travail affecté à un service.</span>
+                            </div>
+                        </div>
+                        <div class="planning-legend-item">
+                            <span class="planning-legend-color planning-legend-rest"></span>
+                            <div>
+                                <strong>Repos</strong>
+                                <span>Jour non travaillé.</span>
+                            </div>
+                        </div>
+                        <div class="planning-legend-item">
+                            <span class="planning-legend-color planning-legend-recovery"></span>
+                            <div>
+                                <strong>Récup</strong>
+                                <span>Récupération d'heures.</span>
+                            </div>
+                        </div>
+                        <div class="planning-legend-item">
+                            <span class="planning-legend-color planning-legend-holiday"></span>
+                            <div>
+                                <strong>Jour férié</strong>
+                                <span>Jour férié officiel.</span>
+                            </div>
+                        </div>
+                        <div class="planning-legend-item">
+                            <span class="planning-legend-color planning-legend-vacation"></span>
+                            <div>
+                                <strong>Vacances</strong>
+                                <span>Congé planifié.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>
+</html>

@@ -80,7 +80,28 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Result<List<Employee>> getAllActive() {
-        return null;
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching all active employees");
+
+            List<Employee> employees = em
+                    .createNamedQuery("getAllActiveEmployees", Employee.class)
+                    .getResultList();
+
+            log.info("Active employees found: " + employees.size());
+            return Result.ok(employees);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while searching all active employees", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -110,8 +131,55 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
+    public Result<List<Employee>> getAllWithDepartments() {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching all employees with departments");
+
+            List<Employee> employees = em
+                    .createNamedQuery("getAllEmployeesWithDepartments", Employee.class)
+                    .getResultList();
+
+            log.info("Employees found: " + employees.size());
+            return Result.ok(employees);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while searching all employees with departments", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<List<Employee>> getAll() {
-        return null;
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching all employees");
+
+            List<Employee> employees = em
+                    .createNamedQuery("getAllEmployees", Employee.class)
+                    .getResultList();
+
+            log.info("Employees found: " + employees.size());
+            return Result.ok(employees);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while searching all employees", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -146,11 +214,115 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Result<Employee> update(Employee employee) {
-        return null;
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Updating employee with id: " + employee.getId());
+
+            em.getTransaction().begin();
+            Employee updatedEmployee = em.merge(employee);
+            em.getTransaction().commit();
+
+            log.info("Employee updated with id: " + updatedEmployee.getId());
+            return Result.ok(updatedEmployee);
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while updating employee", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
     }
 
     @Override
     public Result<Void> deactivate(Integer id) {
-        return null;
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Deactivating employee with id: " + id);
+
+            em.getTransaction().begin();
+            Employee employee = em.find(Employee.class, id);
+
+            if (employee == null) {
+                em.getTransaction().rollback();
+
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "employee.delete.error.notFound");
+                log.warn("No employee found with id: " + id);
+                return Result.fail(errors);
+            }
+
+            employee.setIsActive(false);
+            em.merge(employee);
+            em.getTransaction().commit();
+
+            log.info("Employee deactivated with id: " + id);
+            return Result.ok();
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while deactivating employee with id: " + id, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<Void> activate(Integer id) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Activating employee with id: " + id);
+
+            em.getTransaction().begin();
+            Employee employee = em.find(Employee.class, id);
+
+            if (employee == null) {
+                em.getTransaction().rollback();
+
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "employee.activate.error.notFound");
+                log.warn("No employee found with id: " + id);
+                return Result.fail(errors);
+            }
+
+            employee.setIsActive(true);
+            em.merge(employee);
+            em.getTransaction().commit();
+
+            log.info("Employee activated with id: " + id);
+            return Result.ok();
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while activating employee with id: " + id, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
     }
 }

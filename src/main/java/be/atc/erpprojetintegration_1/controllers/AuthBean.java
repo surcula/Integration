@@ -8,6 +8,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.apache.log4j.Logger;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
@@ -18,6 +19,7 @@ import java.io.Serializable;
 @SessionScoped
 public class AuthBean implements Serializable {
 
+    private static final Logger log = Logger.getLogger(AuthBean.class);
 
     private String email;
     private String password;
@@ -25,16 +27,27 @@ public class AuthBean implements Serializable {
     @Inject
     private EmployeeBusiness employeeBusiness;
 
-
+    /**
+     * Stores the authenticated employee in the session.
+     *
+     * @param employee connected employee dto
+     */
     public void connect(ConnectedEmployeeDto employee) {
         this.connectedEmployee = employee;
     }
 
+    /**
+     * Handles the login form submission and delegates authentication to Shiro.
+     *
+     * @return JSF navigation outcome
+     */
     public String login() {
+        log.info("Login attempt");
 
         Result<Void> validationResult = employeeBusiness.validateLoginForm(email, password);
 
         if (!validationResult.isSuccess()) {
+            log.warn("Login form validation failed");
             MessageUtils.addErrorMessages(validationResult, "login.error.invalid");
             return null;
         }
@@ -49,15 +62,25 @@ public class AuthBean implements Serializable {
 
             connect(connectedEmployee);
 
+            log.info("Login successful for employee id: " + connectedEmployee.getId());
             return "hub?faces-redirect=true";
 
         } catch (AuthenticationException ex) {
+            log.warn("Login authentication failed");
             MessageUtils.addErrorMessage("login.error.invalid");
             return null;
         }
     }
 
+    /**
+     * Logs out the current user and clears session login data.
+     *
+     * @return JSF navigation outcome
+     */
     public String logout() {
+        Integer employeeId = connectedEmployee != null ? connectedEmployee.getId() : null;
+        log.info("Logout requested for employee id: " + employeeId);
+
         SecurityUtils.getSubject().logout();
 
         connectedEmployee = null;
@@ -75,12 +98,23 @@ public class AuthBean implements Serializable {
         return connectedEmployee;
     }
 
+    /**
+     * Checks if the connected employee has the given role.
+     *
+     * @param roleName role name
+     * @return true if the user has the role
+     */
     public boolean hasRole(String roleName) {
         return connectedEmployee != null
                 && connectedEmployee.getRoleName() != null
                 && connectedEmployee.getRoleName().equals(roleName);
     }
 
+    /**
+     * Builds the full name displayed in the application layout.
+     *
+     * @return connected employee full name
+     */
     public String getConnectedEmployeeFullName() {
         if (connectedEmployee == null) {
             return "";
@@ -91,6 +125,7 @@ public class AuthBean implements Serializable {
 
         return (firstName + " " + lastName).trim();
     }
+
     public String getConnectedEmployeeRoleName() {
         if (connectedEmployee == null || connectedEmployee.getRoleName() == null) {
             return "";
@@ -98,8 +133,24 @@ public class AuthBean implements Serializable {
 
         return connectedEmployee.getRoleName();
     }
+
+    /**
+     * Checks if the connected employee is HR or admin.
+     *
+     * @return true if the connected employee is HR or admin
+     */
     public boolean isHrOrAdmin() {
         return hasRole("HR") || hasRole("ADMIN");
+    }
+
+    /**
+     * Checks if the connected employee has a Shiro permission.
+     *
+     * @param permissionName permission name
+     * @return true if the user has the permission
+     */
+    public boolean hasPermission(String permissionName) {
+        return SecurityUtils.getSubject().isPermitted(permissionName);
     }
 
     public String getEmail() {

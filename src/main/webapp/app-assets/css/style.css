@@ -131,6 +131,16 @@ a {
   padding: 1.1rem 1rem;
 }
 
+.nav-section-title {
+  margin: 0.65rem 0.35rem 0.15rem;
+  color: var(--admin-sidebar-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .sidebar-nav .nav-link {
   display: flex;
   align-items: center;
@@ -1007,6 +1017,7 @@ html[data-theme="dark"] .profile-button .avatar-sm {
 
   body.sidebar-mini .brand-copy,
   body.sidebar-mini .nav-text,
+  body.sidebar-mini .nav-section-title,
   body.sidebar-mini .sidebar-footer-text {
     width: 0;
     opacity: 0;
@@ -1303,6 +1314,61 @@ html[data-theme="dark"] .auth-body {
 
 .form-control::placeholder {
   color: var(--admin-muted);
+}
+
+.erp-city-autocomplete {
+  display: flex;
+  width: 100%;
+}
+
+.erp-city-autocomplete .ui-autocomplete-input {
+  width: 100%;
+  min-height: 38px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.erp-city-autocomplete .ui-button {
+  flex: 0 0 42px;
+  width: 42px;
+  min-height: 38px;
+  border: 1px solid var(--admin-border);
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  background: var(--admin-primary);
+  color: #fff;
+  box-shadow: none;
+}
+
+.erp-city-autocomplete .ui-button:hover,
+.erp-city-autocomplete .ui-button:focus {
+  background: var(--admin-primary-dark);
+  transform: none;
+}
+
+.erp-city-autocomplete-panel {
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  box-shadow: var(--admin-shadow-lg);
+  overflow: hidden;
+}
+
+.erp-city-autocomplete-panel .ui-autocomplete-items {
+  padding: 0.35rem;
+}
+
+.erp-city-autocomplete-panel .ui-autocomplete-item {
+  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+  color: var(--admin-text);
+}
+
+.erp-city-autocomplete-panel .ui-autocomplete-item:hover,
+.erp-city-autocomplete-panel .ui-state-highlight {
+  background: var(--admin-surface-soft);
+  color: var(--admin-text);
 }
 
 .text-muted {
@@ -1719,4 +1785,215 @@ html[data-theme="dark"] {
   border-radius: 8px;
   background: var(--admin-surface);
   color: var(--admin-text);
+}
+
+.employee-global-search {
+  position: relative;
+  width: min(100%, 320px);
+}
+
+.employee-global-search .bi-search {
+  position: absolute;
+  top: 50%;
+  left: 0.85rem;
+  z-index: 2;
+  color: var(--admin-muted);
+  transform: translateY(-50%);
+}
+
+.employee-global-search .form-control {
+  padding-left: 2.35rem;
+}
+
+.ui-growl {
+  top: 5rem;
+  right: 1.5rem;
+}
+
+.ui-growl .ui-growl-item-container {
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  box-shadow: var(--admin-shadow-lg);
+}
+
+.ui-growl .ui-growl-message-info,
+.ui-growl .ui-growl-image-info {
+  color: #22c55e;
+}
+
+.ui-growl .ui-growl-message-error,
+.ui-growl .ui-growl-image-error {
+  color: #ef4444;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.status-badge-active {
+  border: 1px solid rgba(34, 197, 94, 0.38);
+  background: rgba(34, 197, 94, 0.14);
+  color: #22c55e;
+}
+
+.status-badge-inactive {
+  border: 1px solid rgba(245, 158, 11, 0.42);
+  background: rgba(245, 158, 11, 0.16);
+  color: #f59e0b;
+}
+
+.planning-calendar-panel {
+  overflow: hidden;
+}
+
+.planning-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.planning-day-name {
+  padding: 0.85rem 0.75rem;
+  border-right: 1px solid var(--admin-border);
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-surface-soft);
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.planning-day-name:nth-child(7) {
+  border-right: 0;
+}
+
+.planning-day {
+  min-height: 132px;
+  padding: 0.75rem;
+  border-right: 1px solid var(--admin-border);
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+}
+
+.planning-day:nth-child(7n) {
+  border-right: 0;
+}
+
+.planning-date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 0.65rem;
+  border-radius: 8px;
+  background: var(--admin-surface-soft);
+  color: var(--admin-text);
+  font-weight: 800;
+}
+
+.planning-chip {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.planning-chip-work,
+.planning-legend-work {
+  background: #3b82f6;
+}
+
+.planning-chip-rest,
+.planning-legend-rest {
+  background: #22c55e;
+}
+
+.planning-chip-recovery,
+.planning-legend-recovery {
+  background: #facc15;
+}
+
+.planning-chip-holiday,
+.planning-legend-holiday {
+  background: #ef4444;
+}
+
+.planning-chip-vacation,
+.planning-legend-vacation {
+  background: #f97316;
+}
+
+.planning-chip-recovery {
+  color: #422006;
+}
+
+.planning-legend {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.planning-legend-item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.85rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface-soft);
+}
+
+.planning-legend-color {
+  width: 18px;
+  height: 18px;
+  margin-top: 0.15rem;
+  border-radius: 5px;
+}
+
+.planning-legend-item strong,
+.planning-legend-item span {
+  display: block;
+}
+
+.planning-legend-item strong {
+  color: var(--admin-text);
+  font-size: 0.92rem;
+}
+
+.planning-legend-item span {
+  color: var(--admin-muted);
+  font-size: 0.84rem;
+}
+
+@media (max-width: 991.98px) {
+  .planning-calendar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .planning-day-name {
+    display: none;
+  }
+
+  .planning-day,
+  .planning-day:nth-child(7n) {
+    border-right: 1px solid var(--admin-border);
+  }
 }

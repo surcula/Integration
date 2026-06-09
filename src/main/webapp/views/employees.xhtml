@@ -26,6 +26,12 @@
                     <p class="text-muted mb-0">#{msg['employees.subtitle']}</p>
                 </div>
             </div>
+            <h:link outcome="/views/employee-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{authBean.hasPermission('employee:create')}">
+                <i class="bi bi-person-plus"></i>
+                <span>#{msg['employees.add']}</span>
+            </h:link>
         </div>
 
         <div class="panel">
@@ -33,6 +39,7 @@
                 <h:form id="employeesForm">
                     <p:dataTable value="#{employeesBean.employees}"
                                  var="employee"
+                                 widgetVar="employeesTable"
                                  styleClass="table align-middle mb-0 erp-data-table"
                                  paginator="true"
                                  rows="10"
@@ -40,32 +47,98 @@
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['employees.empty']}">
 
-                        <p:column headerText="#{msg['employees.fullName']}" sortBy="#{employee.fullName}">
+                        <f:facet name="header">
+                            <div class="d-flex justify-content-end">
+                                <span class="p-input-icon-left employee-global-search">
+                                    <i class="bi bi-search"></i>
+                                    <p:inputText id="globalFilter"
+                                                 styleClass="form-control"
+                                                 onkeyup="PF('employeesTable').filter()"
+                                                 placeholder="#{msg['employees.search']}"/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="#{msg['employees.fullName']}"
+                                  sortBy="#{employee.fullName}"
+                                  filterBy="#{employee.fullName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
                             <strong>
                                 #{employee.fullName}
                             </strong>
                         </p:column>
 
-                        <p:column headerText="#{msg['employees.department']}" sortBy="#{employee.departmentName}">
+                        <p:column headerText="#{msg['employees.department']}"
+                                  sortBy="#{employee.departmentName}"
+                                  filterBy="#{employee.departmentName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
                             #{employee.departmentName}
                         </p:column>
 
-                        <p:column headerText="#{msg['employees.phone']}">
+                        <p:column headerText="#{msg['employees.phone']}"
+                                  filterBy="#{employee.phone}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
                             #{employee.phone}
                         </p:column>
 
-                        <p:column headerText="#{msg['employees.email']}" sortBy="#{employee.email}">
+                        <p:column headerText="#{msg['employees.email']}"
+                                  sortBy="#{employee.email}"
+                                  filterBy="#{employee.email}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
                             #{employee.email}
                         </p:column>
 
-                        <p:column headerText="#{msg['employees.action']}" rendered="#{authBean.hrOrAdmin}">
+                        <p:column headerText="#{msg['employees.status']}"
+                                  rendered="#{authBean.hasPermission('employee:delete')}"
+                                  sortBy="#{employee.active}">
+                            <span class="#{employee.active ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{employee.active ? msg['employees.status.active'] : msg['employees.status.inactive']}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['employees.action']}"
+                                  rendered="#{authBean.hasPermission('employee:edit') or authBean.hasPermission('employee:delete')}">
                             <h:link outcome="/views/employee-edit"
-                                    styleClass="btn btn-sm btn-primary">
-                                #{msg['employees.edit']}
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['employees.edit']}"
+                                    rendered="#{authBean.hasPermission('employee:edit')}">
+                                <i class="bi bi-pencil"></i>
+                                <span class="visually-hidden">#{msg['employees.edit']}</span>
                                 <f:param name="id" value="#{employee.id}"/>
                             </h:link>
+
+                            <p:commandLink styleClass="#{employee.active ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                           title="#{employee.active ? msg['employees.delete'] : msg['employees.activate']}"
+                                           rendered="#{authBean.hasPermission('employee:delete')}"
+                                           action="#{employeesBean.changeEmployeeActiveStatus(employee.id, employee.active)}"
+                                           process="@this"
+                                           immediate="true"
+                                           update="@form :globalGrowl">
+                                <i class="#{employee.active ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
+                                <span class="visually-hidden">
+                                    #{employee.active ? msg['employees.delete'] : msg['employees.activate']}
+                                </span>
+                                <p:confirm header="#{employee.active ? msg['employees.delete'] : msg['employees.activate']}"
+                                           message="#{employee.active ? msg['employees.delete.confirm'] : msg['employees.activate.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
                         </p:column>
                     </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"
+                                         icon="pi pi-check"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-secondary"
+                                         icon="pi pi-times"/>
+                    </p:confirmDialog>
                 </h:form>
             </div>
         </div>

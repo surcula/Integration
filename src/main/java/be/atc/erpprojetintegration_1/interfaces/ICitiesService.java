@@ -7,20 +7,27 @@ import java.util.List;
 
 public interface ICitiesService {
 
+    /**
+     * Retrieves all active cities.
+     *
+     * @return active city list result
+     */
+    Result<List<City>> getAllActiveCities();
 
-        /**
-         * Retrieves Active Cities
-         * @return all the active cities
-         */
-        Result<List<City>> getAllActiveCities();
+    /**
+     * Retrieves active cities by zip code.
+     *
+     * @param zip city zip code
+     * @return active city list result
+     */
+    Result<List<City>> getActiveByZip(int zip);
 
-        /**
-         * Retrieves Cities by zipcode
-         * @param zip zipcode of the cities
-         * @return all the zipcode of the cities
-         */
-        Result<List<City>> getActiveByZip(int zip);
-
-
+    /**
+     * Retrieves a city by id.
+     *
+     * @param id city id
+     * @return city result
+     */
+    Result<City> getById(Integer id);
 
 }

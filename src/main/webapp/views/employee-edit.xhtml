@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{employeeEditBean.employeeId}"/>
+    <f:viewAction action="#{employeeEditBean.loadEmployee}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+
+    <ui:define name="title">
+        #{employeeEditBean.createMode ? msg['employee.create.pageTitle'] : msg['employee.edit.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon">
+                    <i class="bi bi-person-gear"></i>
+                </span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['employee.edit.section']}</p>
+                    <h1 class="h3 mb-1">
+                        #{employeeEditBean.createMode ? msg['employee.create.title'] : msg['employee.edit.title']}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        #{employeeEditBean.createMode ? msg['employee.create.subtitle'] : msg['employee.edit.subtitle']}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <h:panelGroup id="employeeEditContent" layout="block">
+        <h:panelGroup rendered="#{not empty employeeEditBean.employee}">
+            <h:form id="basicInformationForm" styleClass="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-person-vcard"></i>
+                            <span>#{msg['employee.edit.basicInformation']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['employee.edit.basicInformationSubtitle']}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="firstName" styleClass="form-label" value="#{msg['profile.firstName']}"/>
+                        <h:inputText id="firstName"
+                                     styleClass="form-control employee-edit-input employee-edit-required"
+                                     value="#{employeeEditBean.employee.firstName}"
+                                     pt:data-required-message="#{msg['employee.edit.error.firstName.required']}"
+                                     pt:data-length-message="#{msg['employee.edit.error.firstName.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="100"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="lastName" styleClass="form-label" value="#{msg['profile.lastName']}"/>
+                        <h:inputText id="lastName"
+                                     styleClass="form-control employee-edit-input employee-edit-required"
+                                     value="#{employeeEditBean.employee.lastName}"
+                                     pt:data-required-message="#{msg['employee.edit.error.lastName.required']}"
+                                     pt:data-length-message="#{msg['employee.edit.error.lastName.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="100"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="email" styleClass="form-label" value="#{msg['profile.email']}"/>
+                        <h:inputText id="email"
+                                     styleClass="form-control employee-edit-input employee-edit-required employee-edit-email"
+                                     value="#{employeeEditBean.employee.email}"
+                                     pt:data-required-message="#{msg['employee.edit.error.email.required']}"
+                                     pt:data-invalid-message="#{msg['employee.edit.error.email.invalid']}"
+                                     pt:data-length-message="#{msg['employee.edit.error.email.length']}"
+                                     pt:data-min-length="5"
+                                     pt:data-max-length="150"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="phone" styleClass="form-label" value="#{msg['profile.phone']}"/>
+                        <h:inputText id="phone"
+                                     styleClass="form-control employee-edit-input"
+                                     value="#{employeeEditBean.employee.phone}"
+                                     pt:data-length-message="#{msg['employee.edit.error.phone.length']}"
+                                     pt:data-max-length="20"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="employeeNumber" styleClass="form-label" value="#{msg['profile.employeeNumber']}"/>
+                        <h:inputText id="employeeNumber"
+                                     styleClass="form-control employee-edit-input employee-edit-required"
+                                     value="#{employeeEditBean.employee.employeeNumber}"
+                                     pt:data-required-message="#{msg['employee.edit.error.employeeNumber.required']}"
+                                     pt:data-length-message="#{msg['employee.edit.error.employeeNumber.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="50"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="employmentStatus" styleClass="form-label" value="#{msg['employee.edit.employmentStatus']}"/>
+                        <h:selectOneMenu id="employmentStatus"
+                                         styleClass="form-select employee-edit-select employee-edit-required"
+                                         value="#{employeeEditBean.employee.employmentStatus}"
+                                         pt:data-required-message="#{msg['employee.edit.error.employmentStatus.required']}">
+                            <f:selectItem itemLabel="#{msg['employee.edit.selectPlaceholder']}" itemValue=""/>
+                            <f:selectItems value="#{employeeEditBean.employmentStatuses}"
+                                           var="employmentStatus"
+                                           itemValue="#{employmentStatus.code}"
+                                           itemLabel="#{employmentStatus.label}"/>
+                        </h:selectOneMenu>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="civilite" styleClass="form-label" value="#{msg['profile.civilite']}"/>
+                        <h:selectOneMenu id="civilite"
+                                         styleClass="form-select employee-edit-select employee-edit-required"
+                                         value="#{employeeEditBean.employee.civilite}"
+                                         pt:data-required-message="#{msg['employee.edit.error.civilite.required']}">
+                            <f:selectItem itemLabel="#{msg['employee.edit.selectPlaceholder']}" itemValue=""/>
+                            <f:selectItems value="#{employeeEditBean.civilites}"
+                                           var="civilite"
+                                           itemValue="#{civilite.code}"
+                                           itemLabel="#{civilite.label}"/>
+                        </h:selectOneMenu>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="gender" styleClass="form-label" value="#{msg['profile.gender']}"/>
+                        <h:selectOneMenu id="gender"
+                                         styleClass="form-select employee-edit-select employee-edit-required"
+                                         value="#{employeeEditBean.employee.gender}"
+                                         pt:data-required-message="#{msg['employee.edit.error.gender.required']}">
+                            <f:selectItem itemLabel="#{msg['employee.edit.selectPlaceholder']}" itemValue=""/>
+                            <f:selectItems value="#{employeeEditBean.genders}"
+                                           var="gender"
+                                           itemValue="#{gender.code}"
+                                           itemLabel="#{gender.label}"/>
+                        </h:selectOneMenu>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="placeOfBirth" styleClass="form-label" value="#{msg['profile.placeOfBirth']}"/>
+                        <h:inputText id="placeOfBirth"
+                                     styleClass="form-control employee-edit-input"
+                                     value="#{employeeEditBean.employee.placeOfBirth}"
+                                     pt:data-length-message="#{msg['employee.edit.error.placeOfBirth.length']}"
+                                     pt:data-max-length="150"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary employee-edit-save-button"
+                                     value="#{employeeEditBean.createMode ? msg['employee.create.saveBasicInformation'] : msg['employee.edit.saveBasicInformation']}"
+                                     action="#{employeeEditBean.saveBasicInformation}"
+                                     oncomplete="window.initEmployeeEditValidation &amp;&amp; window.initEmployeeEditValidation()"
+                                     update=":employeeEditContent :globalGrowl"/>
+                </div>
+            </h:form>
+
+            <h:form id="addressForm" styleClass="panel mt-4">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>#{msg['employee.address.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['employee.address.subtitle']}</p>
+                    </div>
+                </div>
+
+                <h:panelGroup rendered="#{employeeEditBean.createMode}" layout="block" styleClass="alert alert-info mb-3">
+                    #{msg['employee.address.createFirst']}
+                </h:panelGroup>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="streetName" styleClass="form-label" value="#{msg['employee.address.streetName']}"/>
+                        <h:inputText id="streetName"
+                                     styleClass="form-control"
+                                     disabled="#{employeeEditBean.createMode}"
+                                     value="#{employeeEditBean.employee.address.streetName}"/>
+                    </div>
+
+                    <div class="col-md-3">
+                        <h:outputLabel for="streetNumber" styleClass="form-label" value="#{msg['employee.address.streetNumber']}"/>
+                        <h:inputText id="streetNumber"
+                                     styleClass="form-control"
+                                     disabled="#{employeeEditBean.createMode}"
+                                     value="#{employeeEditBean.employee.address.streetNumber}"/>
+                    </div>
+
+                    <div class="col-md-3">
+                        <h:outputLabel for="boxNumber" styleClass="form-label" value="#{msg['employee.address.boxNumber']}"/>
+                        <h:inputText id="boxNumber"
+                                     styleClass="form-control"
+                                     disabled="#{employeeEditBean.createMode}"
+                                     value="#{employeeEditBean.employee.address.boxNumber}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="city" styleClass="form-label" value="#{msg['profile.city']}"/>
+                        <p:autoComplete id="city"
+                                        value="#{employeeEditBean.selectedCity}"
+                                        completeMethod="#{employeeEditBean.completeCity}"
+                                        var="city"
+                                        itemLabel="#{city.cityName} - #{city.zipCode}"
+                                        itemValue="#{city}"
+                                        converter="cityConverter"
+                                        styleClass="erp-city-autocomplete"
+                                        panelStyleClass="erp-city-autocomplete-panel"
+                                        forceSelection="true"
+                                        dropdown="true"
+                                        minQueryLength="2"
+                                        maxResults="20"
+                                        scrollHeight="250"
+                                        disabled="#{employeeEditBean.createMode}"
+                                        inputStyleClass="form-control"
+                                        placeholder="#{msg['employee.address.citySearch']}"/>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary"
+                                     value="#{msg['employee.address.save']}"
+                                     action="#{employeeEditBean.saveAddress}"
+                                     disabled="#{employeeEditBean.createMode}"
+                                     update=":employeeEditContent :globalGrowl"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+        </h:panelGroup>
+
+        <script src="#{request.contextPath}/app-assets/js/employee-edit-validation.js"></script>
+
+    </ui:define>
+
+</ui:composition>
+
+</html>

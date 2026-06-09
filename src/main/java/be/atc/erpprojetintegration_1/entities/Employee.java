@@ -1,6 +1,7 @@
 package be.atc.erpprojetintegration_1.entities;
 
 import be.atc.erpprojetintegration_1.enums.Civilite;
+import be.atc.erpprojetintegration_1.enums.EmploymentStatus;
 import be.atc.erpprojetintegration_1.enums.Gender;
 
 import javax.persistence.*;
@@ -34,6 +35,14 @@ import java.util.List;
                         "LEFT JOIN FETCH e.employeeDepartments ed " +
                         "LEFT JOIN FETCH ed.department d " +
                         "WHERE e.isActive = true " +
+                        "ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
+                name = "getAllEmployeesWithDepartments",
+                query = "SELECT DISTINCT e " +
+                        "FROM Employee e " +
+                        "LEFT JOIN FETCH e.employeeDepartments ed " +
+                        "LEFT JOIN FETCH ed.department d " +
                         "ORDER BY e.lastName, e.firstName"
         )
 })
@@ -86,9 +95,9 @@ public class Employee {
     @Column(name = "gender", length = 20)
     private Gender gender;
 
-    @Size(max = 50)
+    @Enumerated(EnumType.STRING)
     @Column(name = "employment_status", length = 50)
-    private String employmentStatus;
+    private EmploymentStatus employmentStatus;
 
     @Size(max = 50)
     @NotNull
@@ -198,11 +207,11 @@ public class Employee {
         this.gender = gender;
     }
 
-    public String getEmploymentStatus() {
+    public EmploymentStatus getEmploymentStatus() {
         return employmentStatus;
     }
 
-    public void setEmploymentStatus(String employmentStatus) {
+    public void setEmploymentStatus(EmploymentStatus employmentStatus) {
         this.employmentStatus = employmentStatus;
     }
 

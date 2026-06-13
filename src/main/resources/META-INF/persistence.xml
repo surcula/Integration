@@ -18,6 +18,10 @@
         <class>be.atc.erpprojetintegration_1.entities.EmployeeDepartment</class>
         <class>be.atc.erpprojetintegration_1.entities.Company</class>
         <class>be.atc.erpprojetintegration_1.entities.Function</class>
+        <class>be.atc.erpprojetintegration_1.entities.Planning</class>
+        <class>be.atc.erpprojetintegration_1.entities.PlanningsEmployee</class>
+        <class>be.atc.erpprojetintegration_1.entities.PublicHoliday</class>
+        <class>be.atc.erpprojetintegration_1.entities.Absence</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>

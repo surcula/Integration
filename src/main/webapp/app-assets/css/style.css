@@ -1856,6 +1856,84 @@ html[data-theme="dark"] {
   overflow: hidden;
 }
 
+.planning-calendar-panel .ui-schedule {
+  min-height: 680px;
+}
+
+.planning-calendar-panel .fc-toolbar {
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.planning-calendar-panel .fc-button {
+  border-radius: 6px;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.planning-calendar-panel .fc-event {
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0.15rem 0.25rem;
+}
+
+.planning-calendar-panel .fc-event .fc-event-main {
+  background: inherit !important;
+  color: inherit !important;
+}
+
+.planning-department-filter {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 260px);
+}
+
+.planning-department-filter label {
+  color: var(--admin-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.planning-filter-select {
+  width: 100%;
+}
+
+.planning-all-day-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.planning-all-day-option label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.contents {
+  display: contents;
+}
+
+.public-holiday-year input {
+  width: 7rem;
+}
+
+.planning-employee-select,
+.planning-employee-select .ui-selectcheckboxmenu-label-container {
+  width: 100%;
+}
+
+@media (max-width: 767.98px) {
+  .planning-calendar-panel .ui-schedule {
+    min-height: 560px;
+  }
+
+  .planning-calendar-panel .fc-toolbar-chunk {
+    width: 100%;
+    text-align: center;
+  }
+}
+
 .planning-calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -2070,3 +2148,23 @@ html[data-theme="dark"] {
     border-right: 1px solid var(--admin-border);
   }
 }
+.absence-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.planning-legend-absence {
+    background: #7c3aed;
+}
+
+.absence-status-draft { color: #475569; background: #e2e8f0; }
+.absence-status-pending { color: #854d0e; background: #fef3c7; }
+.absence-status-approved { color: #166534; background: #dcfce7; }
+.absence-status-refused { color: #991b1b; background: #fee2e2; }
+.absence-status-cancelled { color: #5b6472; background: #eef0f3; }
+.absence-review-box { padding: 14px; border-left: 4px solid #3b82f6; background: #f8fafc; }

@@ -6,6 +6,12 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllActivePlannings",
+                query = "SELECT p FROM Planning p LEFT JOIN FETCH p.department WHERE p.isActive = true ORDER BY p.date, p.startHour"
+        )
+})
 @Entity
 @Table(name = "plannings")
 public class Planning {

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
     <ui:define name="title">#{msg['nav.planning']} | ERP RH</ui:define>
@@ -11,121 +14,231 @@
                 <div>
                     <p class="eyebrow mb-1">#{msg['nav.timePlanning']}</p>
                     <h1 class="h3 mb-1">#{msg['nav.planning']}</h1>
-                    <p class="text-muted mb-0">Vue mensuelle du planning des équipes.</p>
+                    <p class="text-muted mb-0">Vue hebdomadaire et mensuelle du planning des equipes.</p>
                 </div>
             </div>
         </div>
 
         <section class="row g-3">
             <div class="col-12 col-xl-9">
-                <div class="panel planning-calendar-panel">
+                <h:form id="planningForm" styleClass="panel planning-calendar-panel">
                     <div class="panel-header">
                         <div>
                             <h2 class="h5 mb-1 section-title">
                                 <i class="bi bi-calendar-week" aria-hidden="true"></i>
-                                <span>Juin 2026</span>
+                                <span>Calendrier</span>
                             </h2>
-                            <p class="text-muted mb-0">Exemple de planning hebdomadaire par type de présence.</p>
+                            <p class="text-muted mb-0">
+                                <h:outputText value="Clique sur un creneau pour ajouter une affectation."
+                                              rendered="#{planningBean.canManagePlanning}"/>
+                                <h:outputText value="Consultez vos affectations dans le calendrier."
+                                              rendered="#{not planningBean.canManagePlanning}"/>
+                            </p>
                         </div>
+                        <h:panelGroup layout="block"
+                                      styleClass="planning-department-filter"
+                                      rendered="#{planningBean.canManagePlanning}">
+                            <p:outputLabel for="departmentFilter" value="Departement"/>
+                            <p:selectOneMenu id="departmentFilter"
+                                             value="#{planningBean.planningDepartmentFilterId}"
+                                             styleClass="planning-filter-select">
+                                <f:selectItem itemLabel="Tous les departements"
+                                              itemValue="#{null}"
+                                              noSelectionOption="true"/>
+                                <f:selectItems value="#{planningBean.departments}"
+                                               var="department"
+                                               itemLabel="#{department.departmentName}"
+                                               itemValue="#{department.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"
+                                        listener="#{planningBean.loadPlannings}"
+                                        update="planningSchedule"/>
+                            </p:selectOneMenu>
+                        </h:panelGroup>
                     </div>
 
-                    <div class="planning-calendar">
-                        <div class="planning-day-name">Lun</div>
-                        <div class="planning-day-name">Mar</div>
-                        <div class="planning-day-name">Mer</div>
-                        <div class="planning-day-name">Jeu</div>
-                        <div class="planning-day-name">Ven</div>
-                        <div class="planning-day-name">Sam</div>
-                        <div class="planning-day-name">Dim</div>
+                    <p:schedule id="planningSchedule"
+                                value="#{planningBean.eventModel}"
+                                widgetVar="planningScheduleWidget"
+                                view="#{planningBean.view}"
+                                locale="#{planningBean.locale}"
+                                timeZone="Europe/Brussels"
+                                draggable="#{planningBean.canManagePlanning}"
+                                resizable="#{planningBean.canManagePlanning}"
+                                tooltip="true"
+                                minTime="#{planningBean.minTime}"
+                                maxTime="#{planningBean.maxTime}"
+                                slotDuration="#{planningBean.slotDuration}">
+                        <p:ajax event="dateSelect"
+                                disabled="#{not planningBean.canManagePlanning}"
+                                listener="#{planningBean.onDateSelect}"
+                                update="planningDialog"
+                                oncomplete="PF('planningDialogWidget').show();"/>
+                        <p:ajax event="eventSelect"
+                                listener="#{planningBean.onEventSelect}"
+                                update="planningDialog"
+                                oncomplete="if (args.editablePlanningEvent) PF('planningDialogWidget').show();"/>
+                        <p:ajax event="eventMove"
+                                listener="#{planningBean.onEventMove}"
+                                update="planningSchedule"/>
+                        <p:ajax event="eventResize"
+                                listener="#{planningBean.onEventResize}"
+                                update="planningSchedule"/>
+                    </p:schedule>
 
-                        <div class="planning-day">
-                            <span class="planning-date">1</span>
-                            <span class="planning-chip planning-chip-work">Urgences</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">2</span>
-                            <span class="planning-chip planning-chip-work">Cardiologie</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">3</span>
-                            <span class="planning-chip planning-chip-rest">Repos</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">4</span>
-                            <span class="planning-chip planning-chip-work">Pédiatrie</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">5</span>
-                            <span class="planning-chip planning-chip-recovery">Récup</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">6</span>
-                            <span class="planning-chip planning-chip-rest">Repos</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">7</span>
-                            <span class="planning-chip planning-chip-rest">Repos</span>
+                    <p:dialog id="planningDialog"
+                              widgetVar="planningDialogWidget"
+                              header="Element du planning"
+                              modal="true"
+                              responsive="true"
+                              width="520">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <p:outputLabel for="note" value="Titre"/>
+                                <p:inputText id="note"
+                                             value="#{planningBean.selectedPlanning.note}"
+                                             disabled="#{not planningBean.canManagePlanning}"
+                                             styleClass="form-control"
+                                             maxlength="255"/>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <p:outputLabel for="type" value="Type"/>
+                                <p:selectOneMenu id="type"
+                                                 value="#{planningBean.selectedPlanning.type}"
+                                                 disabled="#{not planningBean.canManagePlanning}"
+                                                 styleClass="w-100">
+                                    <f:selectItem itemLabel="Service" itemValue="SERVICE"/>
+                                    <f:selectItem itemLabel="Repos" itemValue="REPOS"/>
+                                    <f:selectItem itemLabel="Recuperation" itemValue="RECUPERATION"/>
+                                    <f:selectItem itemLabel="Jour ferie" itemValue="FERIE"/>
+                                    <f:selectItem itemLabel="Vacances" itemValue="VACANCES"/>
+                                    <p:ajax event="change"
+                                            process="@this"
+                                            listener="#{planningBean.onTypeChange}"
+                                            update="allDayContainer hoursPanel"/>
+                                </p:selectOneMenu>
+                            </div>
+
+                            <h:panelGroup id="allDayContainer" layout="block" styleClass="col-12">
+                                <h:panelGroup layout="block"
+                                              styleClass="planning-all-day-option"
+                                              rendered="#{planningBean.typeSupportsAllDay}">
+                                    <p:selectBooleanCheckbox id="allDay"
+                                                             value="#{planningBean.allDay}"
+                                                             disabled="#{not planningBean.canManagePlanning}">
+                                        <p:ajax event="change"
+                                                process="@this"
+                                                update="hoursPanel"/>
+                                    </p:selectBooleanCheckbox>
+                                    <p:outputLabel for="allDay" value="Toute la journee"/>
+                                </h:panelGroup>
+                            </h:panelGroup>
+
+                            <h:panelGroup layout="block"
+                                          styleClass="col-12"
+                                          rendered="#{planningBean.canManagePlanning}">
+                                <p:outputLabel for="employees" value="Employes affectes"/>
+                                <p:selectCheckboxMenu id="employees"
+                                                      value="#{planningBean.selectedEmployeeIds}"
+                                                      label="Selectionner les employes"
+                                                      filter="true"
+                                                      filterMatchMode="contains"
+                                                      multiple="true"
+                                                      updateLabel="true"
+                                                      scrollHeight="260"
+                                                      styleClass="w-100 planning-employee-select">
+                                    <f:selectItems value="#{planningBean.employees}"
+                                                   var="employee"
+                                                   itemLabel="#{employee.fullName} - #{employee.email}"
+                                                   itemValue="#{employee.id}"/>
+                                </p:selectCheckboxMenu>
+                            </h:panelGroup>
+
+                            <h:panelGroup layout="block"
+                                          styleClass="col-12 col-md-6"
+                                          rendered="#{planningBean.canManagePlanning}">
+                                <p:outputLabel for="department" value="Service"/>
+                                <p:selectOneMenu id="department"
+                                                 value="#{planningBean.selectedDepartmentId}"
+                                                 styleClass="w-100">
+                                    <f:selectItem itemLabel="Aucun service" itemValue="#{null}"/>
+                                    <f:selectItems value="#{planningBean.departments}"
+                                                   var="department"
+                                                   itemLabel="#{department.departmentName}"
+                                                   itemValue="#{department.id}"/>
+                                </p:selectOneMenu>
+                            </h:panelGroup>
+
+                            <h:panelGroup layout="block"
+                                          styleClass="col-12 col-md-6"
+                                          rendered="#{not planningBean.canManagePlanning}">
+                                <p:outputLabel value="Service"/>
+                                <h:outputText styleClass="form-control planning-readonly-value"
+                                              value="#{empty planningBean.selectedPlanning.department ? 'Aucun service' : planningBean.selectedPlanning.department.departmentName}"/>
+                            </h:panelGroup>
+
+                            <div class="col-12 col-md-4">
+                                <p:outputLabel for="date" value="Date"/>
+                                <p:datePicker id="date"
+                                              value="#{planningBean.selectedPlanning.date}"
+                                              disabled="#{not planningBean.canManagePlanning}"
+                                              pattern="dd/MM/yyyy"
+                                              showIcon="true"
+                                              styleClass="w-100"/>
+                            </div>
+
+                            <h:panelGroup id="hoursPanel" layout="block" styleClass="contents">
+                                <div class="col-12 col-md-4">
+                                    <p:outputLabel for="startHour" value="Debut"/>
+                                    <p:inputMask id="startHour"
+                                                 value="#{planningBean.startHourValue}"
+                                                 disabled="#{not planningBean.canManagePlanning or planningBean.allDay}"
+                                                 mask="99:99"
+                                                 styleClass="form-control"/>
+                                </div>
+
+                                <div class="col-12 col-md-4">
+                                    <p:outputLabel for="endHour" value="Fin"/>
+                                    <p:inputMask id="endHour"
+                                                 value="#{planningBean.endHourValue}"
+                                                 disabled="#{not planningBean.canManagePlanning or planningBean.allDay}"
+                                                 mask="99:99"
+                                                 styleClass="form-control"/>
+                                </div>
+                            </h:panelGroup>
+
+                            <div class="col-12">
+                                <p:outputLabel for="description" value="Description"/>
+                                <p:inputTextarea id="description"
+                                                 value="#{planningBean.selectedPlanning.description}"
+                                                 disabled="#{not planningBean.canManagePlanning}"
+                                                 rows="4"
+                                                 autoResize="false"
+                                                 styleClass="form-control"/>
+                            </div>
                         </div>
 
-                        <div class="planning-day">
-                            <span class="planning-date">8</span>
-                            <span class="planning-chip planning-chip-work">Bloc opératoire</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">9</span>
-                            <span class="planning-chip planning-chip-work">Urgences</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">10</span>
-                            <span class="planning-chip planning-chip-holiday">Férié</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">11</span>
-                            <span class="planning-chip planning-chip-work">Radiologie</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">12</span>
-                            <span class="planning-chip planning-chip-vacation">Vacances</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">13</span>
-                            <span class="planning-chip planning-chip-vacation">Vacances</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">14</span>
-                            <span class="planning-chip planning-chip-rest">Repos</span>
-                        </div>
-
-                        <div class="planning-day">
-                            <span class="planning-date">15</span>
-                            <span class="planning-chip planning-chip-work">Cardiologie</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">16</span>
-                            <span class="planning-chip planning-chip-work">Urgences</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">17</span>
-                            <span class="planning-chip planning-chip-recovery">Récup</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">18</span>
-                            <span class="planning-chip planning-chip-work">Pédiatrie</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">19</span>
-                            <span class="planning-chip planning-chip-work">Nuit</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">20</span>
-                            <span class="planning-chip planning-chip-rest">Repos</span>
-                        </div>
-                        <div class="planning-day">
-                            <span class="planning-date">21</span>
-                            <span class="planning-chip planning-chip-rest">Repos</span>
-                        </div>
-                    </div>
-                </div>
+                        <f:facet name="footer">
+                            <p:commandButton value="Supprimer"
+                                             icon="bi bi-trash"
+                                             styleClass="btn btn-outline-danger"
+                                             rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}"
+                                             action="#{planningBean.deletePlanning}"
+                                             process="@this"
+                                             update="planningForm:planningSchedule planningDialog globalGrowl"
+                                             oncomplete="PF('planningDialogWidget').hide();"/>
+                            <p:commandButton value="Enregistrer"
+                                             icon="bi bi-check2"
+                                             styleClass="btn btn-primary"
+                                             rendered="#{planningBean.canManagePlanning}"
+                                             action="#{planningBean.savePlanning}"
+                                             process="planningDialog"
+                                             update="planningForm:planningSchedule planningDialog globalGrowl"
+                                             oncomplete="if (!args.validationFailed) PF('planningDialogWidget').hide();"/>
+                        </f:facet>
+                    </p:dialog>
+                </h:form>
             </div>
 
             <div class="col-12 col-xl-3">
@@ -134,7 +247,7 @@
                         <div>
                             <h2 class="h5 mb-1 section-title">
                                 <i class="bi bi-palette" aria-hidden="true"></i>
-                                <span>Légende</span>
+                                <span>Legende</span>
                             </h2>
                             <p class="text-muted mb-0">Code couleur du planning.</p>
                         </div>
@@ -145,35 +258,42 @@
                             <span class="planning-legend-color planning-legend-work"></span>
                             <div>
                                 <strong>Service</strong>
-                                <span>Jour de travail affecté à un service.</span>
+                                <span>Jour de travail affecte a un service.</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-rest"></span>
                             <div>
                                 <strong>Repos</strong>
-                                <span>Jour non travaillé.</span>
+                                <span>Jour non travaille.</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-recovery"></span>
                             <div>
-                                <strong>Récup</strong>
-                                <span>Récupération d'heures.</span>
+                                <strong>Recup</strong>
+                                <span>Recuperation d'heures.</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-holiday"></span>
                             <div>
-                                <strong>Jour férié</strong>
-                                <span>Jour férié officiel.</span>
+                                <strong>Jour ferie</strong>
+                                <span>Jour ferie officiel.</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-vacation"></span>
                             <div>
                                 <strong>Vacances</strong>
-                                <span>Congé planifié.</span>
+                                <span>Conge planifie.</span>
+                            </div>
+                        </div>
+                        <div class="planning-legend-item">
+                            <span class="planning-legend-color planning-legend-absence"></span>
+                            <div>
+                                <strong>Absence</strong>
+                                <span>Absence approuvee par la RH.</span>
                             </div>
                         </div>
                     </div>

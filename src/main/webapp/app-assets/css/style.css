@@ -2167,4 +2167,154 @@ html[data-theme="dark"] {
 .absence-status-approved { color: #166534; background: #dcfce7; }
 .absence-status-refused { color: #991b1b; background: #fee2e2; }
 .absence-status-cancelled { color: #5b6472; background: #eef0f3; }
-.absence-review-box { padding: 14px; border-left: 4px solid #3b82f6; background: #f8fafc; }
+
+.absence-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.absence-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 72px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color, #dbe3ed);
+    border-radius: 6px;
+    background: var(--surface-card, #ffffff);
+}
+
+.absence-summary-item strong,
+.absence-summary-item span {
+    display: block;
+}
+
+.absence-summary-item strong {
+    color: var(--heading-color, #1e293b);
+    font-size: 1.35rem;
+    line-height: 1.1;
+}
+
+.absence-summary-item div > span {
+    margin-top: 3px;
+    color: var(--muted-color, #64748b);
+    font-size: .82rem;
+}
+
+.absence-summary-item .absence-summary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 6px;
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.absence-summary-icon i {
+    display: block;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    text-align: center;
+}
+
+.absence-summary-pending .absence-summary-icon { color: #a16207; background: #fef3c7; }
+.absence-summary-approved .absence-summary-icon { color: #15803d; background: #dcfce7; }
+.absence-summary-refused .absence-summary-icon { color: #b91c1c; background: #fee2e2; }
+
+.absence-document-existing {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.absence-document-name {
+    min-width: 0;
+    max-width: 220px;
+    color: #64748b;
+    font-size: .78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.absence-filter-select {
+    width: 100%;
+    min-width: 150px;
+}
+
+.absence-filter-select .ui-selectonemenu-label,
+.absence-filter-select .ui-selectonemenu-label.ui-inputfield {
+    min-height: 38px;
+    padding: 8px 38px 8px 10px;
+}
+
+@media (max-width: 767.98px) {
+    .absence-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+.absence-review-box {
+    padding: 16px;
+    border-left: 4px solid #3b82f6;
+    background: #f8fafc;
+}
+
+.absence-review-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.absence-review-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.absence-review-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 6px;
+    color: #2563eb;
+    background: #dbeafe;
+}
+
+.absence-review-meta {
+    margin-top: 2px;
+    color: #64748b;
+    font-size: .78rem;
+}
+
+.absence-review-text {
+    display: block;
+    min-height: 44px;
+    padding: 11px 12px;
+    border: 1px solid #dbe3ed;
+    border-radius: 6px;
+    color: #334155;
+    background: #ffffff;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.vacation-celebration-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}

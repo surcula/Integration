@@ -14,6 +14,7 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
+import java.util.UUID;
 
 @Named
 @SessionScoped
@@ -24,6 +25,7 @@ public class AuthBean implements Serializable {
     private String email;
     private String password;
     private ConnectedEmployeeDto connectedEmployee;
+    private String loginCelebrationToken;
     @Inject
     private EmployeeBusiness employeeBusiness;
 
@@ -34,6 +36,7 @@ public class AuthBean implements Serializable {
      */
     public void connect(ConnectedEmployeeDto employee) {
         this.connectedEmployee = employee;
+        this.loginCelebrationToken = UUID.randomUUID().toString();
     }
 
     /**
@@ -84,6 +87,7 @@ public class AuthBean implements Serializable {
         SecurityUtils.getSubject().logout();
 
         connectedEmployee = null;
+        loginCelebrationToken = null;
         email = null;
         password = null;
 
@@ -96,6 +100,10 @@ public class AuthBean implements Serializable {
 
     public ConnectedEmployeeDto getConnectedEmployee() {
         return connectedEmployee;
+    }
+
+    public String getLoginCelebrationToken() {
+        return loginCelebrationToken;
     }
 
     /**

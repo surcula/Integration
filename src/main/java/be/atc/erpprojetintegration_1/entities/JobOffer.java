@@ -1,12 +1,37 @@
 package be.atc.erpprojetintegration_1.entities;
 
+import be.atc.erpprojetintegration_1.enums.JobOfferStatus;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * JPA entity mapped to the job_offers table.
+ * It stores the offer information, its publication status and the related function.
+ */
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllJobOffers",
+                query = "SELECT jo FROM JobOffer jo LEFT JOIN FETCH jo.function ORDER BY jo.createAt DESC"
+        ),
+        @NamedQuery(
+                name = "getAllActiveJobOffers",
+                query = "SELECT jo FROM JobOffer jo LEFT JOIN FETCH jo.function WHERE jo.isActive = true ORDER BY jo.createAt DESC"
+        ),
+        @NamedQuery(
+                name = "getActiveJobOffersByFunctionId",
+                query = "SELECT jo FROM JobOffer jo LEFT JOIN FETCH jo.function " +
+                        "WHERE jo.isActive = true AND jo.status = be.atc.erpprojetintegration_1.enums.JobOfferStatus.PUBLISHED " +
+                        "AND jo.function.id = :functionId ORDER BY jo.createAt DESC"
+        ),
+        @NamedQuery(
+                name = "getJobOfferById",
+                query = "SELECT jo FROM JobOffer jo LEFT JOIN FETCH jo.function WHERE jo.id = :id"
+        )
+})
 @Entity
 @Table(name = "job_offers")
 public class JobOffer {
@@ -34,9 +59,9 @@ public class JobOffer {
     @Column(name = "publish_end_date")
     private LocalDate publishEndDate;
 
-    @Size(max = 50)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private String status;
+    private JobOfferStatus status;
 
     @NotNull
     @Column(name = "is_active", nullable = false)
@@ -95,11 +120,11 @@ public class JobOffer {
         this.publishEndDate = publishEndDate;
     }
 
-    public String getStatus() {
+    public JobOfferStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(JobOfferStatus status) {
         this.status = status;
     }
 

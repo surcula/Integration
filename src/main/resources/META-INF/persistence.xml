@@ -18,6 +18,14 @@
         <class>be.atc.erpprojetintegration_1.entities.EmployeeDepartment</class>
         <class>be.atc.erpprojetintegration_1.entities.Company</class>
         <class>be.atc.erpprojetintegration_1.entities.Function</class>
+        <class>be.atc.erpprojetintegration_1.entities.JobOffer</class>
+        <class>be.atc.erpprojetintegration_1.entities.Evaluation</class>
+        <class>be.atc.erpprojetintegration_1.entities.EvaluationCriterion</class>
+        <class>be.atc.erpprojetintegration_1.entities.EvaluationsObjective</class>
+        <class>be.atc.erpprojetintegration_1.entities.Objective</class>
+        <class>be.atc.erpprojetintegration_1.entities.Criterion</class>
+        <class>be.atc.erpprojetintegration_1.entities.Category</class>
+        <class>be.atc.erpprojetintegration_1.entities.CriteriaFunction</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>

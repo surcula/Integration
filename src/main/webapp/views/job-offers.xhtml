@@ -1,18 +1,149 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-    <ui:define name="title">#{msg['nav.jobOffers']} | ERP RH</ui:define>
+    <ui:define name="title">#{msg['jobOffers.pageTitle']}</ui:define>
+
     <ui:define name="content">
         <div class="page-heading">
             <div class="page-heading-copy">
-                <span class="page-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
+                <span class="page-icon"><i class="pi pi-megaphone" aria-hidden="true"></i></span>
                 <div>
-                    <p class="eyebrow mb-1">#{msg['nav.recruitment']}</p>
-                    <h1 class="h3 mb-1">#{msg['nav.jobOffers']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+                    <p class="eyebrow mb-1">#{msg['jobOffers.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['jobOffers.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['jobOffers.subtitle']}</p>
                 </div>
+            </div>
+            <h:link outcome="/views/job-offer-edit" styleClass="btn btn-primary">
+                <i class="pi pi-plus-circle"></i>
+                <span>#{msg['jobOffers.add']}</span>
+            </h:link>
+        </div>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="jobOffersForm">
+                    <p:dataTable value="#{jobOffersBean.jobOffers}"
+                                 var="offer"
+                                 widgetVar="jobOffersTable"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="both"
+                                 emptyMessage="#{msg['jobOffers.empty']}">
+
+                        <f:facet name="header">
+                            <div class="d-flex justify-content-end">
+                                <span class="p-input-icon-left employee-global-search">
+                                    <i class="pi pi-search"></i>
+                                    <p:inputText id="globalFilter"
+                                                 styleClass="form-control"
+                                                 onkeyup="PF('jobOffersTable').filter()"
+                                                 placeholder="#{msg['jobOffers.search']}"/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="#{msg['jobOffers.name']}"
+                                  sortBy="#{offer.jobOfferName}"
+                                  filterBy="#{offer.jobOfferName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            <strong>#{offer.jobOfferName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.function']}"
+                                  sortBy="#{offer.function.functionName}"
+                                  filterBy="#{offer.function.functionName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{offer.function.functionName}
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.status']}" sortBy="#{offer.status}">
+                            #{offer.status.label}
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.activeStatus']}" sortBy="#{offer.isActive}">
+                            <span class="#{offer.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{offer.isActive ? msg['jobOffers.active'] : msg['jobOffers.inactive']}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.createAt']}" sortBy="#{offer.createAt}">
+                            #{offer.createAt}
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.publishStartDate']}" sortBy="#{offer.publishStartDate}">
+                            #{offer.publishStartDate}
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.action']}">
+                            <h:link outcome="/views/job-offer-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['jobOffers.edit']}">
+                                <i class="pi pi-pencil"></i>
+                                <span class="visually-hidden">#{msg['jobOffers.edit']}</span>
+                                <f:param name="id" value="#{offer.id}"/>
+                            </h:link>
+
+                            <p:commandLink styleClass="btn btn-sm btn-outline-success ms-2"
+                                           title="#{msg['jobOffers.publish']}"
+                                           action="#{jobOffersBean.publish(offer.id)}"
+                                           rendered="#{jobOffersBean.canPublish(offer)}"
+                                           process="@this"
+                                           update="@form :globalGrowl">
+                                <i class="pi pi-send"></i>
+                                <span class="visually-hidden">#{msg['jobOffers.publish']}</span>
+                                <p:confirm header="#{msg['jobOffers.publish']}"
+                                           message="#{msg['jobOffers.publish.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+
+                            <p:commandLink styleClass="btn btn-sm btn-outline-secondary ms-2"
+                                           title="#{msg['jobOffers.archive']}"
+                                           action="#{jobOffersBean.archive(offer.id)}"
+                                           rendered="#{jobOffersBean.canArchive(offer)}"
+                                           process="@this"
+                                           update="@form :globalGrowl">
+                                <i class="pi pi-folder"></i>
+                                <span class="visually-hidden">#{msg['jobOffers.archive']}</span>
+                                <p:confirm header="#{msg['jobOffers.archive']}"
+                                           message="#{msg['jobOffers.archive.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+
+                            <p:commandLink styleClass="btn btn-sm btn-outline-danger ms-2"
+                                           title="#{msg['jobOffers.delete']}"
+                                           action="#{jobOffersBean.softDelete(offer.id)}"
+                                           rendered="#{jobOffersBean.canDelete(offer)}"
+                                           process="@this"
+                                           update="@form :globalGrowl">
+                                <i class="pi pi-trash"></i>
+                                <span class="visually-hidden">#{msg['jobOffers.delete']}</span>
+                                <p:confirm header="#{msg['jobOffers.delete']}"
+                                           message="#{msg['jobOffers.delete.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"
+                                         icon="pi pi-check"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-secondary"
+                                         icon="pi pi-times"/>
+                    </p:confirmDialog>
+                </h:form>
             </div>
         </div>
     </ui:define>

@@ -1,5 +1,7 @@
 package be.atc.erpprojetintegration_1.entities;
 
+import be.atc.erpprojetintegration_1.enums.EvaluationObjectiveStatus;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -19,6 +21,11 @@ public class EvaluationsObjective {
     @NotNull
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    private EvaluationObjectiveStatus status;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -52,6 +59,14 @@ public class EvaluationsObjective {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public EvaluationObjectiveStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EvaluationObjectiveStatus status) {
+        this.status = status;
     }
 
     public Objective getObjective() {

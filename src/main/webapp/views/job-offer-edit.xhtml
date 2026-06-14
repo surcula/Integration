@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{jobOfferEditBean.jobOfferId}"/>
+    <f:viewAction action="#{jobOfferEditBean.loadJobOffer}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">
+        #{jobOfferEditBean.createMode ? msg['jobOffers.create.pageTitle'] : msg['jobOffers.edit.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="pi pi-megaphone"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['jobOffers.section']}</p>
+                    <h1 class="h3 mb-1">
+                        #{jobOfferEditBean.createMode ? msg['jobOffers.create.title'] : msg['jobOffers.edit.title']}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        #{jobOfferEditBean.createMode ? msg['jobOffers.create.subtitle'] : msg['jobOffers.edit.subtitle']}
+                    </p>
+                </div>
+            </div>
+            <h:link outcome="/views/job-offers" styleClass="btn btn-outline-secondary">
+                <i class="pi pi-arrow-left"></i>
+                <span>#{msg['common.back']}</span>
+            </h:link>
+        </div>
+
+        <h:panelGroup id="jobOfferEditContent" layout="block">
+            <h:form id="jobOfferForm" styleClass="panel" rendered="#{not empty jobOfferEditBean.jobOffer}">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="pi pi-megaphone"></i>
+                            <span>#{msg['jobOffers.form.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['jobOffers.form.subtitle']}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="jobOfferName" styleClass="form-label" value="#{msg['jobOffers.name']}"/>
+                        <h:inputText id="jobOfferName"
+                                     styleClass="form-control"
+                                     value="#{jobOfferEditBean.jobOffer.jobOfferName}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="function" styleClass="form-label" value="#{msg['jobOffers.function']}"/>
+                        <h:selectOneMenu id="function"
+                                         styleClass="form-select"
+                                         value="#{jobOfferEditBean.selectedFunctionId}">
+                            <f:selectItem itemLabel="#{msg['jobOffers.function.placeholder']}" itemValue="#{null}"/>
+                            <f:selectItems value="#{jobOfferEditBean.functions}"
+                                           var="function"
+                                           itemLabel="#{function.functionName}"
+                                           itemValue="#{function.id}"/>
+                        </h:selectOneMenu>
+                    </div>
+
+                    <h:panelGroup layout="block" styleClass="col-md-6" rendered="#{not jobOfferEditBean.createMode}">
+                        <h:outputLabel for="status" styleClass="form-label" value="#{msg['jobOffers.status']}"/>
+                        <h:inputText id="status"
+                                     styleClass="form-control"
+                                     value="#{jobOfferEditBean.jobOffer.status.label}"
+                                     disabled="true"/>
+                    </h:panelGroup>
+
+                    <div class="col-12">
+                        <h:outputLabel for="description" styleClass="form-label" value="#{msg['jobOffers.description']}"/>
+                        <h:inputTextarea id="description"
+                                         styleClass="form-control"
+                                         rows="5"
+                                         value="#{jobOfferEditBean.jobOffer.description}"/>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary"
+                                     value="#{msg['jobOffers.save']}"
+                                     action="#{jobOfferEditBean.save}"
+                                     update=":jobOfferEditContent :globalGrowl"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+    </ui:define>
+</ui:composition>
+</html>

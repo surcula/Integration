@@ -14,7 +14,22 @@ import java.time.LocalTime;
         @NamedQuery(name = "getAllActiveAbsences",
                 query = "SELECT a FROM Absence a JOIN FETCH a.employee LEFT JOIN FETCH a.reviewer WHERE a.isActive = true ORDER BY a.startDate DESC, a.startHour"),
         @NamedQuery(name = "getActiveAbsencesByEmployee",
-                query = "SELECT a FROM Absence a JOIN FETCH a.employee LEFT JOIN FETCH a.reviewer WHERE a.isActive = true AND a.employee.id = :employeeId ORDER BY a.startDate DESC, a.startHour")
+                query = "SELECT a FROM Absence a JOIN FETCH a.employee LEFT JOIN FETCH a.reviewer WHERE a.isActive = true AND a.employee.id = :employeeId ORDER BY a.startDate DESC, a.startHour"),
+        @NamedQuery(name = "getAbsenceById",
+                query = "SELECT a FROM Absence a JOIN FETCH a.employee LEFT JOIN FETCH a.reviewer WHERE a.id = :id"),
+        @NamedQuery(name = "getBlockingAbsences",
+                query = "SELECT a FROM Absence a JOIN FETCH a.employee WHERE a.employee.id = :employeeId AND a.isActive = true " +
+                        "AND a.status IN (be.atc.erpprojetintegration_1.enums.AbsenceStatus.PENDING, be.atc.erpprojetintegration_1.enums.AbsenceStatus.APPROVED) " +
+                        "AND a.startDate <= :endDate AND a.endDate >= :startDate"),
+        @NamedQuery(name = "getBlockingAbsencesExcluding",
+                query = "SELECT a FROM Absence a JOIN FETCH a.employee WHERE a.employee.id = :employeeId AND a.isActive = true " +
+                        "AND a.status IN (be.atc.erpprojetintegration_1.enums.AbsenceStatus.PENDING, be.atc.erpprojetintegration_1.enums.AbsenceStatus.APPROVED) " +
+                        "AND a.startDate <= :endDate AND a.endDate >= :startDate AND a.id <> :excludedId"),
+        @NamedQuery(name = "getPendingSicknessWithoutCertificateBefore",
+                query = "SELECT a FROM Absence a JOIN FETCH a.employee WHERE a.isActive = true " +
+                        "AND a.type = be.atc.erpprojetintegration_1.enums.AbsenceType.SICKNESS " +
+                        "AND a.status = be.atc.erpprojetintegration_1.enums.AbsenceStatus.PENDING " +
+                        "AND a.documentPath IS NULL AND a.startDate < :deadlineDate")
 })
 @Entity
 @Table(name = "absences")
@@ -82,6 +97,16 @@ public class Absence {
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
+    @Column(name = "certificate_validated", nullable = false)
+    private Boolean certificateValidated = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "certificate_validated_by")
+    private Employee certificateValidatedBy;
+
+    @Column(name = "certificate_validated_at")
+    private LocalDateTime certificateValidatedAt;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -127,6 +152,12 @@ public class Absence {
     public void setReviewComment(String reviewComment) { this.reviewComment = reviewComment; }
     public LocalDateTime getReviewedAt() { return reviewedAt; }
     public void setReviewedAt(LocalDateTime reviewedAt) { this.reviewedAt = reviewedAt; }
+    public Boolean getCertificateValidated() { return certificateValidated; }
+    public void setCertificateValidated(Boolean certificateValidated) { this.certificateValidated = certificateValidated; }
+    public Employee getCertificateValidatedBy() { return certificateValidatedBy; }
+    public void setCertificateValidatedBy(Employee certificateValidatedBy) { this.certificateValidatedBy = certificateValidatedBy; }
+    public LocalDateTime getCertificateValidatedAt() { return certificateValidatedAt; }
+    public void setCertificateValidatedAt(LocalDateTime certificateValidatedAt) { this.certificateValidatedAt = certificateValidatedAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public Boolean getIsActive() { return isActive; }

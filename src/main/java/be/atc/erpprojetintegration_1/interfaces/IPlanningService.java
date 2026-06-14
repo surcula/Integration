@@ -4,6 +4,7 @@ import be.atc.erpprojetintegration_1.entities.Planning;
 import be.atc.erpprojetintegration_1.tools.Result;
 
 import java.util.List;
+import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 
 /**
  * Defines planning-related database operations.
@@ -58,4 +59,10 @@ public interface IPlanningService {
      * @return operation result
      */
     Result<Void> setActive(Integer id, boolean active);
+
+    Result<Planning> setStatus(Integer id, PlanningStatus status);
+
+    Result<List<Planning>> getByMonthAndEmployee(int year, int month, Integer employeeId);
+
+    Result<List<Planning>> getByMonthAndDepartment(int year, int month, Integer departmentId);
 }

@@ -5,11 +5,61 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.LocalDateTime;
+import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 
 @NamedQueries({
         @NamedQuery(
                 name = "getAllActivePlannings",
-                query = "SELECT p FROM Planning p LEFT JOIN FETCH p.department WHERE p.isActive = true ORDER BY p.date, p.startHour"
+                query = "SELECT p FROM Planning p LEFT JOIN FETCH p.department " +
+                        "WHERE p.isActive = true AND p.status <> be.atc.erpprojetintegration_1.enums.PlanningStatus.CANCELLED " +
+                        "ORDER BY p.date, p.startHour"
+        ),
+        @NamedQuery(
+                name = "getPlanningById",
+                query = "SELECT p FROM Planning p LEFT JOIN FETCH p.department WHERE p.id = :planningId"
+        ),
+        @NamedQuery(
+                name = "getActivePlanningsByEmployee",
+                query = "SELECT DISTINCT p FROM PlanningsEmployee pe " +
+                        "JOIN pe.planning p " +
+                        "LEFT JOIN FETCH p.department " +
+                        "WHERE pe.employee.id = :employeeId " +
+                        "AND pe.isActive = true AND p.isActive = true AND p.status = :published " +
+                        "ORDER BY p.date, p.startHour"
+        ),
+        @NamedQuery(
+                name = "getPlanningByIdForEmployee",
+                query = "SELECT DISTINCT p FROM PlanningsEmployee pe " +
+                        "JOIN pe.planning p " +
+                        "LEFT JOIN FETCH p.department " +
+                        "WHERE p.id = :planningId AND pe.employee.id = :employeeId " +
+                        "AND pe.isActive = true AND p.isActive = true AND p.status = :published"
+        ),
+        @NamedQuery(
+                name = "getActivePlanningsByEmployeeAndDateRange",
+                query = "SELECT DISTINCT p FROM PlanningsEmployee pe JOIN pe.planning p " +
+                        "WHERE pe.employee.id = :employeeId " +
+                        "AND pe.isActive = true AND p.isActive = true AND p.status <> :cancelled " +
+                        "AND p.date BETWEEN :startDate AND :endDate"
+        ),
+        @NamedQuery(
+                name = "getPlanningsByMonthAndEmployee",
+                query = "SELECT DISTINCT p FROM PlanningsEmployee pe " +
+                        "JOIN pe.planning p LEFT JOIN FETCH p.department " +
+                        "JOIN FETCH pe.employee e " +
+                        "WHERE pe.employee.id = :employeeId " +
+                        "AND pe.isActive = true AND p.isActive = true AND p.status <> :cancelled " +
+                        "AND FUNCTION('YEAR', p.date) = :year AND FUNCTION('MONTH', p.date) = :month " +
+                        "ORDER BY p.date, p.startHour"
+        ),
+        @NamedQuery(
+                name = "getPlanningsByMonthAndDepartment",
+                query = "SELECT p FROM Planning p LEFT JOIN FETCH p.department d " +
+                        "WHERE p.isActive = true AND p.status <> :cancelled " +
+                        "AND d.id = :departmentId " +
+                        "AND FUNCTION('YEAR', p.date) = :year AND FUNCTION('MONTH', p.date) = :month " +
+                        "ORDER BY p.date, p.startHour"
         )
 })
 @Entity
@@ -49,6 +99,17 @@ public class Planning {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     private Department department;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private PlanningStatus status;
+
+    @Column(name = "published_at")
+    private LocalDateTime publishedAt;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
 
     public Integer getId() {
         return id;
@@ -121,5 +182,12 @@ public class Planning {
     public void setDepartment(Department department) {
         this.department = department;
     }
+
+    public PlanningStatus getStatus() { return status; }
+    public void setStatus(PlanningStatus status) { this.status = status; }
+    public LocalDateTime getPublishedAt() { return publishedAt; }
+    public void setPublishedAt(LocalDateTime publishedAt) { this.publishedAt = publishedAt; }
+    public LocalDateTime getCancelledAt() { return cancelledAt; }
+    public void setCancelledAt(LocalDateTime cancelledAt) { this.cancelledAt = cancelledAt; }
 
 }

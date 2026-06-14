@@ -6,16 +6,23 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@NamedQuery(
-        name = "getAllPublicHolidays",
-        query = "SELECT h FROM PublicHoliday h ORDER BY h.holidayDate, h.name"
-)
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllPublicHolidays",
+                query = "SELECT h FROM PublicHoliday h ORDER BY h.holidayDate, h.name"
+        ),
+        @NamedQuery(
+                name = "getPublicHolidayByDateAndName",
+                query = "SELECT h FROM PublicHoliday h WHERE h.holidayDate = :holidayDate AND h.name = :name"
+        )
+})
 @Entity
 @Table(name = "public_holidays")
 public class PublicHoliday {

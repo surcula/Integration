@@ -4,6 +4,10 @@ import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.entities.Planning;
 import be.atc.erpprojetintegration_1.interfaces.IPlanningEmployeeService;
 import be.atc.erpprojetintegration_1.interfaces.IPlanningService;
+import be.atc.erpprojetintegration_1.interfaces.IDepartmentHeadService;
+import be.atc.erpprojetintegration_1.interfaces.IEmployeeDepartmentService;
+import be.atc.erpprojetintegration_1.entities.DepartmentHead;
+import be.atc.erpprojetintegration_1.entities.EmployeeDepartment;
 import be.atc.erpprojetintegration_1.tools.Result;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,6 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 
 @ApplicationScoped
 public class PlanningBusiness {
@@ -26,6 +31,38 @@ public class PlanningBusiness {
 
     @Inject
     private AbsenceBusiness absenceBusiness;
+
+    @Inject
+    private IDepartmentHeadService departmentHeadService;
+
+    @Inject
+    private IEmployeeDepartmentService employeeDepartmentService;
+
+    public Result<List<Integer>> getManagedDepartmentIds(Integer employeeId) {
+        if (employeeId == null) return Result.ok(new ArrayList<Integer>());
+        Result<List<DepartmentHead>> result = departmentHeadService.getActiveByEmployeeId(employeeId);
+        if (!result.isSuccess()) return Result.fail(result.getErrors());
+        return Result.ok(result.getData().stream().map(head -> head.getDepartment().getId()).collect(Collectors.toList()));
+    }
+
+    public Result<List<Planning>> getAccessibleActive(Integer actorEmployeeId, boolean globalAccess) {
+        Result<List<Planning>> result = planningService.getAllActive();
+        if (!result.isSuccess() || globalAccess) return result;
+        Result<List<Integer>> managedResult = getManagedDepartmentIds(actorEmployeeId);
+        if (!managedResult.isSuccess()) return Result.fail(managedResult.getErrors());
+        List<Integer> managedIds = managedResult.getData();
+        return Result.ok(result.getData().stream()
+                .filter(planning -> planning.getDepartment() != null
+                        && managedIds.contains(planning.getDepartment().getId()))
+                .collect(Collectors.toList()));
+    }
+
+    public Result<Planning> getByIdForManager(Integer planningId, Integer actorEmployeeId, boolean globalAccess) {
+        Result<Planning> result = getById(planningId);
+        if (!result.isSuccess()) return result;
+        Result<Void> access = authorizeDepartment(result.getData().getDepartment(), actorEmployeeId, globalAccess);
+        return access.isSuccess() ? result : Result.fail(access.getErrors());
+    }
 
     public Result<List<Planning>> getAllActive() {
         return planningService.getAllActive();
@@ -65,7 +102,10 @@ public class PlanningBusiness {
         return planningEmployeeService.getActiveEmployees(planningId);
     }
 
-    public Result<Planning> save(Planning planning, List<Integer> employeeIds) {
+    public Result<Planning> save(Planning planning, List<Integer> employeeIds,
+                                 Integer actorEmployeeId, boolean globalAccess) {
+        Result<Void> accessResult = authorizePlanning(planning, employeeIds, actorEmployeeId, globalAccess);
+        if (!accessResult.isSuccess()) return Result.fail(accessResult.getErrors());
         Result<Void> availabilityResult = validateAvailability(planning, employeeIds);
         if (!availabilityResult.isSuccess()) {
             return Result.fail(availabilityResult.getErrors());
@@ -75,6 +115,7 @@ public class PlanningBusiness {
         planning.setType(trim(planning.getType()));
         planning.setDescription(trim(planning.getDescription()));
         planning.setIsActive(true);
+        if (planning.getStatus() == null) planning.setStatus(PlanningStatus.DRAFT);
 
         Result<Planning> planningResult = planningService.save(planning);
         if (!planningResult.isSuccess()) {
@@ -91,7 +132,8 @@ public class PlanningBusiness {
     }
 
     public Result<List<Planning>> saveRecurring(
-            Planning template, List<Integer> employeeIds, List<LocalDate> dates) {
+            Planning template, List<Integer> employeeIds, List<LocalDate> dates,
+            Integer actorEmployeeId, boolean globalAccess) {
         if (template == null || template.getId() != null || dates == null || dates.isEmpty()) {
             Map<String, String> errors = new HashMap<>();
             errors.put("recurrence", "planning.error.recurrence.invalid");
@@ -112,7 +154,7 @@ public class PlanningBusiness {
 
         List<Planning> saved = new ArrayList<>();
         for (Planning occurrence : occurrences) {
-            Result<Planning> result = save(occurrence, employeeIds);
+            Result<Planning> result = save(occurrence, employeeIds, actorEmployeeId, globalAccess);
             if (!result.isSuccess()) {
                 return Result.fail(result.getErrors());
             }
@@ -171,16 +213,105 @@ public class PlanningBusiness {
         copy.setDescription(source.getDescription());
         copy.setDepartment(source.getDepartment());
         copy.setIsActive(true);
+        copy.setStatus(PlanningStatus.DRAFT);
         return copy;
     }
 
-    public Result<Void> deactivate(Integer planningId) {
+    public Result<Void> deactivate(Integer planningId, Integer actorEmployeeId, boolean globalAccess) {
         if (planningId == null) {
             Map<String, String> errors = new HashMap<>();
             errors.put("planningId", "planning.error.id.required");
             return Result.fail(errors);
         }
+        Result<Planning> planningResult = getByIdForManager(planningId, actorEmployeeId, globalAccess);
+        if (!planningResult.isSuccess()) return Result.fail(planningResult.getErrors());
         return planningService.setActive(planningId, false);
+    }
+
+    public Result<Planning> publish(Integer planningId, Integer actorEmployeeId, boolean globalAccess) {
+        Result<Planning> planningResult = getByIdForManager(planningId, actorEmployeeId, globalAccess);
+        if (!planningResult.isSuccess()) return planningResult;
+        Planning planning = planningResult.getData();
+        if (planning.getStatus() == PlanningStatus.CANCELLED) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("status", "planning.error.cancelled");
+            return Result.fail(errors);
+        }
+        Result<List<Employee>> employeesResult = getAssignedEmployees(planningId);
+        if (!employeesResult.isSuccess()) return Result.fail(employeesResult.getErrors());
+        List<Integer> employeeIds = employeesResult.getData().stream()
+                .map(Employee::getId).collect(Collectors.toList());
+        Result<Void> availability = validateAvailability(planning, employeeIds);
+        if (!availability.isSuccess()) return Result.fail(availability.getErrors());
+        return planningService.setStatus(planningId, PlanningStatus.PUBLISHED);
+    }
+
+    public Result<List<Planning>> getByMonthAndEmployeeForManager(int year, int month, Integer employeeId,
+                                                                  Integer actorEmployeeId, boolean globalAccess) {
+        if (employeeId == null) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("employeeId", "planning.error.employee.required");
+            return Result.fail(errors);
+        }
+        Result<List<Planning>> result = planningService.getByMonthAndEmployee(year, month, employeeId);
+        if (!result.isSuccess() || globalAccess) return result;
+        Result<List<Integer>> managedResult = getManagedDepartmentIds(actorEmployeeId);
+        if (!managedResult.isSuccess()) return Result.fail(managedResult.getErrors());
+        return Result.ok(result.getData().stream()
+                .filter(planning -> planning.getDepartment() != null
+                        && managedResult.getData().contains(planning.getDepartment().getId()))
+                .collect(Collectors.toList()));
+    }
+
+    public Result<List<Planning>> getByMonthAndDepartmentForManager(int year, int month, Integer departmentId,
+                                                                    Integer actorEmployeeId, boolean globalAccess) {
+        if (departmentId == null) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("departmentId", "planning.error.department.required");
+            return Result.fail(errors);
+        }
+        Result<Void> access = authorizeDepartmentId(departmentId, actorEmployeeId, globalAccess);
+        if (!access.isSuccess()) return Result.fail(access.getErrors());
+        return planningService.getByMonthAndDepartment(year, month, departmentId);
+    }
+
+    public Result<Planning> cancel(Integer planningId, Integer actorEmployeeId, boolean globalAccess) {
+        Result<Planning> planningResult = getByIdForManager(planningId, actorEmployeeId, globalAccess);
+        if (!planningResult.isSuccess()) return planningResult;
+        return planningService.setStatus(planningId, PlanningStatus.CANCELLED);
+    }
+
+    private Result<Void> authorizePlanning(Planning planning, List<Integer> employeeIds,
+                                            Integer actorEmployeeId, boolean globalAccess) {
+        if (planning == null || planning.getDepartment() == null) return denied();
+        Result<Void> departmentAccess = authorizeDepartment(planning.getDepartment(), actorEmployeeId, globalAccess);
+        if (!departmentAccess.isSuccess()) return departmentAccess;
+        if (globalAccess || employeeIds == null) return Result.ok();
+        for (Integer employeeId : employeeIds) {
+            Result<EmployeeDepartment> assignment = employeeDepartmentService
+                    .getActiveEmployeeDepartmentByEmployeeId(employeeId);
+            if (!assignment.isSuccess() || !planning.getDepartment().getId()
+                    .equals(assignment.getData().getDepartment().getId())) return denied();
+        }
+        return Result.ok();
+    }
+
+    private Result<Void> authorizeDepartment(be.atc.erpprojetintegration_1.entities.Department department,
+                                              Integer actorEmployeeId, boolean globalAccess) {
+        return department == null ? denied() : authorizeDepartmentId(department.getId(), actorEmployeeId, globalAccess);
+    }
+
+    private Result<Void> authorizeDepartmentId(Integer departmentId, Integer actorEmployeeId, boolean globalAccess) {
+        if (globalAccess) return Result.ok();
+        Result<List<Integer>> managedResult = getManagedDepartmentIds(actorEmployeeId);
+        if (!managedResult.isSuccess()) return Result.fail(managedResult.getErrors());
+        return departmentId != null && managedResult.getData().contains(departmentId) ? Result.ok() : denied();
+    }
+
+    private Result<Void> denied() {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("access", "Vous ne pouvez gerer que le planning de votre departement.");
+        return Result.fail(errors);
     }
 
     private Result<Void> validate(Planning planning) {

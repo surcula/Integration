@@ -24,6 +24,10 @@ public interface IPlanningEmployeeService {
      */
     Result<List<Employee>> getActiveEmployees(Integer planningId);
 
+    Result<List<PlanningsEmployee>> getActiveAssignments(Integer planningId);
+
+    Result<Void> updateAssignment(Integer assignmentId, String note, Boolean performed);
+
     Result<PlanningsEmployee> getActiveAssignment(Integer planningId, Integer employeeId);
 
     Result<List<PlanningEmployeeSwapRequest>> getSwapRequests(Integer employeeId, boolean allEmployees);
@@ -31,7 +35,7 @@ public interface IPlanningEmployeeService {
     Result<PlanningEmployeeSwapRequest> getSwapRequest(Integer requestId);
 
     Result<PlanningEmployeeSwapRequest> createSwapRequest(
-            Integer planningEmployeeId, Integer requestedByEmployeeId, String reason);
+            Integer planningEmployeeId, Integer requestedByEmployeeId, String reason, Boolean emergencyMode);
 
     Result<Void> reviewSwapRequest(Integer requestId, PlanningSwapStatus status,
                                    Integer replacementEmployeeId, Integer reviewedByEmployeeId,

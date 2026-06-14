@@ -14,4 +14,5 @@ public interface IAbsenceService {
     Result<Absence> save(Absence absence);
     Result<List<Absence>> getBlockingAbsences(Integer employeeId, LocalDate startDate, LocalDate endDate, Integer excludedId);
     Result<List<Planning>> getEmployeePlannings(Integer employeeId, LocalDate startDate, LocalDate endDate);
+    Result<List<Absence>> getPendingSicknessWithoutCertificateBefore(LocalDate deadlineDate);
 }

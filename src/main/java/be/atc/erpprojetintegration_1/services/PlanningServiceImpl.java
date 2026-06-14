@@ -2,6 +2,8 @@ package be.atc.erpprojetintegration_1.services;
 
 import be.atc.erpprojetintegration_1.entities.Planning;
 import be.atc.erpprojetintegration_1.interfaces.IPlanningService;
+import be.atc.erpprojetintegration_1.enums.PlanningStatus;
+import be.atc.erpprojetintegration_1.enums.PlanningSwapStatus;
 import be.atc.erpprojetintegration_1.tools.EMF;
 import be.atc.erpprojetintegration_1.tools.Result;
 import org.apache.log4j.Logger;
@@ -11,6 +13,7 @@ import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 @ApplicationScoped
 public class PlanningServiceImpl implements IPlanningService {
@@ -41,15 +44,9 @@ public class PlanningServiceImpl implements IPlanningService {
         EntityManager em = EMF.getEM();
 
         try {
-            List<Planning> plannings = em.createQuery(
-                            "SELECT DISTINCT p FROM PlanningsEmployee pe " +
-                                    "JOIN pe.planning p " +
-                                    "LEFT JOIN FETCH p.department " +
-                                    "WHERE pe.employee.id = :employeeId " +
-                                    "AND pe.isActive = true AND p.isActive = true " +
-                                    "ORDER BY p.date, p.startHour",
-                            Planning.class)
+            List<Planning> plannings = em.createNamedQuery("getActivePlanningsByEmployee", Planning.class)
                     .setParameter("employeeId", employeeId)
+                    .setParameter("published", PlanningStatus.PUBLISHED)
                     .getResultList();
             return Result.ok(plannings);
 
@@ -69,9 +66,7 @@ public class PlanningServiceImpl implements IPlanningService {
         EntityManager em = EMF.getEM();
 
         try {
-            List<Planning> plannings = em.createQuery(
-                            "SELECT p FROM Planning p LEFT JOIN FETCH p.department WHERE p.id = :planningId",
-                            Planning.class)
+            List<Planning> plannings = em.createNamedQuery("getPlanningById", Planning.class)
                     .setParameter("planningId", id)
                     .getResultList();
             if (plannings.isEmpty()) {
@@ -97,15 +92,10 @@ public class PlanningServiceImpl implements IPlanningService {
         EntityManager em = EMF.getEM();
 
         try {
-            List<Planning> plannings = em.createQuery(
-                            "SELECT DISTINCT p FROM PlanningsEmployee pe " +
-                                    "JOIN pe.planning p " +
-                                    "LEFT JOIN FETCH p.department " +
-                                    "WHERE p.id = :planningId AND pe.employee.id = :employeeId " +
-                                    "AND pe.isActive = true AND p.isActive = true",
-                            Planning.class)
+            List<Planning> plannings = em.createNamedQuery("getPlanningByIdForEmployee", Planning.class)
                     .setParameter("planningId", id)
                     .setParameter("employeeId", employeeId)
+                    .setParameter("published", PlanningStatus.PUBLISHED)
                     .getResultList();
 
             if (plannings.isEmpty()) {
@@ -189,6 +179,86 @@ public class PlanningServiceImpl implements IPlanningService {
             log.error("Error while updating planning active status", ex);
             return Result.fail(errors);
 
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<List<Planning>> getByMonthAndEmployee(int year, int month, Integer employeeId) {
+        EntityManager em = EMF.getEM();
+        try {
+            List<Planning> plannings = em.createNamedQuery("getPlanningsByMonthAndEmployee", Planning.class)
+                    .setParameter("employeeId", employeeId)
+                    .setParameter("cancelled", PlanningStatus.CANCELLED)
+                    .setParameter("year", year)
+                    .setParameter("month", month)
+                    .getResultList();
+            return Result.ok(plannings);
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "planning.error.load");
+            log.error("Error while loading monthly plannings for employee", ex);
+            return Result.fail(errors);
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<List<Planning>> getByMonthAndDepartment(int year, int month, Integer departmentId) {
+        EntityManager em = EMF.getEM();
+        try {
+            List<Planning> plannings = em.createNamedQuery("getPlanningsByMonthAndDepartment", Planning.class)
+                    .setParameter("departmentId", departmentId)
+                    .setParameter("cancelled", PlanningStatus.CANCELLED)
+                    .setParameter("year", year)
+                    .setParameter("month", month)
+                    .getResultList();
+            return Result.ok(plannings);
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "planning.error.load");
+            log.error("Error while loading monthly plannings for department", ex);
+            return Result.fail(errors);
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<Planning> setStatus(Integer id, PlanningStatus status) {
+        EntityManager em = EMF.getEM();
+        try {
+            em.getTransaction().begin();
+            Planning planning = em.find(Planning.class, id);
+            if (planning == null) {
+                em.getTransaction().rollback();
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "planning.error.notFound");
+                return Result.fail(errors);
+            }
+            planning.setStatus(status);
+            if (status == PlanningStatus.PUBLISHED) {
+                planning.setPublishedAt(LocalDateTime.now());
+                planning.setCancelledAt(null);
+            } else if (status == PlanningStatus.CANCELLED) {
+                planning.setCancelledAt(LocalDateTime.now());
+                em.createNamedQuery("cancelPendingSwapRequestsByPlanning")
+                        .setParameter("cancelled", PlanningSwapStatus.CANCELLED)
+                        .setParameter("reviewedAt", LocalDateTime.now())
+                        .setParameter("planningId", id)
+                        .setParameter("pending", PlanningSwapStatus.PENDING)
+                        .executeUpdate();
+            }
+            em.getTransaction().commit();
+            return Result.ok(planning);
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            log.error("Error while updating planning status", ex);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "planning.error.status");
+            return Result.fail(errors);
         } finally {
             em.close();
         }

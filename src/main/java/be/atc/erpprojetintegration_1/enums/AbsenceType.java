@@ -4,6 +4,7 @@ public enum AbsenceType {
     SICKNESS("Maladie"),
     WORK_ACCIDENT("Accident de travail"),
     ANNUAL_LEAVE("Conge annuel"),
+    RECOVERY("Recuperation"),
     UNPAID_LEAVE("Conge sans solde"),
     MATERNITY_PATERNITY("Maternite / paternite"),
     MEDICAL_APPOINTMENT("Rendez-vous medical"),

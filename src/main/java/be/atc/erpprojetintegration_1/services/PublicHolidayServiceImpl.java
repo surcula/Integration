@@ -61,10 +61,7 @@ public class PublicHolidayServiceImpl implements IPublicHolidayService {
         try {
             em.getTransaction().begin();
             for (PublicHoliday publicHoliday : publicHolidays) {
-                List<PublicHoliday> existing = em.createQuery(
-                                "SELECT h FROM PublicHoliday h " +
-                                        "WHERE h.holidayDate = :holidayDate AND h.name = :name",
-                                PublicHoliday.class)
+                List<PublicHoliday> existing = em.createNamedQuery("getPublicHolidayByDateAndName", PublicHoliday.class)
                         .setParameter("holidayDate", publicHoliday.getHolidayDate())
                         .setParameter("name", publicHoliday.getName())
                         .getResultList();

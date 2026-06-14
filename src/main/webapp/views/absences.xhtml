@@ -58,7 +58,7 @@
                               filterBy="#{absence.employee.firstName} #{absence.employee.lastName}" filterMatchMode="contains">
                         <f:facet name="filter">
                             <p:selectOneMenu editable="true"
-                                             rendered="#{authBean.hrOrAdmin}"
+                                             rendered="#{authBean.hrOrAdmin or absencesBean.departmentHead}"
                                              onchange="PF('absenceTableWidget').filter()"
                                              styleClass="absence-filter-select">
                                 <f:selectItem itemLabel="Tous les employes" itemValue=""/>
@@ -93,7 +93,7 @@
                         </div>
                     </p:column>
                     <p:column headerText="Justificatif">
-                        <h:panelGroup rendered="#{not empty absence.documentName}">
+                        <h:panelGroup rendered="#{not empty absence.documentName and absencesBean.canAccessDocument}">
                             <h:outputLink value="#{request.contextPath}/absence-document"
                                           target="_blank" title="Consulter"
                                           styleClass="btn btn-sm btn-outline-primary">
@@ -108,6 +108,8 @@
                                 <i class="bi bi-download" aria-hidden="true"></i>
                             </h:outputLink>
                         </h:panelGroup>
+                        <h:outputText value="Déposé" styleClass="status-badge status-badge-active"
+                                      rendered="#{not empty absence.documentName and not absencesBean.canAccessDocument}"/>
                         <h:outputText value="-" rendered="#{empty absence.documentName}"/>
                     </p:column>
                     <p:column headerText="Statut" sortBy="#{absence.status.label}" filterBy="#{absence.status.label}" filterMatchMode="contains">
@@ -192,8 +194,9 @@
                                           label="Justificatif"
                                           disabled="#{not absencesBean.canEditSelected}"/>
                             <h:panelGroup layout="block" styleClass="absence-document-existing"
-                                          rendered="#{not empty absencesBean.selectedAbsence.documentName}">
-                                <span class="absence-document-name">#{absencesBean.selectedAbsence.documentName}</span>
+                                          rendered="#{not empty absencesBean.selectedAbsence.documentName and absencesBean.canAccessDocument}">
+                                <h:outputText styleClass="absence-document-name"
+                                              value="#{absencesBean.selectedAbsence.documentName}"/>
                                 <h:outputLink value="#{request.contextPath}/absence-document"
                                               target="_blank" title="Consulter"
                                               styleClass="btn btn-sm btn-outline-primary">
@@ -207,6 +210,19 @@
                                     <f:param name="download" value="true"/>
                                     <i class="bi bi-download" aria-hidden="true"></i>
                                 </h:outputLink>
+                                <p:commandButton value="Valider le certificat" icon="pi pi-check-circle"
+                                                 styleClass="ui-button-success"
+                                                 rendered="#{absencesBean.canValidateCertificate}"
+                                                 action="#{absencesBean.validateCertificate}"
+                                                 process="@this" update="absenceDialog :globalGrowl"/>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="mt-2"
+                                          rendered="#{not empty absencesBean.selectedAbsence.documentName and not absencesBean.canAccessDocument}">
+                                <span class="status-badge status-badge-active">Justificatif déposé</span>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="mt-2"
+                                          rendered="#{not empty absencesBean.selectedAbsence.type and absencesBean.selectedAbsence.type.toString() eq 'SICKNESS' and absencesBean.selectedAbsence.certificateValidated}">
+                                <span class="status-badge status-badge-active">Certificat validé par la RH</span>
                             </h:panelGroup>
                         </div>
                         <div class="col-12">
@@ -215,9 +231,9 @@
                                              autoResize="false" styleClass="form-control" disabled="#{not absencesBean.canEditSelected}"/>
                         </div>
                         <h:panelGroup layout="block" styleClass="col-12 absence-review-box"
-                                      rendered="#{absencesBean.selectedAbsence.id ne null and (authBean.hrOrAdmin or absencesBean.selectedAbsence.reviewComment ne null)}">
+                                      rendered="#{absencesBean.selectedAbsence.id ne null and (absencesBean.canReviewSelected or absencesBean.selectedAbsence.reviewComment ne null)}">
                             <h:panelGroup rendered="#{absencesBean.canReviewSelected}">
-                                <p:outputLabel for="reviewComment" value="Commentaire RH"/>
+                                <p:outputLabel for="reviewComment" value="Commentaire de validation"/>
                                 <p:inputTextarea id="reviewComment" value="#{absencesBean.reviewComment}" rows="3" autoResize="false"
                                                  styleClass="form-control"/>
                             </h:panelGroup>
@@ -226,7 +242,7 @@
                                 <div class="absence-review-heading">
                                     <span class="absence-review-icon"><i class="bi bi-chat-left-text" aria-hidden="true"></i></span>
                                     <div>
-                                        <strong>Commentaire RH</strong>
+                                        <strong>Commentaire de validation</strong>
                                         <h:panelGroup layout="block" styleClass="absence-review-meta"
                                                       rendered="#{absencesBean.selectedAbsence.reviewer ne null}">
                                             #{absencesBean.selectedAbsence.reviewer.firstName} #{absencesBean.selectedAbsence.reviewer.lastName}
@@ -254,6 +270,7 @@
                             <p:commandButton value="Refuser" icon="bi bi-x-lg" styleClass="btn btn-outline-danger"
                                              action="#{absencesBean.refuse}" process="absenceDialog" update="@form :globalGrowl"/>
                             <p:commandButton value="Approuver" icon="bi bi-check2" styleClass="btn btn-success ms-2"
+                                             disabled="#{not absencesBean.canApproveSelected}"
                                              action="#{absencesBean.approve}" process="absenceDialog" update="@form :globalGrowl"/>
                         </h:panelGroup>
                     </f:facet>

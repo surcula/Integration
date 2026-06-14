@@ -5,6 +5,7 @@ import be.atc.erpprojetintegration_1.entities.Planning;
 import be.atc.erpprojetintegration_1.entities.PlanningEmployeeSwapRequest;
 import be.atc.erpprojetintegration_1.entities.PlanningsEmployee;
 import be.atc.erpprojetintegration_1.enums.PlanningSwapStatus;
+import be.atc.erpprojetintegration_1.enums.PlanningSwapProposalStatus;
 import be.atc.erpprojetintegration_1.interfaces.IPlanningEmployeeService;
 import be.atc.erpprojetintegration_1.tools.EMF;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -32,11 +33,7 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
         EntityManager em = EMF.getEM();
 
         try {
-            List<Employee> employees = em.createQuery(
-                            "SELECT pe.employee FROM PlanningsEmployee pe " +
-                                    "WHERE pe.planning.id = :planningId AND pe.isActive = true " +
-                                    "ORDER BY pe.employee.lastName, pe.employee.firstName",
-                            Employee.class)
+            List<Employee> employees = em.createNamedQuery("getActiveEmployeesByPlanning", Employee.class)
                     .setParameter("planningId", planningId)
                     .getResultList();
             return Result.ok(employees);
@@ -51,18 +48,52 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
     }
 
     @Override
+    public Result<List<PlanningsEmployee>> getActiveAssignments(Integer planningId) {
+        EntityManager em = EMF.getEM();
+        try {
+            List<PlanningsEmployee> assignments = em.createNamedQuery("getActiveAssignmentsByPlanning", PlanningsEmployee.class)
+                    .setParameter("planningId", planningId)
+                    .getResultList();
+            return Result.ok(assignments);
+        } catch (Exception ex) {
+            log.error("Error while loading assignments for planning", ex);
+            return Result.fail(error("planning.assignments.error.load"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<Void> updateAssignment(Integer assignmentId, String note, Boolean performed) {
+        EntityManager em = EMF.getEM();
+        try {
+            em.getTransaction().begin();
+            PlanningsEmployee assignment = em.find(PlanningsEmployee.class, assignmentId);
+            if (assignment == null) {
+                em.getTransaction().rollback();
+                return Result.fail(error("planning.assignment.error.notFound"));
+            }
+            assignment.setNote(note != null ? note.trim() : null);
+            assignment.setPerformed(performed != null ? performed : false);
+            em.getTransaction().commit();
+            return Result.ok();
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            log.error("Error while updating assignment", ex);
+            return Result.fail(error("planning.assignment.error.save"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<PlanningsEmployee> getActiveAssignment(Integer planningId, Integer employeeId) {
         EntityManager em = EMF.getEM();
         try {
-            List<PlanningsEmployee> assignments = em.createQuery(
-                            "SELECT pe FROM PlanningsEmployee pe " +
-                                    "JOIN FETCH pe.planning p JOIN FETCH pe.employee e " +
-                                    "LEFT JOIN FETCH p.department " +
-                                    "WHERE p.id = :planningId AND e.id = :employeeId " +
-                                    "AND pe.isActive = true AND p.isActive = true",
-                            PlanningsEmployee.class)
+            List<PlanningsEmployee> assignments = em.createNamedQuery("getActiveAssignmentByPlanningAndEmployee", PlanningsEmployee.class)
                     .setParameter("planningId", planningId)
                     .setParameter("employeeId", employeeId)
+                    .setParameter("cancelled", be.atc.erpprojetintegration_1.enums.PlanningStatus.CANCELLED)
                     .setMaxResults(1)
                     .getResultList();
             return Result.ok(assignments.isEmpty() ? null : assignments.get(0));
@@ -78,19 +109,9 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
     public Result<List<PlanningEmployeeSwapRequest>> getSwapRequests(Integer employeeId, boolean allEmployees) {
         EntityManager em = EMF.getEM();
         try {
-            String jpql = "SELECT DISTINCT sr FROM PlanningEmployeeSwapRequest sr " +
-                    "JOIN FETCH sr.planningEmployee pe JOIN FETCH pe.planning p " +
-                    "JOIN FETCH pe.employee assigned JOIN FETCH sr.requestedBy requester " +
-                    "LEFT JOIN FETCH p.department " +
-                    "LEFT JOIN FETCH sr.replacementEmployee replacement " +
-                    "LEFT JOIN FETCH sr.reviewedBy reviewer " +
-                    "WHERE sr.isActive = true ";
-            if (!allEmployees) {
-                jpql += "AND requester.id = :employeeId ";
-            }
-            jpql += "ORDER BY CASE WHEN sr.status = :pending THEN 0 ELSE 1 END, sr.requestedAt DESC";
-            javax.persistence.TypedQuery<PlanningEmployeeSwapRequest> query = em.createQuery(
-                    jpql, PlanningEmployeeSwapRequest.class).setParameter("pending", PlanningSwapStatus.PENDING);
+            String queryName = allEmployees ? "getAllSwapRequests" : "getSwapRequestsByEmployee";
+            javax.persistence.TypedQuery<PlanningEmployeeSwapRequest> query = em.createNamedQuery(
+                    queryName, PlanningEmployeeSwapRequest.class).setParameter("pending", PlanningSwapStatus.PENDING);
             if (!allEmployees) {
                 query.setParameter("employeeId", employeeId);
             }
@@ -107,13 +128,7 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
     public Result<PlanningEmployeeSwapRequest> getSwapRequest(Integer requestId) {
         EntityManager em = EMF.getEM();
         try {
-            List<PlanningEmployeeSwapRequest> requests = em.createQuery(
-                            "SELECT sr FROM PlanningEmployeeSwapRequest sr " +
-                                    "JOIN FETCH sr.planningEmployee pe JOIN FETCH pe.planning p " +
-                                    "JOIN FETCH pe.employee JOIN FETCH sr.requestedBy " +
-                                    "LEFT JOIN FETCH p.department LEFT JOIN FETCH sr.replacementEmployee " +
-                                    "LEFT JOIN FETCH sr.reviewedBy WHERE sr.id = :requestId AND sr.isActive = true",
-                            PlanningEmployeeSwapRequest.class)
+            List<PlanningEmployeeSwapRequest> requests = em.createNamedQuery("getSwapRequestById", PlanningEmployeeSwapRequest.class)
                     .setParameter("requestId", requestId)
                     .setMaxResults(1)
                     .getResultList();
@@ -128,7 +143,7 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
 
     @Override
     public Result<PlanningEmployeeSwapRequest> createSwapRequest(
-            Integer planningEmployeeId, Integer requestedByEmployeeId, String reason) {
+            Integer planningEmployeeId, Integer requestedByEmployeeId, String reason, Boolean emergencyMode) {
         EntityManager em = EMF.getEM();
         try {
             em.getTransaction().begin();
@@ -138,10 +153,7 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
                 em.getTransaction().rollback();
                 return Result.fail(error("planning.swap.error.access"));
             }
-            Long pending = em.createQuery(
-                            "SELECT COUNT(sr) FROM PlanningEmployeeSwapRequest sr " +
-                                    "WHERE sr.planningEmployee.id = :assignmentId " +
-                                    "AND sr.status = :status AND sr.isActive = true", Long.class)
+            Long pending = em.createNamedQuery("countPendingSwapRequestsByAssignment", Long.class)
                     .setParameter("assignmentId", planningEmployeeId)
                     .setParameter("status", PlanningSwapStatus.PENDING)
                     .getSingleResult();
@@ -156,6 +168,8 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
             request.setReason(reason);
             request.setRequestedAt(LocalDateTime.now());
             request.setIsActive(true);
+            request.setEmergencyMode(Boolean.TRUE.equals(emergencyMode));
+            request.setRelaunchRequired(false);
             em.persist(request);
             em.getTransaction().commit();
             return Result.ok(request);
@@ -202,6 +216,14 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
             request.setReviewComment(reviewComment);
             request.setReviewedBy(em.getReference(Employee.class, reviewedByEmployeeId));
             request.setReviewedAt(LocalDateTime.now());
+            if (status != PlanningSwapStatus.APPROVED) {
+                em.createNamedQuery("cancelPendingSwapProposalsByRequest")
+                        .setParameter("cancelled", PlanningSwapProposalStatus.CANCELLED)
+                        .setParameter("respondedAt", LocalDateTime.now())
+                        .setParameter("requestId", requestId)
+                        .setParameter("pending", PlanningSwapProposalStatus.PENDING)
+                        .executeUpdate();
+            }
             em.getTransaction().commit();
             return Result.ok();
         } catch (Exception ex) {
@@ -226,6 +248,12 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
             }
             request.setStatus(PlanningSwapStatus.CANCELLED);
             request.setReviewedAt(LocalDateTime.now());
+            em.createNamedQuery("cancelPendingSwapProposalsByRequest")
+                    .setParameter("cancelled", PlanningSwapProposalStatus.CANCELLED)
+                    .setParameter("respondedAt", LocalDateTime.now())
+                    .setParameter("requestId", requestId)
+                    .setParameter("pending", PlanningSwapProposalStatus.PENDING)
+                    .executeUpdate();
             em.getTransaction().commit();
             return Result.ok();
         } catch (Exception ex) {
@@ -247,10 +275,7 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
                     ? new LinkedHashSet<Integer>()
                     : new LinkedHashSet<>(employeeIds);
 
-            List<PlanningsEmployee> activeAssignments = em.createQuery(
-                            "SELECT pe FROM PlanningsEmployee pe JOIN FETCH pe.employee " +
-                                    "WHERE pe.planning.id = :planningId AND pe.isActive = true",
-                            PlanningsEmployee.class)
+            List<PlanningsEmployee> activeAssignments = em.createNamedQuery("getActiveAssignmentsByPlanning", PlanningsEmployee.class)
                     .setParameter("planningId", planning.getId())
                     .getResultList();
 
@@ -262,10 +287,7 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
                     continue;
                 }
                 activeAssignment.setIsActive(false);
-                em.createQuery(
-                                "UPDATE PlanningEmployeeSwapRequest sr SET sr.status = :cancelled, " +
-                                        "sr.reviewedAt = :reviewedAt WHERE sr.planningEmployee.id = :assignmentId " +
-                                        "AND sr.status = :pending AND sr.isActive = true")
+                em.createNamedQuery("cancelPendingSwapRequestsByAssignment")
                         .setParameter("cancelled", PlanningSwapStatus.CANCELLED)
                         .setParameter("reviewedAt", LocalDateTime.now())
                         .setParameter("assignmentId", activeAssignment.getId())
@@ -317,13 +339,9 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
 
         try {
             LocalDate requestedEndDate = isOvernight(startHour, endHour) ? date.plusDays(1) : date;
-            List<PlanningsEmployee> candidates = em.createQuery(
-                            "SELECT pe FROM PlanningsEmployee pe JOIN FETCH pe.employee e " +
-                                    "JOIN FETCH pe.planning p WHERE pe.isActive = true AND p.isActive = true " +
-                                    "AND e.id IN :employeeIds AND p.date BETWEEN :candidateStart AND :candidateEnd " +
-                                    "ORDER BY e.lastName, e.firstName",
-                            PlanningsEmployee.class)
+            List<PlanningsEmployee> candidates = em.createNamedQuery("getCandidateAssignmentsForConflict", PlanningsEmployee.class)
                     .setParameter("employeeIds", employeeIds)
+                    .setParameter("cancelled", be.atc.erpprojetintegration_1.enums.PlanningStatus.CANCELLED)
                     .setParameter("candidateStart", date.minusDays(1))
                     .setParameter("candidateEnd", requestedEndDate)
                     .getResultList();

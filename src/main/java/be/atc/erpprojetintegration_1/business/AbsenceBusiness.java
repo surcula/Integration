@@ -6,6 +6,11 @@ import be.atc.erpprojetintegration_1.entities.Planning;
 import be.atc.erpprojetintegration_1.enums.AbsenceStatus;
 import be.atc.erpprojetintegration_1.interfaces.IAbsenceService;
 import be.atc.erpprojetintegration_1.interfaces.IEmployeeService;
+import be.atc.erpprojetintegration_1.interfaces.IDepartmentHeadService;
+import be.atc.erpprojetintegration_1.interfaces.IEmployeeDepartmentService;
+import be.atc.erpprojetintegration_1.entities.DepartmentHead;
+import be.atc.erpprojetintegration_1.entities.EmployeeDepartment;
+import be.atc.erpprojetintegration_1.enums.AbsenceType;
 import be.atc.erpprojetintegration_1.tools.Result;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,10 +27,37 @@ import java.util.ArrayList;
 public class AbsenceBusiness {
     @Inject private IAbsenceService absenceService;
     @Inject private IEmployeeService employeeService;
+    @Inject private IDepartmentHeadService departmentHeadService;
+    @Inject private IEmployeeDepartmentService employeeDepartmentService;
 
     public Result<List<Absence>> getAllActive() { return absenceService.getAllActive(); }
     public Result<List<Absence>> getActiveByEmployee(Integer employeeId) { return absenceService.getActiveByEmployee(employeeId); }
     public Result<Absence> getById(Integer id) { return absenceService.getById(id); }
+
+    public Result<List<Absence>> getAccessible(Integer actorEmployeeId, boolean hrOrAdmin) {
+        if (hrOrAdmin) return absenceService.getAllActive();
+        Result<List<DepartmentHead>> heads = departmentHeadService.getActiveByEmployeeId(actorEmployeeId);
+        if (!heads.isSuccess()) return Result.fail(heads.getErrors());
+        if (heads.getData().isEmpty()) return absenceService.getActiveByEmployee(actorEmployeeId);
+        Result<List<Absence>> all = absenceService.getAllActive();
+        if (!all.isSuccess()) return all;
+        List<Integer> managedIds = new ArrayList<>();
+        for (DepartmentHead head : heads.getData()) managedIds.add(head.getDepartment().getId());
+        List<Absence> accessible = new ArrayList<>();
+        for (Absence absence : all.getData()) {
+            Result<EmployeeDepartment> assignment = employeeDepartmentService
+                    .getActiveEmployeeDepartmentByEmployeeId(absence.getEmployee().getId());
+            if (assignment.isSuccess() && managedIds.contains(assignment.getData().getDepartment().getId())) {
+                accessible.add(absence);
+            }
+        }
+        return Result.ok(accessible);
+    }
+
+    public Result<Boolean> isDepartmentHead(Integer employeeId) {
+        Result<List<DepartmentHead>> result = departmentHeadService.getActiveByEmployeeId(employeeId);
+        return result.isSuccess() ? Result.ok(!result.getData().isEmpty()) : Result.fail(result.getErrors());
+    }
 
     public Result<Absence> saveRequest(Absence absence, Integer employeeId, boolean submit) {
         Result<Void> validation = validate(absence);
@@ -49,7 +81,8 @@ public class AbsenceBusiness {
         return absenceService.save(absence);
     }
 
-    public Result<Absence> review(Integer absenceId, Integer reviewerId, AbsenceStatus decision, String comment) {
+    public Result<Absence> review(Integer absenceId, Integer reviewerId, AbsenceStatus decision,
+                                  String comment, boolean hrOrAdmin) {
         if (decision != AbsenceStatus.APPROVED && decision != AbsenceStatus.REFUSED) {
             return Result.fail(error("status", "Decision invalide."));
         }
@@ -57,6 +90,16 @@ public class AbsenceBusiness {
         if (!absenceResult.isSuccess()) return absenceResult;
         Absence absence = absenceResult.getData();
         if (absence.getStatus() != AbsenceStatus.PENDING) return Result.fail(error("status", "Cette demande n'est plus en attente."));
+
+        if (absence.getType() == AbsenceType.UNPAID_LEAVE) {
+            if (!hrOrAdmin) return Result.fail(error("access", "Le conge sans solde est traite uniquement par la RH."));
+        } else if (!hrOrAdmin && !managesEmployee(reviewerId, absence.getEmployee().getId())) {
+            return Result.fail(error("access", "Vous ne pouvez traiter que les demandes de votre equipe."));
+        }
+        if (absence.getType() == AbsenceType.SICKNESS && decision == AbsenceStatus.APPROVED
+                && !Boolean.TRUE.equals(absence.getCertificateValidated())) {
+            return Result.fail(error("certificate", "Le certificat doit etre valide par la RH avant l'approbation."));
+        }
 
         if (decision == AbsenceStatus.APPROVED) {
             Result<List<Planning>> plannings = absenceService.getEmployeePlannings(absence.getEmployee().getId(), absence.getStartDate(), absence.getEndDate());
@@ -73,6 +116,48 @@ public class AbsenceBusiness {
         absence.setReviewComment(trim(comment));
         absence.setReviewedAt(LocalDateTime.now());
         return absenceService.save(absence);
+    }
+
+    public Result<Absence> validateCertificate(Integer absenceId, Integer reviewerId) {
+        Result<Absence> absenceResult = absenceService.getById(absenceId);
+        if (!absenceResult.isSuccess()) return absenceResult;
+        Absence absence = absenceResult.getData();
+        if (absence.getDocumentPath() == null || absence.getDocumentPath().trim().isEmpty()) {
+            return Result.fail(error("certificate", "Aucun certificat n'a ete depose."));
+        }
+        Result<Employee> reviewer = employeeService.getById(reviewerId);
+        if (!reviewer.isSuccess()) return Result.fail(reviewer.getErrors());
+        absence.setCertificateValidated(true);
+        absence.setCertificateValidatedBy(reviewer.getData());
+        absence.setCertificateValidatedAt(LocalDateTime.now());
+        return absenceService.save(absence);
+    }
+
+    public Result<Integer> refuseOverdueSickness() {
+        Result<List<Absence>> result = absenceService
+                .getPendingSicknessWithoutCertificateBefore(LocalDate.now());
+        if (!result.isSuccess()) return Result.fail(result.getErrors());
+        int refused = 0;
+        for (Absence absence : result.getData()) {
+            absence.setStatus(AbsenceStatus.REFUSED);
+            absence.setReviewComment("Refus automatique : certificat non depose dans les 24 heures suivant la date de debut.");
+            absence.setReviewedAt(LocalDateTime.now());
+            Result<Absence> saved = absenceService.save(absence);
+            if (saved.isSuccess()) refused++;
+        }
+        return Result.ok(refused);
+    }
+
+    private boolean managesEmployee(Integer managerId, Integer employeeId) {
+        Result<List<DepartmentHead>> heads = departmentHeadService.getActiveByEmployeeId(managerId);
+        Result<EmployeeDepartment> assignment = employeeDepartmentService
+                .getActiveEmployeeDepartmentByEmployeeId(employeeId);
+        if (!heads.isSuccess() || !assignment.isSuccess()) return false;
+        Integer employeeDepartmentId = assignment.getData().getDepartment().getId();
+        for (DepartmentHead head : heads.getData()) {
+            if (employeeDepartmentId.equals(head.getDepartment().getId())) return true;
+        }
+        return false;
     }
 
     public Result<Absence> cancel(Integer absenceId, Integer employeeId, boolean manager) {

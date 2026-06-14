@@ -2,6 +2,7 @@ package be.atc.erpprojetintegration_1.services;
 
 import be.atc.erpprojetintegration_1.entities.Absence;
 import be.atc.erpprojetintegration_1.entities.Planning;
+import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 import be.atc.erpprojetintegration_1.interfaces.IAbsenceService;
 import be.atc.erpprojetintegration_1.tools.EMF;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -36,7 +37,7 @@ public class AbsenceServiceImpl implements IAbsenceService {
     public Result<Absence> getById(Integer id) {
         EntityManager em = EMF.getEM();
         try {
-            List<Absence> rows = em.createQuery("SELECT a FROM Absence a JOIN FETCH a.employee LEFT JOIN FETCH a.reviewer WHERE a.id = :id", Absence.class)
+            List<Absence> rows = em.createNamedQuery("getAbsenceById", Absence.class)
                     .setParameter("id", id).getResultList();
             return rows.isEmpty() ? Result.fail(error("notFound", "absence.error.notFound")) : Result.ok(rows.get(0));
         } catch (Exception ex) {
@@ -63,11 +64,8 @@ public class AbsenceServiceImpl implements IAbsenceService {
     public Result<List<Absence>> getBlockingAbsences(Integer employeeId, LocalDate startDate, LocalDate endDate, Integer excludedId) {
         EntityManager em = EMF.getEM();
         try {
-            String jpql = "SELECT a FROM Absence a JOIN FETCH a.employee WHERE a.employee.id = :employeeId AND a.isActive = true " +
-                    "AND a.status IN (be.atc.erpprojetintegration_1.enums.AbsenceStatus.PENDING, be.atc.erpprojetintegration_1.enums.AbsenceStatus.APPROVED) " +
-                    "AND a.startDate <= :endDate AND a.endDate >= :startDate";
-            if (excludedId != null) jpql += " AND a.id <> :excludedId";
-            javax.persistence.TypedQuery<Absence> query = em.createQuery(jpql, Absence.class)
+            String queryName = excludedId != null ? "getBlockingAbsencesExcluding" : "getBlockingAbsences";
+            javax.persistence.TypedQuery<Absence> query = em.createNamedQuery(queryName, Absence.class)
                     .setParameter("employeeId", employeeId).setParameter("startDate", startDate)
                     .setParameter("endDate", endDate);
             if (excludedId != null) query.setParameter("excludedId", excludedId);
@@ -82,14 +80,24 @@ public class AbsenceServiceImpl implements IAbsenceService {
     public Result<List<Planning>> getEmployeePlannings(Integer employeeId, LocalDate startDate, LocalDate endDate) {
         EntityManager em = EMF.getEM();
         try {
-            List<Planning> rows = em.createQuery("SELECT DISTINCT p FROM PlanningsEmployee pe JOIN pe.planning p WHERE pe.employee.id = :employeeId " +
-                                    "AND pe.isActive = true AND p.isActive = true AND p.date BETWEEN :startDate AND :endDate", Planning.class)
+            List<Planning> rows = em.createNamedQuery("getActivePlanningsByEmployeeAndDateRange", Planning.class)
                     .setParameter("employeeId", employeeId).setParameter("startDate", startDate.minusDays(1))
-                    .setParameter("endDate", endDate).getResultList();
+                    .setParameter("endDate", endDate).setParameter("cancelled", PlanningStatus.CANCELLED).getResultList();
             return Result.ok(rows);
         } catch (Exception ex) {
             log.error("Error while checking planning conflicts", ex);
             return Result.fail(error("message", "absence.error.planningConflict"));
+        } finally { em.close(); }
+    }
+
+    public Result<List<Absence>> getPendingSicknessWithoutCertificateBefore(LocalDate deadlineDate) {
+        EntityManager em = EMF.getEM();
+        try {
+            return Result.ok(em.createNamedQuery("getPendingSicknessWithoutCertificateBefore", Absence.class)
+                    .setParameter("deadlineDate", deadlineDate).getResultList());
+        } catch (Exception ex) {
+            log.error("Error while loading overdue sickness absences", ex);
+            return Result.fail(error("message", "absence.error.load"));
         } finally { em.close(); }
     }
 

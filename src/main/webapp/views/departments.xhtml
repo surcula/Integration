@@ -20,12 +20,20 @@
                     <p class="text-muted mb-0">#{msg['departments.subtitle']}</p>
                 </div>
             </div>
-            <h:link outcome="/views/department-edit"
-                    styleClass="btn btn-primary"
-                    rendered="#{authBean.hasRole('ADMIN')}">
-                <i class="bi bi-plus-circle"></i>
-                <span>#{msg['departments.add']}</span>
-            </h:link>
+            <div class="d-flex gap-2">
+                <h:link outcome="/views/department-heads" styleClass="btn btn-outline-primary"
+                        rendered="#{authBean.hrOrAdmin}">
+                    <i class="pi pi-star"></i><span>Chefs</span>
+                </h:link>
+                <h:link outcome="/views/employee-departments" styleClass="btn btn-outline-primary"
+                        rendered="#{authBean.hrOrAdmin}">
+                    <i class="pi pi-users"></i><span>Affectations</span>
+                </h:link>
+                <h:link outcome="/views/department-edit" styleClass="btn btn-primary"
+                        rendered="#{authBean.hasRole('ADMIN')}">
+                    <i class="pi pi-plus-circle"></i><span>#{msg['departments.add']}</span>
+                </h:link>
+            </div>
         </div>
 
         <div class="panel">

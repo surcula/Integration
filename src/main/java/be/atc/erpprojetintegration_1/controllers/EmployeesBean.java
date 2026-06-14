@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
+import java.util.ArrayList;
 
 @Named
 @RequestScoped
@@ -24,6 +25,8 @@ public class EmployeesBean implements Serializable {
     private AuthBean authBean;
 
     private List<EmployeeListDto> employees;
+    private boolean canViewEmployeeList;
+    private boolean teamView;
 
     /**
      * Loads employees when the page is initialized.
@@ -39,6 +42,7 @@ public class EmployeesBean implements Serializable {
      * @param employeeId employee id
      */
     public void deactivateEmployee(Integer employeeId) {
+        if (!authBean.hasPermission("employee:delete")) return;
         log.info("Deactivation requested for employee id: " + employeeId);
         Result<Void> result = employeeBusiness.deactivateEmployee(employeeId);
 
@@ -59,6 +63,7 @@ public class EmployeesBean implements Serializable {
      * @param active current employee status
      */
     public void changeEmployeeActiveStatus(Integer employeeId, boolean active) {
+        if (!authBean.hasPermission("employee:delete")) return;
         log.info((active ? "Deactivation" : "Activation") + " requested for employee id: " + employeeId);
         Result<Void> result = active
                 ? employeeBusiness.deactivateEmployee(employeeId)
@@ -78,16 +83,26 @@ public class EmployeesBean implements Serializable {
      * Loads the employee list and includes inactive employees when the user has delete permission.
      */
     private void loadEmployees() {
-        boolean includeInactive = authBean.hasPermission("employee:delete");
+        boolean globalAccess = authBean.isHrOrAdmin();
+        boolean includeInactive = globalAccess && authBean.hasPermission("employee:delete");
+        Integer connectedEmployeeId = authBean.getConnectedEmployee() != null
+                ? authBean.getConnectedEmployee().getId() : null;
+        Result<Boolean> headResult = employeeBusiness.isDepartmentHead(connectedEmployeeId);
+        teamView = !globalAccess && headResult.isSuccess() && Boolean.TRUE.equals(headResult.getData());
+        canViewEmployeeList = globalAccess || teamView;
         log.info("Loading employee list. Include inactive: " + includeInactive);
 
         Result<List<EmployeeListDto>> result =
-                employeeBusiness.getEmployeeList(includeInactive);
+                employeeBusiness.getEmployeeListForViewer(
+                        connectedEmployeeId,
+                        globalAccess, includeInactive);
 
         if (result.isSuccess()) {
             employees = result.getData();
             log.info("Employee list loaded: " + employees.size() + " employee(s)");
         } else {
+            employees = new ArrayList<>();
+            canViewEmployeeList = false;
             log.warn("Employee list loading failed");
             MessageUtils.addErrorMessages(result, "employees.error.load");
         }
@@ -101,5 +116,8 @@ public class EmployeesBean implements Serializable {
     public List<EmployeeListDto> getEmployees() {
         return employees;
     }
+
+    public boolean isCanViewEmployeeList() { return canViewEmployeeList; }
+    public boolean isTeamView() { return teamView; }
 
 }

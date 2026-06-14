@@ -1,11 +1,42 @@
 package be.atc.erpprojetintegration_1.entities;
 
+import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getActiveEmployeesByPlanning",
+                query = "SELECT pe.employee FROM PlanningsEmployee pe " +
+                        "WHERE pe.planning.id = :planningId AND pe.isActive = true " +
+                        "ORDER BY pe.employee.lastName, pe.employee.firstName"
+        ),
+        @NamedQuery(
+                name = "getActiveAssignmentByPlanningAndEmployee",
+                query = "SELECT pe FROM PlanningsEmployee pe " +
+                        "JOIN FETCH pe.planning p JOIN FETCH pe.employee e " +
+                        "LEFT JOIN FETCH p.department " +
+                        "WHERE p.id = :planningId AND e.id = :employeeId " +
+                        "AND pe.isActive = true AND p.isActive = true AND p.status <> :cancelled"
+        ),
+        @NamedQuery(
+                name = "getActiveAssignmentsByPlanning",
+                query = "SELECT pe FROM PlanningsEmployee pe JOIN FETCH pe.employee " +
+                        "WHERE pe.planning.id = :planningId AND pe.isActive = true"
+        ),
+        @NamedQuery(
+                name = "getCandidateAssignmentsForConflict",
+                query = "SELECT pe FROM PlanningsEmployee pe JOIN FETCH pe.employee e " +
+                        "JOIN FETCH pe.planning p WHERE pe.isActive = true AND p.isActive = true " +
+                        "AND p.status <> :cancelled " +
+                        "AND e.id IN :employeeIds AND p.date BETWEEN :candidateStart AND :candidateEnd " +
+                        "ORDER BY e.lastName, e.firstName"
+        )
+})
 @Entity
 @Table(name = "plannings_employees")
 public class PlanningsEmployee {
@@ -22,6 +53,14 @@ public class PlanningsEmployee {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
+
+    @Size(max = 500)
+    @Column(name = "note", length = 500)
+    private String note;
+
+    @NotNull
+    @Column(name = "performed", nullable = false)
+    private Boolean performed = false;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -59,6 +98,11 @@ public class PlanningsEmployee {
     public void setPlanning(Planning planning) {
         this.planning = planning;
     }
+
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
+    public Boolean getPerformed() { return performed; }
+    public void setPerformed(Boolean performed) { this.performed = performed; }
 
     public BigDecimal calculateHours() {
         if (planning == null || planning.getStartHour() == null || planning.getEndHour() == null) {

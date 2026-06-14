@@ -41,13 +41,19 @@ public class AbsencesBean implements Serializable {
     private Integer selectedEmployeeId;
     private UploadedFile document;
     private String reviewComment;
+    private boolean departmentHead;
 
     @PostConstruct
-    public void init() { load(); prepareNew(); }
+    public void init() {
+        Result<Boolean> headResult = absenceBusiness.isDepartmentHead(connectedId());
+        departmentHead = headResult.isSuccess() && Boolean.TRUE.equals(headResult.getData());
+        absenceBusiness.refuseOverdueSickness();
+        load();
+        prepareNew();
+    }
 
     public void load() {
-        Result<List<Absence>> result = authBean.isHrOrAdmin() ? absenceBusiness.getAllActive()
-                : absenceBusiness.getActiveByEmployee(connectedId());
+        Result<List<Absence>> result = absenceBusiness.getAccessible(connectedId(), authBean.isHrOrAdmin());
         absences = result.isSuccess() ? result.getData() : new ArrayList<Absence>();
         employees = new ArrayList<>();
         if (authBean.isHrOrAdmin()) {
@@ -82,21 +88,34 @@ public class AbsencesBean implements Serializable {
         if (selectedEmployeeId == null) { message(FacesMessage.SEVERITY_ERROR, "Selectionnez un employe."); return; }
         if (document != null && document.getFileName() != null && !document.getFileName().trim().isEmpty()) {
             if (!storeDocument()) return;
+            selectedAbsence.setCertificateValidated(false);
+            selectedAbsence.setCertificateValidatedBy(null);
+            selectedAbsence.setCertificateValidatedAt(null);
         }
         Result<Absence> result = absenceBusiness.saveRequest(selectedAbsence, selectedEmployeeId, submit);
         if (!result.isSuccess()) { message(FacesMessage.SEVERITY_ERROR, firstError(result)); return; }
-        message(FacesMessage.SEVERITY_INFO, submit ? "Demande envoyee a la RH." : "Brouillon enregistre.");
+        message(FacesMessage.SEVERITY_INFO, submit ? "Demande envoyee pour validation." : "Brouillon enregistre.");
         load(); prepareNew();
     }
 
     public void approve() { review(AbsenceStatus.APPROVED); }
     public void refuse() { review(AbsenceStatus.REFUSED); }
     private void review(AbsenceStatus status) {
-        if (!authBean.isHrOrAdmin()) return;
-        Result<Absence> result = absenceBusiness.review(selectedAbsence.getId(), connectedId(), status, reviewComment);
+        if (!canReviewSelected()) return;
+        Result<Absence> result = absenceBusiness.review(selectedAbsence.getId(), connectedId(), status,
+                reviewComment, authBean.isHrOrAdmin());
         if (!result.isSuccess()) { message(FacesMessage.SEVERITY_ERROR, firstError(result)); return; }
         message(FacesMessage.SEVERITY_INFO, status == AbsenceStatus.APPROVED ? "Absence approuvee." : "Absence refusee.");
         reviewComment = null; load();
+    }
+
+    public void validateCertificate() {
+        if (!authBean.isHrOrAdmin() || selectedAbsence == null) return;
+        Result<Absence> result = absenceBusiness.validateCertificate(selectedAbsence.getId(), connectedId());
+        if (!result.isSuccess()) { message(FacesMessage.SEVERITY_ERROR, firstError(result)); return; }
+        selectedAbsence = result.getData();
+        message(FacesMessage.SEVERITY_INFO, "Certificat valide par la RH.");
+        load();
     }
 
     public void cancel(Absence absence) {
@@ -125,10 +144,32 @@ public class AbsencesBean implements Serializable {
                 && absence.getEmployee().getId().equals(connectedId());
     }
     public boolean canEditSelected() { return selectedAbsence != null && (selectedAbsence.getId() == null || canEdit(selectedAbsence)); }
-    public boolean canReviewSelected() { return authBean.isHrOrAdmin() && selectedAbsence != null && selectedAbsence.getStatus() == AbsenceStatus.PENDING; }
+    public boolean canReviewSelected() {
+        if (selectedAbsence == null || selectedAbsence.getStatus() != AbsenceStatus.PENDING) return false;
+        if (selectedAbsence.getType() == AbsenceType.UNPAID_LEAVE) return authBean.isHrOrAdmin();
+        return departmentHead || authBean.hasRole("ADMIN") || authBean.hasRole("HR");
+    }
+    public boolean canValidateCertificate() {
+        return authBean.isHrOrAdmin() && selectedAbsence != null
+                && selectedAbsence.getType() == AbsenceType.SICKNESS
+                && selectedAbsence.getDocumentPath() != null
+                && !Boolean.TRUE.equals(selectedAbsence.getCertificateValidated());
+    }
+    public boolean canApproveSelected() {
+        return canReviewSelected() && (selectedAbsence.getType() != AbsenceType.SICKNESS
+                || Boolean.TRUE.equals(selectedAbsence.getCertificateValidated()));
+    }
+    public boolean canAccessDocument() { return authBean.isHrOrAdmin(); }
+    public boolean getCanAccessDocument() { return canAccessDocument(); }
+    public boolean getCanValidateCertificate() { return canValidateCertificate(); }
+    public boolean isDepartmentHead() { return departmentHead; }
     public boolean getCanEditSelected() { return canEditSelected(); }
     public boolean getCanReviewSelected() { return canReviewSelected(); }
-    public boolean canCancel(Absence absence) { return absence != null && absence.getStatus() != AbsenceStatus.CANCELLED && absence.getStatus() != AbsenceStatus.REFUSED; }
+    public boolean getCanApproveSelected() { return canApproveSelected(); }
+    public boolean canCancel(Absence absence) {
+        return absence != null && (authBean.isHrOrAdmin() || absence.getEmployee().getId().equals(connectedId()))
+                && absence.getStatus() != AbsenceStatus.CANCELLED && absence.getStatus() != AbsenceStatus.REFUSED;
+    }
     public String statusClass(Absence absence) { return "absence-status absence-status-" + absence.getStatus().name().toLowerCase(); }
     public long getPendingCount() { return countByStatus(AbsenceStatus.PENDING); }
     public long getApprovedCount() { return countByStatus(AbsenceStatus.APPROVED); }
@@ -149,6 +190,8 @@ public class AbsencesBean implements Serializable {
         }
 
         String approvedVacationIds = absences.stream()
+                .filter(absence -> absence.getEmployee() != null
+                        && absence.getEmployee().getId().equals(connectedId()))
                 .filter(absence -> absence.getType() == AbsenceType.ANNUAL_LEAVE)
                 .filter(absence -> absence.getStatus() == AbsenceStatus.APPROVED)
                 .filter(absence -> absence.getEndDate() != null && !absence.getEndDate().isBefore(LocalDate.now()))

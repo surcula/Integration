@@ -2,6 +2,9 @@ package be.atc.erpprojetintegration_1.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 
 @Entity
 @Table(name = "plannings_employees")
@@ -55,6 +58,19 @@ public class PlanningsEmployee {
 
     public void setPlanning(Planning planning) {
         this.planning = planning;
+    }
+
+    public BigDecimal calculateHours() {
+        if (planning == null || planning.getStartHour() == null || planning.getEndHour() == null) {
+            return BigDecimal.ZERO;
+        }
+        long minutes = Duration.between(planning.getStartHour(), planning.getEndHour()).toMinutes();
+        if (minutes < 0) {
+            minutes += 24 * 60;
+        }
+        return BigDecimal.valueOf(minutes)
+                .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP)
+                .stripTrailingZeros();
     }
 
 }

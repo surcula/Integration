@@ -88,19 +88,25 @@ public class AbsenceBusiness {
     }
 
     public boolean blocksPlanning(Absence absence, LocalDate date, LocalTime start, LocalTime end) {
-        if (absence == null || absence.getStatus() != AbsenceStatus.APPROVED || date == null ||
-                date.isBefore(absence.getStartDate()) || date.isAfter(absence.getEndDate())) return false;
-        if (Boolean.TRUE.equals(absence.getAllDay()) || start == null || end == null) return true;
-        LocalTime absenceStart = date.equals(absence.getStartDate()) ? absence.getStartHour() : LocalTime.MIN;
-        LocalTime absenceEnd = date.equals(absence.getEndDate()) ? absence.getEndHour() : LocalTime.MAX;
-        return start.isBefore(absenceEnd) && end.isAfter(absenceStart);
+        if (absence == null || absence.getStatus() != AbsenceStatus.APPROVED || date == null) return false;
+        LocalDateTime planningStart = date.atTime(start == null ? LocalTime.MIN : start);
+        LocalDateTime planningEnd = start == null || end == null
+                ? date.plusDays(1).atStartOfDay()
+                : date.plusDays(end.isBefore(start) ? 1 : 0).atTime(end);
+        LocalDateTime absenceStart = absence.getStartDate().atTime(
+                Boolean.TRUE.equals(absence.getAllDay()) ? LocalTime.MIN : absence.getStartHour());
+        LocalDateTime absenceEnd = Boolean.TRUE.equals(absence.getAllDay())
+                ? absence.getEndDate().plusDays(1).atStartOfDay()
+                : absence.getEndDate().atTime(absence.getEndHour());
+        return planningStart.isBefore(absenceEnd) && planningEnd.isAfter(absenceStart);
     }
 
     public Result<List<String>> findPlanningConflicts(List<Integer> employeeIds, LocalDate date, LocalTime start, LocalTime end) {
         List<String> names = new ArrayList<>();
         if (employeeIds == null) return Result.ok(names);
         for (Integer employeeId : employeeIds) {
-            Result<List<Absence>> result = absenceService.getBlockingAbsences(employeeId, date, date, null);
+            LocalDate endDate = start != null && end != null && end.isBefore(start) ? date.plusDays(1) : date;
+            Result<List<Absence>> result = absenceService.getBlockingAbsences(employeeId, date, endDate, null);
             if (!result.isSuccess()) return Result.fail(result.getErrors());
             for (Absence absence : result.getData()) {
                 if (absence.getStatus() == AbsenceStatus.APPROVED && blocksPlanning(absence, date, start, end)) {

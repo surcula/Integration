@@ -2,6 +2,9 @@ package be.atc.erpprojetintegration_1.interfaces;
 
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.entities.Planning;
+import be.atc.erpprojetintegration_1.entities.PlanningEmployeeSwapRequest;
+import be.atc.erpprojetintegration_1.entities.PlanningsEmployee;
+import be.atc.erpprojetintegration_1.enums.PlanningSwapStatus;
 import be.atc.erpprojetintegration_1.tools.Result;
 
 import java.time.LocalDate;
@@ -20,6 +23,21 @@ public interface IPlanningEmployeeService {
      * @return assigned employee list result
      */
     Result<List<Employee>> getActiveEmployees(Integer planningId);
+
+    Result<PlanningsEmployee> getActiveAssignment(Integer planningId, Integer employeeId);
+
+    Result<List<PlanningEmployeeSwapRequest>> getSwapRequests(Integer employeeId, boolean allEmployees);
+
+    Result<PlanningEmployeeSwapRequest> getSwapRequest(Integer requestId);
+
+    Result<PlanningEmployeeSwapRequest> createSwapRequest(
+            Integer planningEmployeeId, Integer requestedByEmployeeId, String reason);
+
+    Result<Void> reviewSwapRequest(Integer requestId, PlanningSwapStatus status,
+                                   Integer replacementEmployeeId, Integer reviewedByEmployeeId,
+                                   String reviewComment);
+
+    Result<Void> cancelSwapRequest(Integer requestId, Integer requestedByEmployeeId);
 
     /**
      * Replaces all active employee assignments for a planning entry.

@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 @ApplicationScoped
 public class PlanningBusiness {
@@ -64,9 +66,65 @@ public class PlanningBusiness {
     }
 
     public Result<Planning> save(Planning planning, List<Integer> employeeIds) {
+        Result<Void> availabilityResult = validateAvailability(planning, employeeIds);
+        if (!availabilityResult.isSuccess()) {
+            return Result.fail(availabilityResult.getErrors());
+        }
+
+        planning.setNote(trim(planning.getNote()));
+        planning.setType(trim(planning.getType()));
+        planning.setDescription(trim(planning.getDescription()));
+        planning.setIsActive(true);
+
+        Result<Planning> planningResult = planningService.save(planning);
+        if (!planningResult.isSuccess()) {
+            return planningResult;
+        }
+
+        Result<Void> assignmentResult = planningEmployeeService.replaceAssignments(
+                planningResult.getData(), employeeIds);
+        if (!assignmentResult.isSuccess()) {
+            return Result.fail(assignmentResult.getErrors());
+        }
+
+        return planningResult;
+    }
+
+    public Result<List<Planning>> saveRecurring(
+            Planning template, List<Integer> employeeIds, List<LocalDate> dates) {
+        if (template == null || template.getId() != null || dates == null || dates.isEmpty()) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("recurrence", "planning.error.recurrence.invalid");
+            return Result.fail(errors);
+        }
+
+        List<Planning> occurrences = new ArrayList<>();
+        for (LocalDate date : dates) {
+            Planning occurrence = copyForDate(template, date);
+            Result<Void> check = validateAvailability(occurrence, employeeIds);
+            if (!check.isSuccess()) {
+                Map<String, String> errors = new HashMap<>(check.getErrors());
+                errors.put("recurrenceDate", date.toString());
+                return Result.fail(errors);
+            }
+            occurrences.add(occurrence);
+        }
+
+        List<Planning> saved = new ArrayList<>();
+        for (Planning occurrence : occurrences) {
+            Result<Planning> result = save(occurrence, employeeIds);
+            if (!result.isSuccess()) {
+                return Result.fail(result.getErrors());
+            }
+            saved.add(result.getData());
+        }
+        return Result.ok(saved);
+    }
+
+    private Result<Void> validateAvailability(Planning planning, List<Integer> employeeIds) {
         Result<Void> validationResult = validate(planning);
         if (!validationResult.isSuccess()) {
-            return Result.fail(validationResult.getErrors());
+            return validationResult;
         }
 
         Result<List<Employee>> conflictResult = planningEmployeeService.findConflictingEmployees(
@@ -100,24 +158,20 @@ public class PlanningBusiness {
             errors.put("conflicts", String.join(", ", absenceConflicts.getData()) + " (absence approuvee)");
             return Result.fail(errors);
         }
+        return Result.ok();
+    }
 
-        planning.setNote(trim(planning.getNote()));
-        planning.setType(trim(planning.getType()));
-        planning.setDescription(trim(planning.getDescription()));
-        planning.setIsActive(true);
-
-        Result<Planning> planningResult = planningService.save(planning);
-        if (!planningResult.isSuccess()) {
-            return planningResult;
-        }
-
-        Result<Void> assignmentResult = planningEmployeeService.replaceAssignments(
-                planningResult.getData(), employeeIds);
-        if (!assignmentResult.isSuccess()) {
-            return Result.fail(assignmentResult.getErrors());
-        }
-
-        return planningResult;
+    private Planning copyForDate(Planning source, LocalDate date) {
+        Planning copy = new Planning();
+        copy.setDate(date);
+        copy.setStartHour(source.getStartHour());
+        copy.setEndHour(source.getEndHour());
+        copy.setNote(source.getNote());
+        copy.setType(source.getType());
+        copy.setDescription(source.getDescription());
+        copy.setDepartment(source.getDepartment());
+        copy.setIsActive(true);
+        return copy;
     }
 
     public Result<Void> deactivate(Integer planningId) {
@@ -148,8 +202,8 @@ public class PlanningBusiness {
         if ((planning.getStartHour() == null) != (planning.getEndHour() == null)) {
             errors.put("hours", "planning.error.hours.bothRequired");
         } else if (planning.getStartHour() != null
-                && !planning.getEndHour().isAfter(planning.getStartHour())) {
-            errors.put("hours", "planning.error.hours.order");
+                && planning.getEndHour().equals(planning.getStartHour())) {
+            errors.put("hours", "planning.error.hours.same");
         }
 
         return errors.isEmpty() ? Result.ok() : Result.fail(errors);

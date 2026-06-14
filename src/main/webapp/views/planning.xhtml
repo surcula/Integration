@@ -61,6 +61,7 @@
                                 value="#{planningBean.eventModel}"
                                 widgetVar="planningScheduleWidget"
                                 view="#{planningBean.view}"
+                                initialDate="#{planningBean.calendarInitialDate}"
                                 locale="#{planningBean.locale}"
                                 timeZone="Europe/Brussels"
                                 draggable="#{planningBean.canManagePlanning}"
@@ -85,6 +86,64 @@
                                 listener="#{planningBean.onEventResize}"
                                 update="planningSchedule"/>
                     </p:schedule>
+
+                    <h:panelGroup id="swapRequestsPanel" layout="block"
+                                  styleClass="planning-swap-section"
+                                  rendered="#{not empty planningBean.swapRequests}">
+                        <div class="panel-header planning-swap-header">
+                            <div>
+                                <h3 class="h6 mb-1 section-title">
+                                    <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+                                    <span>#{planningBean.canManagePlanning ? 'Demandes de swap' : 'Mes demandes de swap'}</span>
+                                </h3>
+                                <p class="text-muted mb-0">Suivi des demandes de remplacement de prestation.</p>
+                            </div>
+                        </div>
+                        <p:dataTable value="#{planningBean.swapRequests}" var="swap"
+                                     emptyMessage="Aucune demande de swap."
+                                     responsiveLayout="scroll" rows="5" paginator="true">
+                            <p:column headerText="Employe" rendered="#{planningBean.canManagePlanning}">
+                                <h:outputText value="#{swap.requestedBy.firstName} #{swap.requestedBy.lastName}"/>
+                            </p:column>
+                            <p:column headerText="Prestation">
+                                <strong>#{swap.planningEmployee.planning.note}</strong>
+                                <span class="planning-swap-meta">
+                                    #{planningBean.formatSwapDate(swap)}
+                                    <h:panelGroup rendered="#{not empty swap.planningEmployee.planning.startHour}">
+                                        · #{swap.planningEmployee.planning.startHour} - #{swap.planningEmployee.planning.endHour}
+                                    </h:panelGroup>
+                                </span>
+                            </p:column>
+                            <p:column headerText="Raison">
+                                <h:outputText value="#{swap.reason}"/>
+                            </p:column>
+                            <p:column headerText="Statut">
+                                <span class="planning-swap-status planning-swap-status-#{planningBean.getSwapStatusCss(swap.status)}">
+                                    #{swap.status.label}
+                                </span>
+                            </p:column>
+                            <p:column headerText="Remplacant">
+                                <h:outputText value="#{empty swap.replacementEmployee ? '-' : swap.replacementEmployee.firstName.concat(' ').concat(swap.replacementEmployee.lastName)}"/>
+                            </p:column>
+                            <p:column headerText="Actions" styleClass="table-actions">
+                                <p:commandButton icon="bi bi-eye"
+                                                 title="Traiter la demande"
+                                                 styleClass="btn btn-primary btn-sm"
+                                                 rendered="#{planningBean.canManagePlanning and swap.status.toString() eq 'PENDING'}"
+                                                 actionListener="#{planningBean.selectSwapRequest(swap)}"
+                                                 process="@this"
+                                                 update=":planningForm:swapReviewDialog"
+                                                 oncomplete="PF('swapReviewDialogWidget').show();"/>
+                                <p:commandButton icon="bi bi-x-lg"
+                                                 title="Annuler la demande"
+                                                 styleClass="btn btn-outline-danger btn-sm"
+                                                 rendered="#{not planningBean.canManagePlanning and swap.status.toString() eq 'PENDING'}"
+                                                 action="#{planningBean.cancelSwap(swap.id)}"
+                                                 process="@this"
+                                                 update=":planningForm:swapRequestsPanel :planningForm:planningDialog :globalGrowl"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:panelGroup>
 
                     <p:dialog id="planningDialog"
                               widgetVar="planningDialogWidget"
@@ -188,6 +247,30 @@
                                               styleClass="w-100"/>
                             </div>
 
+                            <h:panelGroup id="recurrencePanel" layout="block" styleClass="contents"
+                                          rendered="#{planningBean.canManagePlanning and planningBean.newPlanning}">
+                                <div class="col-12 col-md-4">
+                                    <p:outputLabel for="recurrenceMode" value="Recurrence"/>
+                                    <p:selectOneMenu id="recurrenceMode"
+                                                     value="#{planningBean.recurrenceMode}"
+                                                     styleClass="w-100">
+                                        <f:selectItem itemLabel="Aucune" itemValue="NONE"/>
+                                        <f:selectItem itemLabel="Tous les jours" itemValue="DAILY"/>
+                                        <f:selectItem itemLabel="Toutes les semaines" itemValue="WEEKLY"/>
+                                        <p:ajax event="change" process="@this" update="recurrenceEndContainer"/>
+                                    </p:selectOneMenu>
+                                </div>
+                                <h:panelGroup id="recurrenceEndContainer" layout="block" styleClass="col-12 col-md-4">
+                                    <h:panelGroup rendered="#{planningBean.recurrenceMode ne 'NONE'}">
+                                        <p:outputLabel for="recurrenceEnd" value="Repeter jusqu'au"/>
+                                        <p:datePicker id="recurrenceEnd"
+                                                      value="#{planningBean.recurrenceEndDate}"
+                                                      pattern="dd/MM/yyyy" showIcon="true"
+                                                      styleClass="w-100"/>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </h:panelGroup>
+
                             <h:panelGroup id="hoursPanel" layout="block" styleClass="contents">
                                 <div class="col-12 col-md-4">
                                     <p:outputLabel for="startHour" value="Debut"/>
@@ -217,25 +300,117 @@
                                                  autoResize="false"
                                                  styleClass="form-control"/>
                             </div>
+
+                            <h:panelGroup layout="block" styleClass="col-12 planning-assignment-summary"
+                                          rendered="#{not planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}">
+                                <div>
+                                    <span class="text-muted">Duree de la prestation</span>
+                                    <strong>#{planningBean.selectedHoursLabel}</strong>
+                                </div>
+                                <h:panelGroup rendered="#{not empty planningBean.pendingSwapForSelectedPlanning}">
+                                    <span class="planning-swap-status planning-swap-status-pending">Swap en attente</span>
+                                </h:panelGroup>
+                            </h:panelGroup>
                         </div>
 
                         <f:facet name="footer">
-                            <p:commandButton value="Supprimer"
-                                             icon="bi bi-trash"
-                                             styleClass="btn btn-outline-danger"
-                                             rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}"
-                                             action="#{planningBean.deletePlanning}"
-                                             process="@this"
-                                             update="planningForm:planningSchedule planningDialog globalGrowl"
-                                             oncomplete="PF('planningDialogWidget').hide();"/>
-                            <p:commandButton value="Enregistrer"
-                                             icon="bi bi-check2"
+                            <div class="planning-dialog-actions">
+                                <div class="planning-dialog-actions-start">
+                                    <p:commandButton value="Supprimer"
+                                                     icon="bi bi-trash"
+                                                     styleClass="btn btn-outline-danger"
+                                                     rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}"
+                                                     action="#{planningBean.deletePlanning}"
+                                                     process="@this"
+                                                     update="planningForm:planningSchedule planningDialog globalGrowl"
+                                                     oncomplete="PF('planningDialogWidget').hide();"/>
+                                </div>
+                                <div class="planning-dialog-actions-end">
+                                    <p:commandButton value="Dupliquer"
+                                                     icon="bi bi-copy"
+                                                     styleClass="btn btn-outline-primary"
+                                                     rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}"
+                                                     action="#{planningBean.duplicatePlanning}"
+                                                     process="@this"
+                                                     update="planningForm:planningSchedule planningDialog globalGrowl"
+                                                     oncomplete="if (!args.validationFailed) PF('planningDialogWidget').hide();"/>
+                                    <p:commandButton value="Enregistrer"
+                                                     icon="bi bi-check2"
+                                                     styleClass="btn btn-primary"
+                                                     rendered="#{planningBean.canManagePlanning}"
+                                                     action="#{planningBean.savePlanning}"
+                                                     process="planningDialog"
+                                                     update="planningForm:planningSchedule planningDialog globalGrowl"
+                                                     oncomplete="if (!args.validationFailed) PF('planningDialogWidget').hide();"/>
+                                    <p:commandButton value="Demander un swap"
+                                                     icon="bi bi-arrow-left-right"
+                                                     styleClass="btn btn-primary"
+                                                     rendered="#{planningBean.canRequestSwap}"
+                                                     actionListener="#{planningBean.prepareSwapRequest}"
+                                                     process="@this"
+                                                     update=":planningForm:swapRequestDialog"
+                                                     oncomplete="PF('swapRequestDialogWidget').show();"/>
+                                </div>
+                            </div>
+                        </f:facet>
+                    </p:dialog>
+
+                    <p:dialog id="swapRequestDialog" widgetVar="swapRequestDialogWidget"
+                              header="Demander un swap" modal="true" responsive="true" width="480">
+                        <p class="text-muted">Expliquez brièvement pourquoi cette prestation doit être reprise par un collègue.</p>
+                        <p:outputLabel for="swapReason" value="Raison"/>
+                        <p:inputTextarea id="swapReason" value="#{planningBean.swapReason}"
+                                         rows="4" maxlength="500" counter="swapReasonCounter"
+                                         counterTemplate="{0} caracteres restants" styleClass="form-control"/>
+                        <h:outputText id="swapReasonCounter" styleClass="text-muted"/>
+                        <f:facet name="footer">
+                            <p:commandButton value="Envoyer la demande" icon="bi bi-send"
                                              styleClass="btn btn-primary"
-                                             rendered="#{planningBean.canManagePlanning}"
-                                             action="#{planningBean.savePlanning}"
-                                             process="planningDialog"
-                                             update="planningForm:planningSchedule planningDialog globalGrowl"
-                                             oncomplete="if (!args.validationFailed) PF('planningDialogWidget').hide();"/>
+                                             action="#{planningBean.requestSwap}"
+                                             process="swapRequestDialog"
+                                             update=":planningForm:swapRequestsPanel :planningForm:planningDialog :globalGrowl"
+                                             oncomplete="if (!args.validationFailed) PF('swapRequestDialogWidget').hide();"/>
+                        </f:facet>
+                    </p:dialog>
+
+                    <p:dialog id="swapReviewDialog" widgetVar="swapReviewDialogWidget"
+                              header="Traiter la demande de swap" modal="true" responsive="true" width="520">
+                        <h:panelGroup rendered="#{not empty planningBean.selectedSwapRequest}">
+                            <div class="planning-swap-review-summary">
+                                <strong>#{planningBean.selectedSwapRequest.requestedBy.firstName} #{planningBean.selectedSwapRequest.requestedBy.lastName}</strong>
+                                <span>#{planningBean.selectedSwapRequest.planningEmployee.planning.note}</span>
+                                <span>#{planningBean.selectedSwapRequest.reason}</span>
+                            </div>
+                            <div class="mt-3">
+                                <p:outputLabel for="swapReplacement" value="Employe remplacant"/>
+                                <p:selectOneMenu id="swapReplacement"
+                                                 value="#{planningBean.swapReplacementEmployeeId}"
+                                                 filter="true" filterMatchMode="contains" styleClass="w-100">
+                                    <f:selectItem itemLabel="Selectionner un remplacant" itemValue="#{null}"/>
+                                    <f:selectItems value="#{planningBean.employees}" var="employee"
+                                                   itemLabel="#{employee.fullName} - #{employee.email}"
+                                                   itemValue="#{employee.id}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="mt-3">
+                                <p:outputLabel for="swapReviewComment" value="Commentaire RH"/>
+                                <p:inputTextarea id="swapReviewComment" value="#{planningBean.swapReviewComment}"
+                                                 rows="3" maxlength="500" styleClass="form-control"/>
+                            </div>
+                        </h:panelGroup>
+                        <f:facet name="footer">
+                            <p:commandButton value="Refuser" icon="bi bi-x-circle"
+                                             styleClass="btn btn-outline-danger"
+                                             action="#{planningBean.refuseSwap}"
+                                             process="swapReviewDialog"
+                                             update=":planningForm:swapRequestsPanel :planningForm:planningSchedule :globalGrowl"
+                                             oncomplete="PF('swapReviewDialogWidget').hide();"/>
+                            <p:commandButton value="Approuver" icon="bi bi-check-circle"
+                                             styleClass="btn btn-primary"
+                                             action="#{planningBean.approveSwap}"
+                                             process="swapReviewDialog"
+                                             update=":planningForm:swapRequestsPanel :planningForm:planningSchedule :globalGrowl"
+                                             oncomplete="if (!args.validationFailed) PF('swapReviewDialogWidget').hide();"/>
                         </f:facet>
                     </p:dialog>
                 </h:form>

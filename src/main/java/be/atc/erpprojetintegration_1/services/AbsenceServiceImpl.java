@@ -83,8 +83,8 @@ public class AbsenceServiceImpl implements IAbsenceService {
         EntityManager em = EMF.getEM();
         try {
             List<Planning> rows = em.createQuery("SELECT DISTINCT p FROM PlanningsEmployee pe JOIN pe.planning p WHERE pe.employee.id = :employeeId " +
-                    "AND pe.isActive = true AND p.isActive = true AND p.date BETWEEN :startDate AND :endDate", Planning.class)
-                    .setParameter("employeeId", employeeId).setParameter("startDate", startDate)
+                                    "AND pe.isActive = true AND p.isActive = true AND p.date BETWEEN :startDate AND :endDate", Planning.class)
+                    .setParameter("employeeId", employeeId).setParameter("startDate", startDate.minusDays(1))
                     .setParameter("endDate", endDate).getResultList();
             return Result.ok(rows);
         } catch (Exception ex) {

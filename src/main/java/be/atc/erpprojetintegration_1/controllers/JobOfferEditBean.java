@@ -4,6 +4,7 @@ import be.atc.erpprojetintegration_1.business.FunctionBusiness;
 import be.atc.erpprojetintegration_1.business.JobOfferBusiness;
 import be.atc.erpprojetintegration_1.entities.Function;
 import be.atc.erpprojetintegration_1.entities.JobOffer;
+import be.atc.erpprojetintegration_1.enums.JobOfferStatus;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
 import org.apache.log4j.Logger;
@@ -14,11 +15,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
- * JSF bean used by the job offer create and edit page.
- * It loads the selected offer, the available functions and saves the submitted form.
+ * Bean JSF utilisé par la page de création et de modification d'une offre.
+ * Il charge l'offre sélectionnée, les fonctions disponibles et enregistre le formulaire.
  */
 @Named
 @ViewScoped
@@ -38,13 +40,14 @@ public class JobOfferEditBean implements Serializable {
     private List<Function> functions;
 
     /**
-     * Loads the offer to edit, or prepares an empty offer when the page is in create mode.
+     * Charge l'offre à modifier ou prépare une nouvelle offre en mode création.
      */
     public void loadJobOffer() {
         loadFunctions();
 
         if (jobOfferId == null) {
             jobOffer = new JobOffer();
+            jobOffer.setStatus(JobOfferStatus.NOT_PUBLISHED);
             return;
         }
 
@@ -65,7 +68,7 @@ public class JobOfferEditBean implements Serializable {
     }
 
     /**
-     * Saves the form and redirects to the list page when the operation succeeds.
+     * Enregistre le formulaire et redirige vers la liste quand l'opération réussit.
      */
     public String save() {
         Result<JobOffer> result = jobOfferBusiness.saveJobOffer(jobOffer, selectedFunctionId);
@@ -85,6 +88,7 @@ public class JobOfferEditBean implements Serializable {
 
         if (result.isSuccess()) {
             functions = result.getData();
+            functions.sort(Comparator.comparing(function -> function.getFunctionName() == null ? "" : function.getFunctionName().toLowerCase()));
         } else {
             functions = new ArrayList<>();
             MessageUtils.addErrorMessages(result, "functions.error.load");
@@ -117,5 +121,14 @@ public class JobOfferEditBean implements Serializable {
 
     public List<Function> getFunctions() {
         return functions;
+    }
+
+    /**
+     * Retourne les statuts disponibles pour la liste déroulante du formulaire.
+     *
+     * @return statuts des offres d'emploi
+     */
+    public JobOfferStatus[] getJobOfferStatuses() {
+        return JobOfferStatus.values();
     }
 }

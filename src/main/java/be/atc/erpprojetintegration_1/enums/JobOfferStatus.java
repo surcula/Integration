@@ -1,8 +1,8 @@
 package be.atc.erpprojetintegration_1.enums;
 
 /**
- * Represents the business status of a job offer.
- * The status is used for the publication workflow, while isActive is kept for logical deletion.
+ * Représente le statut métier d'une offre d'emploi.
+ * Le statut sert au workflow de publication, tandis que isActive reste réservé à la suppression logique.
  */
 public enum JobOfferStatus {
     NOT_PUBLISHED("NOT_PUBLISHED", "Non publiee"),

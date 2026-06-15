@@ -9,14 +9,15 @@ import be.atc.erpprojetintegration_1.tools.Result;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Business layer for job offers.
- * It centralizes form validation and prepares the entity before calling the service layer.
+ * Couche Business des offres d'emploi.
+ * Elle centralise les validations du formulaire et prépare l'entité avant l'appel au service.
  */
 @ApplicationScoped
 public class JobOfferBusiness {
@@ -27,10 +28,21 @@ public class JobOfferBusiness {
     @Inject
     private IFunctionService functionService;
 
+    /**
+     * Récupère toutes les offres pour la page de gestion.
+     *
+     * @return résultat contenant toutes les offres
+     */
     public Result<List<JobOffer>> getAllJobOffers() {
         return jobOfferService.getAll();
     }
 
+    /**
+     * Récupère les offres actives et publiées pour une fonction donnée.
+     *
+     * @param functionId identifiant de la fonction
+     * @return résultat contenant les offres correspondantes
+     */
     public Result<List<JobOffer>> getActiveJobOffersByFunctionId(Integer functionId) {
         if (functionId == null) {
             Map<String, String> errors = new HashMap<>();
@@ -41,6 +53,21 @@ public class JobOfferBusiness {
         return jobOfferService.getActiveByFunctionId(functionId);
     }
 
+    /**
+     * Récupère les offres visibles sur la page publique de consultation.
+     *
+     * @return résultat contenant les offres publiées et actives
+     */
+    public Result<List<JobOffer>> getPublishedActiveJobOffers() {
+        return jobOfferService.getPublishedActive();
+    }
+
+    /**
+     * Récupère une offre pour le formulaire de gestion.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat contenant l'offre
+     */
     public Result<JobOffer> getJobOfferById(Integer id) {
         if (id == null) {
             Map<String, String> errors = new HashMap<>();
@@ -52,7 +79,27 @@ public class JobOfferBusiness {
     }
 
     /**
-     * Creates or updates a job offer after validating the form fields and the selected function.
+     * Récupère une offre publiée et active pour la page publique de détail.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat contenant l'offre publiée et active
+     */
+    public Result<JobOffer> getPublishedActiveJobOfferById(Integer id) {
+        if (id == null) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("id", "jobOffers.error.id.required");
+            return Result.fail(errors);
+        }
+
+        return jobOfferService.getPublishedActiveById(id);
+    }
+
+    /**
+     * Crée ou modifie une offre après validation des champs du formulaire et de la fonction sélectionnée.
+     *
+     * @param jobOffer données du formulaire de l'offre
+     * @param functionId identifiant de la fonction sélectionnée
+     * @return résultat contenant l'offre enregistrée
      */
     public Result<JobOffer> saveJobOffer(JobOffer jobOffer, Integer functionId) {
         Result<Void> validationResult = validateJobOffer(jobOffer, functionId);
@@ -73,9 +120,11 @@ public class JobOfferBusiness {
         jobOffer.setFunction(functionResult.getData());
 
         if (jobOffer.getId() == null) {
-            // A newly created offer starts as active but not published.
+            // Une nouvelle offre est active ; NOT_PUBLISHED reste le statut par défaut.
             jobOffer.setCreateAt(LocalDateTime.now());
-            jobOffer.setStatus(JobOfferStatus.NOT_PUBLISHED);
+            if (jobOffer.getStatus() == null) {
+                jobOffer.setStatus(JobOfferStatus.NOT_PUBLISHED);
+            }
             jobOffer.setIsActive(true);
             return jobOfferService.create(jobOffer);
         }
@@ -84,7 +133,10 @@ public class JobOfferBusiness {
     }
 
     /**
-     * Publishes a job offer by delegating the status change to the service layer.
+     * Publie une offre en déléguant le changement de statut à la couche Service.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat de l'opération
      */
     public Result<Void> publish(Integer id) {
         Result<Void> validationResult = validateId(id);
@@ -97,7 +149,10 @@ public class JobOfferBusiness {
     }
 
     /**
-     * Archives a published job offer without deleting its history.
+     * Archive une offre publiée sans supprimer son historique.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat de l'opération
      */
     public Result<Void> archive(Integer id) {
         Result<Void> validationResult = validateId(id);
@@ -110,7 +165,10 @@ public class JobOfferBusiness {
     }
 
     /**
-     * Logically deletes a job offer while keeping the database row for history.
+     * Supprime logiquement une offre en conservant la ligne en base pour l'historique.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat de l'opération
      */
     public Result<Void> softDelete(Integer id) {
         Result<Void> validationResult = validateId(id);
@@ -123,7 +181,7 @@ public class JobOfferBusiness {
     }
 
     /**
-     * Validates the fields that are required by the form and the database schema.
+     * Valide les champs obligatoires selon le formulaire et le schéma de base de données.
      */
     private Result<Void> validateJobOffer(JobOffer jobOffer, Integer functionId) {
         Map<String, String> errors = new HashMap<>();
@@ -135,9 +193,23 @@ public class JobOfferBusiness {
 
         FormValidator.required(jobOffer.getJobOfferName(), "jobOfferName", "jobOffers.error.name.required", errors);
         FormValidator.lengthBetween(jobOffer.getJobOfferName(), "jobOfferName", "jobOffers.error.name.length", 1, 200, errors);
+        FormValidator.lengthBetween(jobOffer.getEmail(), "email", "jobOffers.error.email.length", 0, 150, errors);
+        FormValidator.lengthBetween(jobOffer.getContact(), "contact", "jobOffers.error.contact.length", 0, 150, errors);
+        FormValidator.lengthBetween(jobOffer.getDuration(), "duration", "jobOffers.error.duration.length", 0, 100, errors);
 
         if (functionId == null) {
             errors.put("function", "jobOffers.error.function.required");
+        }
+
+        if (jobOffer.getNumberOfOpenPositions() != null && jobOffer.getNumberOfOpenPositions() <= 0) {
+            errors.put("numberOfOpenPositions", "jobOffers.error.openPositions.positive");
+        }
+
+        LocalDate publishStartDate = jobOffer.getPublishStartDate();
+        LocalDate publishEndDate = jobOffer.getPublishEndDate();
+
+        if (publishStartDate != null && publishEndDate != null && publishEndDate.isBefore(publishStartDate)) {
+            errors.put("publishEndDate", "jobOffers.error.publishEndDate.beforeStart");
         }
 
         if (!errors.isEmpty()) {
@@ -160,6 +232,13 @@ public class JobOfferBusiness {
     private void trimJobOfferFields(JobOffer jobOffer) {
         jobOffer.setJobOfferName(trim(jobOffer.getJobOfferName()));
         jobOffer.setDescription(trim(jobOffer.getDescription()));
+        jobOffer.setEmail(trim(jobOffer.getEmail()));
+        jobOffer.setContact(trim(jobOffer.getContact()));
+        jobOffer.setDuration(trim(jobOffer.getDuration()));
+        jobOffer.setProfil(trim(jobOffer.getProfil()));
+        jobOffer.setJobDescription(trim(jobOffer.getJobDescription()));
+        jobOffer.setRequirements(trim(jobOffer.getRequirements()));
+        jobOffer.setComments(trim(jobOffer.getComments()));
     }
 
     private String trim(String value) {

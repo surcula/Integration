@@ -1805,6 +1805,62 @@ html[data-theme="dark"] {
   padding-left: 2.35rem;
 }
 
+.job-offers-search .form-control {
+  padding-left: 0.75rem;
+}
+
+.job-offers-management-panel {
+  overflow: hidden;
+}
+
+.job-offers-management-table .ui-datatable-tablewrapper {
+  overflow-x: auto;
+}
+
+.job-offers-management-table .ui-datatable-tablewrapper table {
+  min-width: 1080px;
+}
+
+.job-offers-management-table .ui-datatable-data > tr > td,
+.job-offers-management-table .ui-datatable-thead > tr > th {
+  vertical-align: middle;
+}
+
+.job-offers-management-table .ui-datatable-data > tr > td:last-child {
+  white-space: nowrap;
+}
+
+.job-offers-public-filters .form-control,
+.job-offers-public-filters .form-select,
+.job-offers-public-filters .btn {
+  min-height: 42px;
+}
+
+.job-offers-public-filters .ui-button {
+  width: 100%;
+}
+
+.job-offer-card {
+  overflow-wrap: anywhere;
+}
+
+.job-offer-card-footer .btn,
+.job-offer-card-footer .ui-button {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767.98px) {
+  .job-offers-management-table .ui-paginator-bottom {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .job-offer-card-footer .ui-button,
+  .job-offer-card-footer .btn {
+    width: 100%;
+  }
+}
+
 .ui-growl {
   top: 5rem;
   right: 1.5rem;

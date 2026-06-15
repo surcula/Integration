@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * JPA entity mapped to the job_offers table.
- * It stores the offer information, its publication status and the related function.
+ * Entité JPA liée à la table job_offers.
+ * Elle contient les informations de l'offre, son statut de publication et la fonction associée.
  */
 @NamedQueries({
         @NamedQuery(
@@ -26,6 +26,16 @@ import java.time.LocalDateTime;
                 query = "SELECT jo FROM JobOffer jo LEFT JOIN FETCH jo.function " +
                         "WHERE jo.isActive = true AND jo.status = be.atc.erpprojetintegration_1.enums.JobOfferStatus.PUBLISHED " +
                         "AND jo.function.id = :functionId ORDER BY jo.createAt DESC"
+        ),
+        @NamedQuery(
+                name = "getPublishedActiveJobOffers",
+                query = "SELECT jo FROM JobOffer jo LEFT JOIN FETCH jo.function f LEFT JOIN FETCH f.city " +
+                        "WHERE jo.isActive = true AND jo.status = :status ORDER BY jo.publishStartDate DESC, jo.createAt DESC"
+        ),
+        @NamedQuery(
+                name = "getPublishedActiveJobOfferById",
+                query = "SELECT jo FROM JobOffer jo LEFT JOIN FETCH jo.function f LEFT JOIN FETCH f.city " +
+                        "WHERE jo.id = :id AND jo.isActive = true AND jo.status = :status"
         ),
         @NamedQuery(
                 name = "getJobOfferById",
@@ -48,6 +58,37 @@ public class JobOffer {
     @Lob
     @Column(name = "description")
     private String description;
+
+    @Size(max = 150)
+    @Column(name = "email", length = 150)
+    private String email;
+
+    @Size(max = 150)
+    @Column(name = "contact", length = 150)
+    private String contact;
+
+    @Size(max = 100)
+    @Column(name = "duration", length = 100)
+    private String duration;
+
+    @Column(name = "number_of_open_positions")
+    private Integer numberOfOpenPositions;
+
+    @Lob
+    @Column(name = "profil")
+    private String profil;
+
+    @Lob
+    @Column(name = "job_description")
+    private String jobDescription;
+
+    @Lob
+    @Column(name = "requirements")
+    private String requirements;
+
+    @Lob
+    @Column(name = "comments")
+    private String comments;
 
     @NotNull
     @Column(name = "create_at", nullable = false)
@@ -94,6 +135,70 @@ public class JobOffer {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public Integer getNumberOfOpenPositions() {
+        return numberOfOpenPositions;
+    }
+
+    public void setNumberOfOpenPositions(Integer numberOfOpenPositions) {
+        this.numberOfOpenPositions = numberOfOpenPositions;
+    }
+
+    public String getProfil() {
+        return profil;
+    }
+
+    public void setProfil(String profil) {
+        this.profil = profil;
+    }
+
+    public String getJobDescription() {
+        return jobDescription;
+    }
+
+    public void setJobDescription(String jobDescription) {
+        this.jobDescription = jobDescription;
+    }
+
+    public String getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(String requirements) {
+        this.requirements = requirements;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 
     public LocalDateTime getCreateAt() {

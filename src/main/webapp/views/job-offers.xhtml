@@ -18,19 +18,30 @@
                     <p class="text-muted mb-0">#{msg['jobOffers.subtitle']}</p>
                 </div>
             </div>
-            <h:link outcome="/views/job-offer-edit" styleClass="btn btn-primary">
-                <i class="pi pi-plus-circle"></i>
-                <span>#{msg['jobOffers.add']}</span>
-            </h:link>
+            <h:panelGroup layout="block"
+                          styleClass="d-flex gap-2 flex-wrap"
+                          rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                <h:link outcome="/views/job-offers-public"
+                        styleClass="btn btn-outline-primary">
+                    <i class="pi pi-briefcase"></i>
+                    <span>#{msg['jobOffers.public.viewAvailable']}</span>
+                </h:link>
+
+                <h:link outcome="/views/job-offer-edit"
+                        styleClass="btn btn-primary">
+                    <i class="pi pi-plus-circle"></i>
+                    <span>#{msg['jobOffers.add']}</span>
+                </h:link>
+            </h:panelGroup>
         </div>
 
-        <div class="panel">
+        <div class="panel job-offers-management-panel">
             <div class="table-responsive">
                 <h:form id="jobOffersForm">
                     <p:dataTable value="#{jobOffersBean.jobOffers}"
                                  var="offer"
                                  widgetVar="jobOffersTable"
-                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 styleClass="table align-middle mb-0 erp-data-table job-offers-management-table"
                                  paginator="true"
                                  rows="10"
                                  rowsPerPageTemplate="10,25,50"
@@ -39,13 +50,15 @@
 
                         <f:facet name="header">
                             <div class="d-flex justify-content-end">
-                                <span class="p-input-icon-left employee-global-search">
-                                    <i class="pi pi-search"></i>
+                                <div class="input-group employee-global-search job-offers-search">
+                                    <span class="input-group-text">
+                                        <i class="pi pi-search"></i>
+                                    </span>
                                     <p:inputText id="globalFilter"
                                                  styleClass="form-control"
                                                  onkeyup="PF('jobOffersTable').filter()"
                                                  placeholder="#{msg['jobOffers.search']}"/>
-                                </span>
+                                </div>
                             </div>
                         </f:facet>
 
@@ -65,25 +78,58 @@
                             #{offer.function.functionName}
                         </p:column>
 
-                        <p:column headerText="#{msg['jobOffers.status']}" sortBy="#{offer.status}">
+                        <p:column headerText="#{msg['jobOffers.status']}"
+                                  sortBy="#{offer.status}"
+                                  filterBy="#{offer.status.label}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
                             #{offer.status.label}
                         </p:column>
 
-                        <p:column headerText="#{msg['jobOffers.activeStatus']}" sortBy="#{offer.isActive}">
+                        <p:column headerText="#{msg['jobOffers.activeStatus']}"
+                                  sortBy="#{offer.isActive}"
+                                  filterBy="#{offer.isActive ? msg['jobOffers.active'] : msg['jobOffers.inactive']}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
                             <span class="#{offer.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
                                 #{offer.isActive ? msg['jobOffers.active'] : msg['jobOffers.inactive']}
                             </span>
                         </p:column>
 
-                        <p:column headerText="#{msg['jobOffers.createAt']}" sortBy="#{offer.createAt}">
-                            #{offer.createAt}
+                        <p:column headerText="#{msg['jobOffers.openPositions']}"
+                                  sortBy="#{offer.numberOfOpenPositions}"
+                                  filterBy="#{offer.numberOfOpenPositions}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{offer.numberOfOpenPositions}
                         </p:column>
 
-                        <p:column headerText="#{msg['jobOffers.publishStartDate']}" sortBy="#{offer.publishStartDate}">
-                            #{offer.publishStartDate}
+                        <p:column headerText="#{msg['jobOffers.createAt']}"
+                                  sortBy="#{offer.createAt}"
+                                  filterBy="#{jobOffersBean.formatDateTime(offer.createAt)}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{jobOffersBean.formatDateTime(offer.createAt)}
                         </p:column>
 
-                        <p:column headerText="#{msg['jobOffers.action']}">
+                        <p:column headerText="#{msg['jobOffers.publishStartDate']}"
+                                  sortBy="#{offer.publishStartDate}"
+                                  filterBy="#{jobOffersBean.formatDate(offer.publishStartDate)}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{jobOffersBean.formatDate(offer.publishStartDate)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.publishEndDate']}"
+                                  sortBy="#{offer.publishEndDate}"
+                                  filterBy="#{jobOffersBean.formatDate(offer.publishEndDate)}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{jobOffersBean.formatDate(offer.publishEndDate)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['jobOffers.action']}"
+                                  rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
                             <h:link outcome="/views/job-offer-edit"
                                     styleClass="btn btn-sm btn-primary"
                                     title="#{msg['jobOffers.edit']}">

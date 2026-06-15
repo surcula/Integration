@@ -70,13 +70,63 @@
                         </h:selectOneMenu>
                     </div>
 
-                    <h:panelGroup layout="block" styleClass="col-md-6" rendered="#{not jobOfferEditBean.createMode}">
-                        <h:outputLabel for="status" styleClass="form-label" value="#{msg['jobOffers.status']}"/>
-                        <h:inputText id="status"
+                    <div class="col-md-6">
+                        <h:outputLabel for="email" styleClass="form-label" value="#{msg['jobOffers.email']}"/>
+                        <h:inputText id="email"
                                      styleClass="form-control"
-                                     value="#{jobOfferEditBean.jobOffer.status.label}"
-                                     disabled="true"/>
-                    </h:panelGroup>
+                                     value="#{jobOfferEditBean.jobOffer.email}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="contact" styleClass="form-label" value="#{msg['jobOffers.contact']}"/>
+                        <h:inputText id="contact"
+                                     styleClass="form-control"
+                                     value="#{jobOfferEditBean.jobOffer.contact}"/>
+                    </div>
+
+                    <div class="col-md-5">
+                        <h:outputLabel for="duration" styleClass="form-label" value="#{msg['jobOffers.duration']}"/>
+                        <h:inputText id="duration"
+                                     styleClass="form-control"
+                                     value="#{jobOfferEditBean.jobOffer.duration}"/>
+                    </div>
+
+                    <div class="col-md-3">
+                        <h:outputLabel for="numberOfOpenPositions" styleClass="form-label" value="#{msg['jobOffers.openPositions']}"/>
+                        <h:inputText id="numberOfOpenPositions"
+                                     styleClass="form-control"
+                                     value="#{jobOfferEditBean.jobOffer.numberOfOpenPositions}"/>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h:outputLabel for="status" styleClass="form-label" value="#{msg['jobOffers.status']}"/>
+                        <h:selectOneMenu id="status"
+                                         styleClass="form-select"
+                                         value="#{jobOfferEditBean.jobOffer.status}">
+                            <f:selectItems value="#{jobOfferEditBean.jobOfferStatuses}"
+                                           var="status"
+                                           itemLabel="#{status.label}"
+                                           itemValue="#{status}"/>
+                        </h:selectOneMenu>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="publishStartDate" styleClass="form-label" value="#{msg['jobOffers.publishStartDate']}"/>
+                        <p:datePicker id="publishStartDate"
+                                      styleClass="w-100"
+                                      inputStyleClass="form-control"
+                                      pattern="dd/MM/yyyy"
+                                      value="#{jobOfferEditBean.jobOffer.publishStartDate}"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="publishEndDate" styleClass="form-label" value="#{msg['jobOffers.publishEndDate']}"/>
+                        <p:datePicker id="publishEndDate"
+                                      styleClass="w-100"
+                                      inputStyleClass="form-control"
+                                      pattern="dd/MM/yyyy"
+                                      value="#{jobOfferEditBean.jobOffer.publishEndDate}"/>
+                    </div>
 
                     <div class="col-12">
                         <h:outputLabel for="description" styleClass="form-label" value="#{msg['jobOffers.description']}"/>
@@ -84,6 +134,38 @@
                                          styleClass="form-control"
                                          rows="5"
                                          value="#{jobOfferEditBean.jobOffer.description}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="jobDescription" styleClass="form-label" value="#{msg['jobOffers.jobDescription']}"/>
+                        <h:inputTextarea id="jobDescription"
+                                         styleClass="form-control"
+                                         rows="5"
+                                         value="#{jobOfferEditBean.jobOffer.jobDescription}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="profil" styleClass="form-label" value="#{msg['jobOffers.profil']}"/>
+                        <h:inputTextarea id="profil"
+                                         styleClass="form-control"
+                                         rows="4"
+                                         value="#{jobOfferEditBean.jobOffer.profil}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="requirements" styleClass="form-label" value="#{msg['jobOffers.requirements']}"/>
+                        <h:inputTextarea id="requirements"
+                                         styleClass="form-control"
+                                         rows="4"
+                                         value="#{jobOfferEditBean.jobOffer.requirements}"/>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="comments" styleClass="form-label" value="#{msg['jobOffers.comments']}"/>
+                        <h:inputTextarea id="comments"
+                                         styleClass="form-control"
+                                         rows="3"
+                                         value="#{jobOfferEditBean.jobOffer.comments}"/>
                     </div>
                 </div>
 

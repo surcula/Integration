@@ -15,14 +15,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JPA implementation of the job offer service.
- * It only manages database access and keeps JPQL queries inside JobOffer named queries.
+ * Implémentation JPA du service des offres d'emploi.
+ * Elle gère uniquement l'accès à la base et utilise les NamedQuery définies dans JobOffer.
  */
 @ApplicationScoped
 public class JobOfferServiceImpl implements IJobOfferService {
 
     private static final Logger log = Logger.getLogger(JobOfferServiceImpl.class);
 
+    /**
+     * Récupère toutes les offres avec leur fonction pour le tableau de gestion.
+     *
+     * @return résultat contenant toutes les offres
+     */
     @Override
     public Result<List<JobOffer>> getAll() {
         EntityManager em = EMF.getEM();
@@ -42,6 +47,11 @@ public class JobOfferServiceImpl implements IJobOfferService {
         }
     }
 
+    /**
+     * Récupère toutes les offres actives.
+     *
+     * @return résultat contenant les offres actives
+     */
     @Override
     public Result<List<JobOffer>> getAllActive() {
         EntityManager em = EMF.getEM();
@@ -61,6 +71,12 @@ public class JobOfferServiceImpl implements IJobOfferService {
         }
     }
 
+    /**
+     * Récupère les offres publiées et actives pour une fonction.
+     *
+     * @param functionId identifiant de la fonction
+     * @return résultat contenant les offres correspondantes
+     */
     @Override
     public Result<List<JobOffer>> getActiveByFunctionId(Integer functionId) {
         EntityManager em = EMF.getEM();
@@ -82,6 +98,38 @@ public class JobOfferServiceImpl implements IJobOfferService {
         }
     }
 
+    /**
+     * Récupère les offres visibles sur la vue publique.
+     *
+     * @return résultat contenant les offres publiées et actives
+     */
+    @Override
+    public Result<List<JobOffer>> getPublishedActive() {
+        EntityManager em = EMF.getEM();
+
+        try {
+            List<JobOffer> jobOffers = em.createNamedQuery("getPublishedActiveJobOffers", JobOffer.class)
+                    .setParameter("status", JobOfferStatus.PUBLISHED)
+                    .getResultList();
+            return Result.ok(jobOffers);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "jobOffers.error.load");
+            log.error("Error while searching published active job offers", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Récupère une offre par identifiant pour la gestion.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat contenant l'offre
+     */
     @Override
     public Result<JobOffer> getById(Integer id) {
         EntityManager em = EMF.getEM();
@@ -113,6 +161,50 @@ public class JobOfferServiceImpl implements IJobOfferService {
         }
     }
 
+    /**
+     * Récupère une offre publiée et active pour la page de détail.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat contenant l'offre publiée et active
+     */
+    @Override
+    public Result<JobOffer> getPublishedActiveById(Integer id) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            JobOffer jobOffer = em.createNamedQuery("getPublishedActiveJobOfferById", JobOffer.class)
+                    .setParameter("id", id)
+                    .setParameter("status", JobOfferStatus.PUBLISHED)
+                    .getResultList()
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+            if (jobOffer == null) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "jobOffers.error.notFound");
+                return Result.fail(errors);
+            }
+
+            return Result.ok(jobOffer);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "jobOffers.error.load");
+            log.error("Error while searching published active job offer by id: " + id, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Crée une offre dans la base de données.
+     *
+     * @param jobOffer offre à enregistrer
+     * @return résultat contenant l'offre créée
+     */
     @Override
     public Result<JobOffer> create(JobOffer jobOffer) {
         EntityManager em = EMF.getEM();
@@ -138,6 +230,12 @@ public class JobOfferServiceImpl implements IJobOfferService {
         }
     }
 
+    /**
+     * Modifie une offre dans la base de données.
+     *
+     * @param jobOffer offre à modifier
+     * @return résultat contenant l'offre modifiée
+     */
     @Override
     public Result<JobOffer> update(JobOffer jobOffer) {
         EntityManager em = EMF.getEM();
@@ -164,7 +262,10 @@ public class JobOfferServiceImpl implements IJobOfferService {
     }
 
     /**
-     * Changes the offer status to PUBLISHED and initializes the publication date if needed.
+     * Passe l'offre au statut PUBLISHED et initialise la date de publication si nécessaire.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat de l'opération
      */
     @Override
     public Result<Void> publish(Integer id) {
@@ -172,7 +273,10 @@ public class JobOfferServiceImpl implements IJobOfferService {
     }
 
     /**
-     * Changes the offer status to ARCHIVED while keeping the offer active.
+     * Passe l'offre au statut ARCHIVED tout en la gardant active.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat de l'opération
      */
     @Override
     public Result<Void> archive(Integer id) {
@@ -180,7 +284,10 @@ public class JobOfferServiceImpl implements IJobOfferService {
     }
 
     /**
-     * Marks the offer as deleted by changing both status and isActive.
+     * Marque l'offre comme supprimée en modifiant à la fois status et isActive.
+     *
+     * @param id identifiant de l'offre
+     * @return résultat de l'opération
      */
     @Override
     public Result<Void> softDelete(Integer id) {
@@ -188,7 +295,7 @@ public class JobOfferServiceImpl implements IJobOfferService {
     }
 
     /**
-     * Shared persistence method used by publication, archive and logical deletion actions.
+     * Méthode commune utilisée pour publier, archiver et supprimer logiquement une offre.
      */
     private Result<Void> updateStatus(Integer id, JobOfferStatus status, boolean active, boolean setPublishDate) {
         EntityManager em = EMF.getEM();
@@ -207,7 +314,7 @@ public class JobOfferServiceImpl implements IJobOfferService {
             jobOffer.setStatus(status);
             jobOffer.setIsActive(active);
 
-            // The first publication date is kept if the offer is republished later.
+            // La première date de publication est conservée si l'offre est republiée plus tard.
             if (setPublishDate && jobOffer.getPublishStartDate() == null) {
                 jobOffer.setPublishStartDate(LocalDate.now());
             }

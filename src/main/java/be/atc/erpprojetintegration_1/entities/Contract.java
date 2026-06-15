@@ -1,10 +1,20 @@
 package be.atc.erpprojetintegration_1.entities;
 
+import be.atc.erpprojetintegration_1.enums.ContractStatus;
+import be.atc.erpprojetintegration_1.enums.ContractType;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
+@NamedQueries({
+        @NamedQuery(name = "getAllContracts", query = "SELECT c FROM Contract c JOIN FETCH c.employee WHERE c.isActive = true ORDER BY c.employee.lastName, c.employee.firstName, c.startDate DESC"),
+        @NamedQuery(name = "getContractsByEmployee", query = "SELECT c FROM Contract c JOIN FETCH c.employee WHERE c.isActive = true AND c.employee.id = :employeeId ORDER BY c.startDate DESC"),
+        @NamedQuery(name = "getActiveContractByEmployee", query = "SELECT c FROM Contract c JOIN FETCH c.employee WHERE c.isActive = true AND c.employee.id = :employeeId AND c.status = :active"),
+        @NamedQuery(name = "getContractById", query = "SELECT c FROM Contract c JOIN FETCH c.employee WHERE c.id = :contractId AND c.isActive = true"),
+        @NamedQuery(name = "countActiveContractsByEmployee", query = "SELECT COUNT(c) FROM Contract c WHERE c.employee.id = :employeeId AND c.isActive = true AND c.status = :active")
+})
 @Entity
 @Table(name = "contracts")
 public class Contract {
@@ -13,11 +23,6 @@ public class Contract {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Size(max = 50)
-    @NotNull
-    @Column(name = "contract_code", nullable = false, length = 50)
-    private String contractCode;
-
     @NotNull
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -25,9 +30,19 @@ public class Contract {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Size(max = 50)
-    @Column(name = "status", length = 50)
-    private String status;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "contract_type", nullable = false, length = 30)
+    private ContractType contractType;
+
+    @NotNull
+    @Column(name = "gross_salary", nullable = false, precision = 10, scale = 2)
+    private BigDecimal grossSalary;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    private ContractStatus status;
 
     @NotNull
     @Column(name = "is_active", nullable = false)
@@ -46,14 +61,6 @@ public class Contract {
         this.id = id;
     }
 
-    public String getContractCode() {
-        return contractCode;
-    }
-
-    public void setContractCode(String contractCode) {
-        this.contractCode = contractCode;
-    }
-
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -70,11 +77,27 @@ public class Contract {
         this.endDate = endDate;
     }
 
-    public String getStatus() {
+    public ContractType getContractType() {
+        return contractType;
+    }
+
+    public void setContractType(ContractType contractType) {
+        this.contractType = contractType;
+    }
+
+    public BigDecimal getGrossSalary() {
+        return grossSalary;
+    }
+
+    public void setGrossSalary(BigDecimal grossSalary) {
+        this.grossSalary = grossSalary;
+    }
+
+    public ContractStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ContractStatus status) {
         this.status = status;
     }
 

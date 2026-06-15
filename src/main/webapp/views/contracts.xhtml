@@ -1,20 +1,228 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
     <ui:define name="title">#{msg['nav.contracts']} | ERP RH</ui:define>
     <ui:define name="content">
-        <div class="page-heading">
-            <div class="page-heading-copy">
-                <span class="page-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
-                <div>
-                    <p class="eyebrow mb-1">#{msg['nav.staff']}</p>
-                    <h1 class="h3 mb-1">#{msg['nav.contracts']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+        <ui:fragment rendered="#{contractsBean.canAccess}">
+            <div class="page-heading">
+                <div class="page-heading-copy">
+                    <span class="page-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                    <div>
+                        <p class="eyebrow mb-1">#{msg['nav.staff']}</p>
+                        <h1 class="h3 mb-1">#{msg['nav.contracts']}</h1>
+                        <p class="text-muted mb-0">Contrat actif, historique et salaire brut enregistre.</p>
+                    </div>
+                </div>
+                <h:form rendered="#{contractsBean.canManage}">
+                    <p:commandButton value="Nouveau contrat" icon="pi pi-plus"
+                                     styleClass="btn btn-primary"
+                                     actionListener="#{contractsBean.prepareNew}"
+                                     process="@this" update=":contractForm:createDialog"
+                                     oncomplete="PF('createContractDialog').show();"/>
+                </h:form>
+            </div>
+
+            <div class="contract-summary-grid">
+                <div class="contract-summary-item">
+                    <span>Contrats visibles</span><strong>#{contractsBean.contracts.size()}</strong>
+                </div>
+                <div class="contract-summary-item">
+                    <span>Contrats actifs</span><strong>#{contractsBean.activeCount}</strong>
+                </div>
+                <div class="contract-summary-item">
+                    <span>Historique</span>
+                    <strong>#{contractsBean.contracts.size() - contractsBean.activeCount}</strong>
                 </div>
             </div>
-        </div>
+
+            <div class="panel">
+                <h:form id="contractForm">
+                    <p:dataTable id="contractsTable" value="#{contractsBean.contracts}" var="contract"
+                                 widgetVar="contractsTableWidget" paginator="true" rows="10"
+                                 responsiveLayout="scroll" emptyMessage="Aucun contrat enregistre."
+                                 globalFilterOnly="true" styleClass="erp-data-table">
+                        <f:facet name="header">
+                            <div class="table-toolbar">
+                                <span class="section-title">Contrats et historique</span>
+                                <span class="ui-input-icon-left">
+                                    <i class="pi pi-search"></i>
+                                    <p:inputText onkeyup="PF('contractsTableWidget').filter()"
+                                                 placeholder="Rechercher..."/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="Employe" sortBy="#{contract.employee.lastName}"
+                                  filterBy="#{contract.employee.firstName} #{contract.employee.lastName} #{contract.employee.email}"
+                                  rendered="#{contractsBean.canManage}">
+                            <strong>#{contract.employee.firstName} #{contract.employee.lastName}</strong>
+                            <span class="contract-meta">#{contract.employee.email}</span>
+                        </p:column>
+                        <p:column headerText="Type" sortBy="#{contract.contractType.label}"
+                                  filterBy="#{contract.contractType.label}">
+                            #{contract.contractType.label}
+                        </p:column>
+                        <p:column headerText="Debut" sortBy="#{contract.startDate}">
+                            <h:outputText value="#{contract.startDate}">
+                                <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Fin" sortBy="#{contract.endDate}">
+                            <h:outputText value="#{contract.endDate}" rendered="#{not empty contract.endDate}">
+                                <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
+                            </h:outputText>
+                            <h:outputText value="Indeterminee" rendered="#{empty contract.endDate}"
+                                          styleClass="text-muted"/>
+                        </p:column>
+                        <p:column headerText="Salaire brut" sortBy="#{contract.grossSalary}">
+                            <h:outputText value="#{contract.grossSalary}">
+                                <f:convertNumber type="currency" currencySymbol="EUR" locale="fr_BE"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Statut" sortBy="#{contract.status}"
+                                  filterBy="#{contract.status.label}">
+                            <span class="#{contractsBean.statusClass(contract)}">#{contract.status.label}</span>
+                        </p:column>
+                        <p:column headerText="Actions" styleClass="table-actions"
+                                  rendered="#{contractsBean.canManage}">
+                            <p:commandButton icon="pi pi-wallet" title="Modifier le salaire"
+                                             styleClass="btn btn-primary btn-sm"
+                                             rendered="#{contractsBean.canUpdateSalary(contract)}"
+                                             process="@this"
+                                             actionListener="#{contractsBean.prepareSalary(contract)}"
+                                             update=":contractForm:salaryDialog"
+                                             oncomplete="PF('salaryDialogWidget').show();"/>
+                            <p:commandButton icon="pi pi-calendar-plus" title="Renouveler"
+                                             styleClass="btn btn-success btn-sm ms-2"
+                                             rendered="#{contractsBean.canRenew(contract)}"
+                                             process="@this"
+                                             actionListener="#{contractsBean.prepareRenewal(contract)}"
+                                             update=":contractForm:renewalDialog"
+                                             oncomplete="PF('renewalDialogWidget').show();"/>
+                            <p:commandButton icon="pi pi-times-circle" title="Cloturer"
+                                             styleClass="btn btn-danger btn-sm ms-2"
+                                             rendered="#{contractsBean.canClose(contract)}"
+                                             process="@this"
+                                             actionListener="#{contractsBean.prepareClose(contract)}"
+                                             update=":contractForm:closeDialog"
+                                             oncomplete="PF('closeDialogWidget').show();"/>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:dialog id="createDialog" widgetVar="createContractDialog"
+                              header="Nouveau contrat" modal="true" responsive="true" width="620">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <p:outputLabel for="employee" value="Employe"/>
+                                <p:selectOneMenu id="employee" value="#{contractsBean.selectedEmployeeId}"
+                                                 filter="true" filterMatchMode="contains"
+                                                 styleClass="w-100" required="true">
+                                    <f:selectItem itemLabel="Selectionner un employe" itemValue="#{null}"/>
+                                    <f:selectItems value="#{contractsBean.employees}" var="employeeItem"
+                                                   itemLabel="#{employeeItem.fullName} - #{employeeItem.email}"
+                                                   itemValue="#{employeeItem.id}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <p:outputLabel for="type" value="Type de contrat"/>
+                                <p:selectOneMenu id="type" value="#{contractsBean.selectedContract.contractType}"
+                                                 styleClass="w-100" required="true">
+                                    <f:selectItems value="#{contractsBean.contractTypes}" var="contractType"
+                                                   itemLabel="#{contractType.label}" itemValue="#{contractType}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <p:outputLabel for="startDate" value="Date de debut"/>
+                                <p:datePicker id="startDate" value="#{contractsBean.selectedContract.startDate}"
+                                              pattern="dd/MM/yyyy" showIcon="true" required="true"
+                                              styleClass="w-100"/>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <p:outputLabel for="endDate" value="Date de fin"/>
+                                <p:datePicker id="endDate" value="#{contractsBean.selectedContract.endDate}"
+                                              pattern="dd/MM/yyyy" showIcon="true" styleClass="w-100"/>
+                            </div>
+                            <div class="col-12">
+                                <p:outputLabel for="grossSalary" value="Salaire brut mensuel"/>
+                                <p:inputNumber id="grossSalary"
+                                               value="#{contractsBean.selectedContract.grossSalary}"
+                                               symbol=" EUR" symbolPosition="s" decimalPlaces="2"
+                                               minValue="0.01" required="true" styleClass="w-100"/>
+                            </div>
+                        </div>
+                        <f:facet name="footer">
+                            <p:commandButton value="Creer" icon="pi pi-check"
+                                             styleClass="btn btn-primary"
+                                             action="#{contractsBean.create}" process="createDialog"
+                                             update="contractsTable createDialog :globalGrowl"
+                                             oncomplete="if (!args.validationFailed) PF('createContractDialog').hide();"/>
+                        </f:facet>
+                    </p:dialog>
+
+                    <p:dialog id="closeDialog" widgetVar="closeDialogWidget"
+                              header="Cloturer le contrat" modal="true" responsive="true" width="430">
+                        <p class="text-muted">Le contrat restera consultable dans l'historique.</p>
+                        <p:outputLabel for="closeDate" value="Date de fin effective"/>
+                        <p:datePicker id="closeDate" value="#{contractsBean.closeDate}"
+                                      pattern="dd/MM/yyyy" showIcon="true" required="true"
+                                      styleClass="w-100"/>
+                        <f:facet name="footer">
+                            <p:commandButton value="Cloturer" icon="pi pi-times-circle"
+                                             styleClass="btn btn-danger"
+                                             action="#{contractsBean.close}" process="closeDialog"
+                                             update="contractsTable closeDialog :globalGrowl"
+                                             oncomplete="if (!args.validationFailed) PF('closeDialogWidget').hide();"/>
+                        </f:facet>
+                    </p:dialog>
+
+                    <p:dialog id="renewalDialog" widgetVar="renewalDialogWidget"
+                              header="Renouveler le contrat" modal="true" responsive="true" width="430">
+                        <p:outputLabel for="renewalDate" value="Nouvelle date de fin"/>
+                        <p:datePicker id="renewalDate" value="#{contractsBean.renewalEndDate}"
+                                      pattern="dd/MM/yyyy" showIcon="true" required="true"
+                                      styleClass="w-100"/>
+                        <f:facet name="footer">
+                            <p:commandButton value="Renouveler" icon="pi pi-calendar-plus"
+                                             styleClass="btn btn-success"
+                                             action="#{contractsBean.renew}" process="renewalDialog"
+                                             update="contractsTable renewalDialog :globalGrowl"
+                                             oncomplete="if (!args.validationFailed) PF('renewalDialogWidget').hide();"/>
+                        </f:facet>
+                    </p:dialog>
+
+                    <p:dialog id="salaryDialog" widgetVar="salaryDialogWidget"
+                              header="Modifier le salaire brut" modal="true" responsive="true" width="430">
+                        <p class="text-muted">Seul le montant brut enregistre est modifie. Aucun calcul de paie n'est effectue.</p>
+                        <p:outputLabel for="salary" value="Nouveau salaire brut mensuel"/>
+                        <p:inputNumber id="salary" value="#{contractsBean.newSalary}"
+                                       symbol=" EUR" symbolPosition="s" decimalPlaces="2"
+                                       minValue="0.01" required="true" styleClass="w-100"/>
+                        <f:facet name="footer">
+                            <p:commandButton value="Mettre a jour" icon="pi pi-check"
+                                             styleClass="btn btn-primary"
+                                             action="#{contractsBean.updateSalary}" process="salaryDialog"
+                                             update="contractsTable salaryDialog :globalGrowl"
+                                             oncomplete="if (!args.validationFailed) PF('salaryDialogWidget').hide();"/>
+                        </f:facet>
+                    </p:dialog>
+                </h:form>
+            </div>
+        </ui:fragment>
+
+        <ui:fragment rendered="#{not contractsBean.canAccess}">
+            <div class="panel">
+                <div class="empty-state">
+                    <i class="pi pi-lock"></i>
+                    <h2>Acces refuse</h2>
+                    <p>Les contrats sont confidentiels et accessibles uniquement a la RH, a l'administration et a l'employe concerne.</p>
+                </div>
+            </div>
+        </ui:fragment>
     </ui:define>
 </ui:composition>
 </html>

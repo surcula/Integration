@@ -2370,6 +2370,20 @@ html[data-theme="dark"] {
 .planning-status-published { color: #166534; background: #dcfce7; }
 .planning-status-cancelled { color: #991b1b; background: #fee2e2; }
 
+.contract-summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-bottom:1rem; }
+.contract-summary-item { padding:1rem 1.1rem; border:1px solid var(--border-color,#e2e8f0); background:#fff; border-radius:6px; }
+.contract-summary-item span { display:block; color:#64748b; font-size:.85rem; }
+.contract-summary-item strong { display:block; margin-top:.25rem; font-size:1.35rem; color:#1e293b; }
+.contract-meta { display:block; color:#64748b; font-size:.82rem; margin-top:.15rem; }
+.contract-code { font-weight:700; color:#334155; }
+.contract-status { display:inline-flex; align-items:center; min-height:1.75rem; padding:.2rem .55rem; border-radius:4px; font-size:.78rem; font-weight:700; }
+.contract-status-draft { background:#fef3c7; color:#92400e; }
+.contract-status-active { background:#dcfce7; color:#166534; }
+.contract-status-suspended { background:#ffedd5; color:#9a3412; }
+.contract-status-closed, .contract-status-terminated, .contract-status-expired { background:#e2e8f0; color:#475569; }
+.table-toolbar { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+@media (max-width:767px) { .contract-summary-grid { grid-template-columns:1fr; } .table-toolbar { align-items:stretch; flex-direction:column; } }
+
 .planning-assignment-summary {
   display: flex;
   align-items: center;

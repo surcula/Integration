@@ -24,6 +24,7 @@
         <class>be.atc.erpprojetintegration_1.entities.PlanningSwapProposal</class>
         <class>be.atc.erpprojetintegration_1.entities.PublicHoliday</class>
         <class>be.atc.erpprojetintegration_1.entities.Absence</class>
+        <class>be.atc.erpprojetintegration_1.entities.Contract</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>

@@ -63,10 +63,12 @@
                         <span class="nav-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.functions']}</span>
                     </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/contracts.xhtml">
-                        <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.contracts']}</span>
-                    </a>
+                    <ui:fragment rendered="#{authBean.hasRole('HR') or authBean.hasRole('ADMIN') or authBean.hasRole('EMPLOYEE')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/contracts.xhtml">
+                            <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.contracts']}</span>
+                        </a>
+                    </ui:fragment>
 
                     <span class="nav-section-title">#{msg['nav.timePlanning']}</span>
                     <a class="nav-link" href="#{request.contextPath}/views/planning.xhtml">

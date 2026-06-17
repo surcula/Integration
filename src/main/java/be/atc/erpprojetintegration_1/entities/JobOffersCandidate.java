@@ -1,10 +1,43 @@
 package be.atc.erpprojetintegration_1.entities;
 
+import be.atc.erpprojetintegration_1.enums.CandidateApplicationStatus;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
+/**
+ * Entité JPA liée à la table job_offers_candidates.
+ * Elle représente la candidature d'un candidat à une offre précise.
+ */
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllJobOfferCandidates",
+                query = "SELECT joc FROM JobOffersCandidate joc " +
+                        "LEFT JOIN FETCH joc.candidate " +
+                        "LEFT JOIN FETCH joc.jobOffers jo " +
+                        "LEFT JOIN FETCH jo.function " +
+                        "ORDER BY joc.id DESC"
+        ),
+        @NamedQuery(
+                name = "getJobOfferCandidateById",
+                query = "SELECT joc FROM JobOffersCandidate joc " +
+                        "LEFT JOIN FETCH joc.candidate " +
+                        "LEFT JOIN FETCH joc.jobOffers jo " +
+                        "LEFT JOIN FETCH jo.function " +
+                        "WHERE joc.id = :id"
+        ),
+        @NamedQuery(
+                name = "getActiveApplicationByCandidateEmailAndJobOffer",
+                query = "SELECT joc FROM JobOffersCandidate joc " +
+                        "JOIN joc.candidate c " +
+                        "JOIN joc.jobOffers jo " +
+                        "WHERE joc.isActive = true " +
+                        "AND LOWER(c.email) = LOWER(:email) " +
+                        "AND jo.id = :jobOfferId"
+        )
+})
 @Entity
 @Table(name = "job_offers_candidates")
 public class JobOffersCandidate {
@@ -25,9 +58,9 @@ public class JobOffersCandidate {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    @Size(max = 50)
+    @Enumerated(EnumType.STRING)
     @Column(name = "application_status", length = 50)
-    private String applicationStatus;
+    private CandidateApplicationStatus applicationStatus;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -71,11 +104,11 @@ public class JobOffersCandidate {
         this.isActive = isActive;
     }
 
-    public String getApplicationStatus() {
+    public CandidateApplicationStatus getApplicationStatus() {
         return applicationStatus;
     }
 
-    public void setApplicationStatus(String applicationStatus) {
+    public void setApplicationStatus(CandidateApplicationStatus applicationStatus) {
         this.applicationStatus = applicationStatus;
     }
 

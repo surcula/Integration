@@ -1805,6 +1805,62 @@ html[data-theme="dark"] {
   padding-left: 2.35rem;
 }
 
+.job-offers-search .form-control {
+  padding-left: 0.75rem;
+}
+
+.job-offers-management-panel {
+  overflow: hidden;
+}
+
+.job-offers-management-table .ui-datatable-tablewrapper {
+  overflow-x: auto;
+}
+
+.job-offers-management-table .ui-datatable-tablewrapper table {
+  min-width: 1080px;
+}
+
+.job-offers-management-table .ui-datatable-data > tr > td,
+.job-offers-management-table .ui-datatable-thead > tr > th {
+  vertical-align: middle;
+}
+
+.job-offers-management-table .ui-datatable-data > tr > td:last-child {
+  white-space: nowrap;
+}
+
+.job-offers-public-filters .form-control,
+.job-offers-public-filters .form-select,
+.job-offers-public-filters .btn {
+  min-height: 42px;
+}
+
+.job-offers-public-filters .ui-button {
+  width: 100%;
+}
+
+.job-offer-card {
+  overflow-wrap: anywhere;
+}
+
+.job-offer-card-footer .btn,
+.job-offer-card-footer .ui-button {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767.98px) {
+  .job-offers-management-table .ui-paginator-bottom {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .job-offer-card-footer .ui-button,
+  .job-offer-card-footer .btn {
+    width: 100%;
+  }
+}
+
 .ui-growl {
   top: 5rem;
   right: 1.5rem;
@@ -1850,6 +1906,165 @@ html[data-theme="dark"] {
   border: 1px solid rgba(245, 158, 11, 0.42);
   background: rgba(245, 158, 11, 0.16);
   color: #f59e0b;
+}
+
+.candidate-card-link,
+.candidate-card-link:hover,
+.candidate-card-link:focus {
+  display: block !important;
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+.candidate-stat-card {
+  min-height: 104px !important;
+  padding: 1.1rem 1rem !important;
+  border-radius: 8px !important;
+  background-color: #ffffff !important;
+  border: 1px solid var(--admin-border) !important;
+  cursor: pointer !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.candidate-stat-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--admin-shadow-lg) !important;
+}
+
+.candidate-card-all {
+  border-color: #93c5fd !important;
+}
+
+.candidate-card-pending {
+  border-color: #9ca3af !important;
+}
+
+.candidate-card-review {
+  border-color: #d97706 !important;
+}
+
+.candidate-card-interview {
+  border-color: #2563eb !important;
+}
+
+.candidate-card-accepted {
+  border-color: #16a34a !important;
+}
+
+.candidate-card-rejected {
+  border-color: #dc2626 !important;
+}
+
+.candidate-card-archived {
+  border-color: #374151 !important;
+}
+
+.candidate-card-selected {
+  border-width: 3px !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--admin-shadow-lg) !important;
+}
+
+.candidate-card-all.candidate-card-selected {
+  background-color: #e8f0ff !important;
+  border-color: #3b82f6 !important;
+  color: #1e3a8a !important;
+}
+
+.candidate-card-pending.candidate-card-selected {
+  background-color: #f3f4f6 !important;
+  border-color: #6b7280 !important;
+  color: #374151 !important;
+}
+
+.candidate-card-review.candidate-card-selected {
+  background-color: #fff4dd !important;
+  border-color: #d97706 !important;
+  color: #854d0e !important;
+}
+
+.candidate-card-interview.candidate-card-selected {
+  background-color: #e8f0ff !important;
+  border-color: #2563eb !important;
+  color: #1d4ed8 !important;
+}
+
+.candidate-card-accepted.candidate-card-selected {
+  background-color: #e6f8ed !important;
+  border-color: #16a34a !important;
+  color: #15803d !important;
+}
+
+.candidate-card-rejected.candidate-card-selected {
+  background-color: #fde8e8 !important;
+  border-color: #dc2626 !important;
+  color: #b91c1c !important;
+}
+
+.candidate-card-archived.candidate-card-selected {
+  background-color: #e5e7eb !important;
+  border-color: #374151 !important;
+  color: #111827 !important;
+}
+
+.candidate-card-selected .text-muted,
+.candidate-card-selected strong {
+  color: inherit !important;
+}
+
+.candidate-status-badge.status-received,
+.candidate-status-badge.status-review,
+.candidate-status-badge.status-interview,
+.candidate-status-badge.status-accepted,
+.candidate-status-badge.status-rejected,
+.candidate-status-badge.status-archived {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 88px !important;
+  padding: 0.35rem 0.65rem !important;
+  border-radius: 999px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+
+.candidate-status-badge.status-received,
+.candidate-status-badge.candidate-status-pending {
+  border: 1px solid rgba(107, 114, 128, 0.48) !important;
+  background: rgba(107, 114, 128, 0.18) !important;
+  color: #374151 !important;
+}
+
+.candidate-status-badge.status-review {
+  border: 1px solid rgba(234, 179, 8, 0.54) !important;
+  background: rgba(234, 179, 8, 0.2) !important;
+  color: #854d0e !important;
+}
+
+.candidate-status-badge.status-interview {
+  border: 1px solid rgba(59, 130, 246, 0.48) !important;
+  background: rgba(59, 130, 246, 0.18) !important;
+  color: #1d4ed8 !important;
+}
+
+.candidate-status-badge.status-accepted {
+  border: 1px solid rgba(34, 197, 94, 0.48) !important;
+  background: rgba(34, 197, 94, 0.18) !important;
+  color: #15803d !important;
+}
+
+.candidate-status-badge.status-rejected {
+  border: 1px solid rgba(239, 68, 68, 0.46) !important;
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #b91c1c !important;
+}
+
+.candidate-status-badge.status-archived {
+  border: 1px solid rgba(107, 114, 128, 0.48) !important;
+  background: rgba(107, 114, 128, 0.18) !important;
+  color: #374151 !important;
 }
 
 .planning-calendar-panel {

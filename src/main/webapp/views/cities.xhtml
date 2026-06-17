@@ -22,7 +22,15 @@
                 <h:outputText value="#{msg['cities.title']}" />
             </h1>
 
-            <h:dataTable value="#{cityBean.cities}" var="city" styleClass="data-table">
+            <h:panelGroup layout="block"
+                          rendered="#{empty cityBean.cities}">
+                <h:outputText value="#{msg['cities.empty']}"/>
+            </h:panelGroup>
+
+            <h:dataTable value="#{cityBean.cities}"
+                         var="city"
+                         styleClass="data-table"
+                         rendered="#{not empty cityBean.cities}">
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="#{msg['city.id']}" />

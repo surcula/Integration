@@ -6,6 +6,12 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllActiveEvaluations",
+                query = "SELECT e FROM Evaluation e WHERE e.isActive = true ORDER BY e.evaluationDate DESC, e.evaluationName"
+        )
+})
 @Entity
 @Table(name = "evaluations")
 public class Evaluation {

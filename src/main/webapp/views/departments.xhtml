@@ -22,7 +22,7 @@
             </div>
             <h:link outcome="/views/department-edit"
                     styleClass="btn btn-primary"
-                    rendered="#{authBean.hasRole('ADMIN')}">
+                    rendered="#{authBean.hasPermission('department:create')}">
                 <i class="bi bi-plus-circle"></i>
                 <span>#{msg['departments.add']}</span>
             </h:link>
@@ -76,24 +76,29 @@
                             #{department.email}
                         </p:column>
 
-                        <p:column headerText="#{msg['departments.status']}" sortBy="#{department.isActive}">
+                    <p:column headerText="#{msg['departments.status']}"
+                              sortBy="#{department.isActive}"
+                              rendered="#{authBean.hasPermission('department:delete')}">
                             <span class="#{department.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
                                 #{department.isActive ? msg['departments.status.active'] : msg['departments.status.inactive']}
                             </span>
                         </p:column>
 
-                        <p:column headerText="#{msg['departments.action']}" rendered="#{authBean.hasRole('ADMIN')}">
-                            <h:link outcome="/views/department-edit"
-                                    styleClass="btn btn-sm btn-primary"
-                                    title="#{msg['departments.edit']}">
+                    <p:column headerText="#{msg['departments.action']}"
+                              rendered="#{authBean.hasPermission('department:edit') or authBean.hasPermission('department:delete')}">
+                        <h:link outcome="/views/department-edit"
+                                styleClass="btn btn-sm btn-primary"
+                                title="#{msg['departments.edit']}"
+                                rendered="#{authBean.hasPermission('department:edit')}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="visually-hidden">#{msg['departments.edit']}</span>
                                 <f:param name="id" value="#{department.id}"/>
                             </h:link>
 
-                            <p:commandLink styleClass="#{department.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
-                                           title="#{department.isActive ? msg['departments.delete'] : msg['departments.activate']}"
-                                           action="#{departmentsBean.changeDepartmentActiveStatus(department.id, department.isActive)}"
+                        <p:commandLink styleClass="#{department.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                       title="#{department.isActive ? msg['departments.delete'] : msg['departments.activate']}"
+                                       rendered="#{authBean.hasPermission('department:delete')}"
+                                       action="#{departmentsBean.changeDepartmentActiveStatus(department.id, department.isActive)}"
                                            process="@this"
                                            immediate="true"
                                            update="@form :globalGrowl">

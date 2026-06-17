@@ -9,6 +9,7 @@ public class EmployeeEditDto implements Serializable {
     private String lastName;
     private String email;
     private String phone;
+    private String birthDate;
     private String placeOfBirth;
     private String civilite;
     private String gender;
@@ -54,6 +55,14 @@ public class EmployeeEditDto implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getPlaceOfBirth() {

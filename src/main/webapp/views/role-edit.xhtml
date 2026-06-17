@@ -50,12 +50,13 @@
                             <span>#{msg['roles.form.title']}</span>
                         </h2>
                         <p class="text-muted mb-0">#{msg['roles.form.subtitle']}</p>
+                        <p class="text-muted small mb-0">#{msg['common.requiredFields']}</p>
                     </div>
                 </div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h:outputLabel for="roleName" styleClass="form-label" value="#{msg['roles.name']}"/>
+                        <h:outputLabel for="roleName" styleClass="form-label" value="#{msg['roles.name']} *"/>
                         <h:inputText id="roleName"
                                      styleClass="form-control role-edit-input role-edit-required"
                                      value="#{roleEditBean.roleName}"
@@ -73,6 +74,7 @@
                     <p:commandButton styleClass="btn btn-primary role-edit-save-button"
                                      value="#{msg['roles.create.submit']}"
                                      action="#{roleEditBean.createRole}"
+                                     rendered="#{roleEditBean.createMode}"
                                      disabled="#{roleEditBean.roleCreated}"
                                      onclick="return window.validateRoleFormBeforeSubmit &amp;&amp; window.validateRoleFormBeforeSubmit()"
                                      oncomplete="window.initRoleEditValidation &amp;&amp; window.initRoleEditValidation()"

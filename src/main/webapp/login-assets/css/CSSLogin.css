@@ -535,5 +535,13 @@ iframe {
   list-style: none;
 }
 
+.login-required-note {
+  margin: 0;
+  padding: 0 35px 10px 35px;
+  color: #777777;
+  font-size: 13px;
+  text-align: right;
+}
+
 
 

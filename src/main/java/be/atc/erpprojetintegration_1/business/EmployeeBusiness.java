@@ -339,6 +339,7 @@ public class EmployeeBusiness {
         FormValidator.required(dto.getLastName(), "lastName", "employee.edit.error.lastName.required", errors);
         FormValidator.required(dto.getEmail(), "email", "employee.edit.error.email.required", errors);
         FormValidator.required(dto.getEmployeeNumber(), "employeeNumber", "employee.edit.error.employeeNumber.required", errors);
+        FormValidator.required(dto.getBirthDate(), "birthDate", "employee.edit.error.birthDate.required", errors);
         FormValidator.required(dto.getEmploymentStatus(), "employmentStatus", "employee.edit.error.employmentStatus.required", errors);
         FormValidator.required(dto.getCivilite(), "civilite", "employee.edit.error.civilite.required", errors);
         FormValidator.required(dto.getGender(), "gender", "employee.edit.error.gender.required", errors);
@@ -346,6 +347,10 @@ public class EmployeeBusiness {
         FormValidator.lengthBetween(dto.getFirstName(), "firstName", "employee.edit.error.firstName.length", 1, 100, errors);
         FormValidator.lengthBetween(dto.getLastName(), "lastName", "employee.edit.error.lastName.length", 1, 100, errors);
         FormValidator.lengthBetween(dto.getEmail(), "email", "employee.edit.error.email.length", 5, 150, errors);
+        FormValidator.lengthBetween(dto.getEmployeeNumber(), "employeeNumber", "employee.edit.error.employeeNumber.length", 1, 50, errors);
+        FormValidator.lengthBetween(dto.getPhone(), "phone", "employee.edit.error.phone.length", 0, 20, errors);
+        FormValidator.lengthBetween(dto.getPlaceOfBirth(), "placeOfBirth", "employee.edit.error.placeOfBirth.length", 0, 150, errors);
+        FormValidator.ageBetween(dto.getBirthDate(), "birthDate", "employee.edit.error.birthDate.age", 15, 100, errors);
 
         if (!errors.isEmpty()) {
             return Result.fail(errors);

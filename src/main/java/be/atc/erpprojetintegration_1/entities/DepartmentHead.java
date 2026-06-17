@@ -4,6 +4,27 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllActiveDepartmentHeads",
+                query = "SELECT dh FROM DepartmentHead dh " +
+                        "JOIN FETCH dh.department d " +
+                        "JOIN FETCH dh.superior s " +
+                        "WHERE dh.isActive = true " +
+                        "AND d.isActive = true " +
+                        "AND s.isActive = true " +
+                        "ORDER BY s.lastName, s.firstName"
+        ),
+        @NamedQuery(
+                name = "getActiveDepartmentHeadBySuperiorAndDepartment",
+                query = "SELECT dh FROM DepartmentHead dh " +
+                        "JOIN FETCH dh.department d " +
+                        "JOIN FETCH dh.superior s " +
+                        "WHERE dh.isActive = true " +
+                        "AND s.id = :superiorId " +
+                        "AND d.id = :departmentId"
+        )
+})
 @Entity
 @Table(name = "department_heads")
 public class DepartmentHead {

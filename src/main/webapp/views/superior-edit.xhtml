@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{superiorEditBean.superiorId}"/>
+    <f:viewParam name="departmentId" value="#{superiorEditBean.departmentId}"/>
+    <f:viewAction action="#{superiorEditBean.loadSuperior}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">
+        #{superiorEditBean.createMode ? msg['superiors.create.pageTitle'] : msg['superiors.edit.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="bi bi-person-vcard"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['superiors.section']}</p>
+                    <h1 class="h3 mb-1">
+                        #{superiorEditBean.createMode ? msg['superiors.create.title'] : msg['superiors.edit.title']}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        #{superiorEditBean.createMode ? msg['superiors.create.subtitle'] : msg['superiors.edit.subtitle']}
+                    </p>
+                </div>
+            </div>
+            <h:link outcome="/views/superiors" styleClass="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                <span>#{msg['common.back']}</span>
+            </h:link>
+        </div>
+
+        <h:panelGroup id="superiorEditContent" layout="block">
+            <h:form id="superiorForm" styleClass="panel" rendered="#{not empty superiorEditBean.superior}">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-person-vcard"></i>
+                            <span>#{msg['superiors.form.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['superiors.form.subtitle']}</p>
+                        <p class="text-muted small mb-0">#{msg['common.requiredFields']}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="superiorId" styleClass="form-label" value="#{msg['superiors.superior']} *"/>
+                        <p:autoComplete id="superiorId"
+                                        styleClass="w-100 superior-edit-required"
+                                        inputStyleClass="form-control"
+                                        value="#{superiorEditBean.selectedSuperior}"
+                                        completeMethod="#{superiorEditBean.completeSuperior}"
+                                        var="employee"
+                                        itemLabel="#{employee.lastName} #{employee.firstName}"
+                                        itemValue="#{employee}"
+                                        converter="employeeConverter"
+                                        forceSelection="true"
+                                        dropdown="true"
+                                        disabled="#{not superiorEditBean.createMode}"
+                                        placeholder="#{msg['superiors.selectSuperior']}"
+                                        pt:data-required-message="#{msg['superiors.error.superior.required']}">
+                            <p:ajax event="itemSelect" listener="#{superiorEditBean.onSuperiorChanged}" update=":superiorForm:departmentPanel :superiorForm:teamPanel"/>
+                        </p:autoComplete>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <h:panelGroup id="departmentPanel" layout="block" styleClass="col-md-6">
+                        <h:outputLabel styleClass="form-label" value="#{msg['superiors.department']}"/>
+                        <div class="form-control">
+                            #{empty superiorEditBean.selectedSuperiorDepartmentName ? msg['superiors.selectSuperiorFirst'] : superiorEditBean.selectedSuperiorDepartmentName}
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup id="teamPanel" layout="block" styleClass="col-12">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <p:pickList id="employees"
+                                            value="#{superiorEditBean.employeePickList}"
+                                            var="employee"
+                                            itemValue="#{employee}"
+                                            itemLabel="#{employee.lastName} #{employee.firstName}"
+                                            converter="employeeConverter"
+                                            styleClass="role-authorizations-picklist superior-employees-picklist"
+                                            showSourceFilter="true"
+                                            showTargetFilter="true"
+                                            filterMatchMode="contains"
+                                            responsive="true"
+                                            disabled="#{empty superiorEditBean.superior.superiorId or empty superiorEditBean.superior.departmentId}">
+                                    <f:facet name="sourceCaption">#{msg['superiors.availableEmployees']}</f:facet>
+                                    <f:facet name="targetCaption">#{msg['superiors.assignedEmployees']}</f:facet>
+                                </p:pickList>
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-end">
+                                <p:commandButton styleClass="btn btn-primary w-100"
+                                                 value="#{msg['superiors.saveTeam']}"
+                                                 action="#{superiorEditBean.save}"
+                                                 disabled="#{empty superiorEditBean.superior.superiorId or empty superiorEditBean.superior.departmentId}"
+                                                 update=":superiorForm:teamPanel :globalGrowl"/>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </h:form>
+        </h:panelGroup>
+    </ui:define>
+</ui:composition>
+</html>

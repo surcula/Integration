@@ -41,9 +41,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function validateEmail() {
         const email = emailInput.value.trim();
+        const maxLength = parseInt(emailInput.dataset.maxLength || "0", 10);
 
         if (email === "") {
             showError(emailInput, emailInput.dataset.requiredMessage);
+            return false;
+        }
+
+        if (maxLength > 0 && email.length > maxLength) {
+            showError(emailInput, emailInput.dataset.lengthMessage);
             return false;
         }
 
@@ -70,8 +76,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateSubmitButton() {
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
+        const maxLength = parseInt(emailInput.dataset.maxLength || "0", 10);
 
-        const formIsValid = isValidEmail(email) && password.length > 0;
+        const emailLengthIsValid = maxLength === 0 || email.length <= maxLength;
+        const formIsValid = isValidEmail(email) && emailLengthIsValid && password.length > 0;
 
         loginButton.disabled = !formIsValid;
     }

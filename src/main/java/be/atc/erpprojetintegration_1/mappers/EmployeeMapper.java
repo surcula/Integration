@@ -15,6 +15,9 @@ import be.atc.erpprojetintegration_1.enums.Civilite;
 import be.atc.erpprojetintegration_1.enums.EmploymentStatus;
 import be.atc.erpprojetintegration_1.enums.Gender;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 public final class EmployeeMapper {
 
     private EmployeeMapper() {
@@ -175,6 +178,7 @@ public final class EmployeeMapper {
         dto.setLastName(employee.getLastName());
         dto.setEmail(employee.getEmail());
         dto.setPhone(employee.getPhone());
+        dto.setBirthDate(employee.getBirthDate() != null ? employee.getBirthDate().toString() : null);
         dto.setPlaceOfBirth(employee.getPlaceOfBirth());
         dto.setCivilite(employee.getCivilite() != null ? employee.getCivilite().getCode() : null);
         dto.setGender(employee.getGender() != null ? employee.getGender().getCode() : null);
@@ -225,6 +229,7 @@ public final class EmployeeMapper {
         employee.setLastName(dto.getLastName());
         employee.setEmail(dto.getEmail());
         employee.setPhone(dto.getPhone());
+        employee.setBirthDate(parseBirthDate(dto.getBirthDate()));
         employee.setPlaceOfBirth(dto.getPlaceOfBirth());
         employee.setEmploymentStatus(dto.getEmploymentStatus() != null && !dto.getEmploymentStatus().trim().isEmpty()
                 ? EmploymentStatus.valueOf(dto.getEmploymentStatus())
@@ -236,6 +241,18 @@ public final class EmployeeMapper {
         employee.setGender(dto.getGender() != null && !dto.getGender().trim().isEmpty()
                 ? Gender.valueOf(dto.getGender())
                 : null);
+    }
+
+    private static LocalDate parseBirthDate(String birthDate) {
+        if (birthDate == null || birthDate.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(birthDate.trim());
+        } catch (DateTimeParseException ex) {
+            return null;
+        }
     }
 
     /**

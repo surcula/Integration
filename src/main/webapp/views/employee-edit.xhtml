@@ -53,12 +53,13 @@
                             <span>#{msg['employee.edit.basicInformation']}</span>
                         </h2>
                         <p class="text-muted mb-0">#{msg['employee.edit.basicInformationSubtitle']}</p>
+                        <p class="text-muted small mb-0">#{msg['common.requiredFields']}</p>
                     </div>
                 </div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h:outputLabel for="firstName" styleClass="form-label" value="#{msg['profile.firstName']}"/>
+                        <h:outputLabel for="firstName" styleClass="form-label" value="#{msg['profile.firstName']} *"/>
                         <h:inputText id="firstName"
                                      styleClass="form-control employee-edit-input employee-edit-required"
                                      value="#{employeeEditBean.employee.firstName}"
@@ -70,7 +71,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h:outputLabel for="lastName" styleClass="form-label" value="#{msg['profile.lastName']}"/>
+                        <h:outputLabel for="lastName" styleClass="form-label" value="#{msg['profile.lastName']} *"/>
                         <h:inputText id="lastName"
                                      styleClass="form-control employee-edit-input employee-edit-required"
                                      value="#{employeeEditBean.employee.lastName}"
@@ -82,7 +83,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h:outputLabel for="email" styleClass="form-label" value="#{msg['profile.email']}"/>
+                        <h:outputLabel for="email" styleClass="form-label" value="#{msg['profile.email']} *"/>
                         <h:inputText id="email"
                                      styleClass="form-control employee-edit-input employee-edit-required employee-edit-email"
                                      value="#{employeeEditBean.employee.email}"
@@ -105,7 +106,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h:outputLabel for="employeeNumber" styleClass="form-label" value="#{msg['profile.employeeNumber']}"/>
+                        <h:outputLabel for="employeeNumber" styleClass="form-label" value="#{msg['profile.employeeNumber']} *"/>
                         <h:inputText id="employeeNumber"
                                      styleClass="form-control employee-edit-input employee-edit-required"
                                      value="#{employeeEditBean.employee.employeeNumber}"
@@ -117,7 +118,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h:outputLabel for="employmentStatus" styleClass="form-label" value="#{msg['employee.edit.employmentStatus']}"/>
+                        <h:outputLabel for="employmentStatus" styleClass="form-label" value="#{msg['employee.edit.employmentStatus']} *"/>
                         <h:selectOneMenu id="employmentStatus"
                                          styleClass="form-select employee-edit-select employee-edit-required"
                                          value="#{employeeEditBean.employee.employmentStatus}"
@@ -132,7 +133,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h:outputLabel for="civilite" styleClass="form-label" value="#{msg['profile.civilite']}"/>
+                        <h:outputLabel for="civilite" styleClass="form-label" value="#{msg['profile.civilite']} *"/>
                         <h:selectOneMenu id="civilite"
                                          styleClass="form-select employee-edit-select employee-edit-required"
                                          value="#{employeeEditBean.employee.civilite}"
@@ -147,7 +148,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h:outputLabel for="gender" styleClass="form-label" value="#{msg['profile.gender']}"/>
+                        <h:outputLabel for="gender" styleClass="form-label" value="#{msg['profile.gender']} *"/>
                         <h:selectOneMenu id="gender"
                                          styleClass="form-select employee-edit-select employee-edit-required"
                                          value="#{employeeEditBean.employee.gender}"
@@ -161,7 +162,18 @@
                         <div class="invalid-feedback"></div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-md-6">
+                        <h:outputLabel for="birthDate" styleClass="form-label" value="#{msg['profile.birthDate']} *"/>
+                        <h:inputText id="birthDate"
+                                     styleClass="form-control employee-edit-input employee-edit-required employee-edit-birth-date"
+                                     value="#{employeeEditBean.employee.birthDate}"
+                                     pt:type="date"
+                                     pt:data-required-message="#{msg['employee.edit.error.birthDate.required']}"
+                                     pt:data-age-message="#{msg['employee.edit.error.birthDate.age']}"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-6">
                         <h:outputLabel for="placeOfBirth" styleClass="form-label" value="#{msg['profile.placeOfBirth']}"/>
                         <h:inputText id="placeOfBirth"
                                      styleClass="form-control employee-edit-input"
@@ -189,6 +201,7 @@
                             <span>#{msg['employee.address.title']}</span>
                         </h2>
                         <p class="text-muted mb-0">#{msg['employee.address.subtitle']}</p>
+                        <p class="text-muted small mb-0">#{msg['common.requiredFields']}</p>
                     </div>
                 </div>
 
@@ -198,31 +211,42 @@
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h:outputLabel for="streetName" styleClass="form-label" value="#{msg['employee.address.streetName']}"/>
+                        <h:outputLabel for="streetName" styleClass="form-label" value="#{msg['employee.address.streetName']} *"/>
                         <h:inputText id="streetName"
-                                     styleClass="form-control"
+                                     styleClass="form-control employee-address-input employee-address-required"
                                      disabled="#{employeeEditBean.createMode}"
-                                     value="#{employeeEditBean.employee.address.streetName}"/>
+                                     value="#{employeeEditBean.employee.address.streetName}"
+                                     pt:data-required-message="#{msg['employee.address.error.streetName.required']}"
+                                     pt:data-length-message="#{msg['employee.address.error.streetName.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="50"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-3">
                         <h:outputLabel for="streetNumber" styleClass="form-label" value="#{msg['employee.address.streetNumber']}"/>
                         <h:inputText id="streetNumber"
-                                     styleClass="form-control"
+                                     styleClass="form-control employee-address-input"
                                      disabled="#{employeeEditBean.createMode}"
-                                     value="#{employeeEditBean.employee.address.streetNumber}"/>
+                                     value="#{employeeEditBean.employee.address.streetNumber}"
+                                     pt:data-length-message="#{msg['employee.address.error.streetNumber.length']}"
+                                     pt:data-max-length="11"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-3">
                         <h:outputLabel for="boxNumber" styleClass="form-label" value="#{msg['employee.address.boxNumber']}"/>
                         <h:inputText id="boxNumber"
-                                     styleClass="form-control"
+                                     styleClass="form-control employee-address-input"
                                      disabled="#{employeeEditBean.createMode}"
-                                     value="#{employeeEditBean.employee.address.boxNumber}"/>
+                                     value="#{employeeEditBean.employee.address.boxNumber}"
+                                     pt:data-length-message="#{msg['employee.address.error.boxNumber.length']}"
+                                     pt:data-max-length="5"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-12">
-                        <h:outputLabel for="city" styleClass="form-label" value="#{msg['profile.city']}"/>
+                        <h:outputLabel for="city" styleClass="form-label" value="#{msg['profile.city']} *"/>
                         <p:autoComplete id="city"
                                         value="#{employeeEditBean.selectedCity}"
                                         completeMethod="#{employeeEditBean.completeCity}"
@@ -244,10 +268,12 @@
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <p:commandButton styleClass="btn btn-primary"
+                    <p:commandButton styleClass="btn btn-primary employee-address-save-button"
                                      value="#{msg['employee.address.save']}"
                                      action="#{employeeEditBean.saveAddress}"
                                      disabled="#{employeeEditBean.createMode}"
+                                     onstart="return window.validateEmployeeAddressFormBeforeSubmit ? window.validateEmployeeAddressFormBeforeSubmit() : true"
+                                     oncomplete="window.initEmployeeAddressValidation &amp;&amp; window.initEmployeeAddressValidation()"
                                      update=":employeeEditContent :globalGrowl"/>
                 </div>
             </h:form>

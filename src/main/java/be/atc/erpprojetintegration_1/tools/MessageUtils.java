@@ -46,4 +46,11 @@ public final class MessageUtils {
                         getMessage(messageKey),
                         null));
     }
+
+    public static void addWarningMessage(String messageKey) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        getMessage(messageKey),
+                        null));
+    }
 }

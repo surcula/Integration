@@ -22,7 +22,7 @@
             </div>
             <h:link outcome="/views/function-edit"
                     styleClass="btn btn-primary"
-                    rendered="#{authBean.hasRole('ADMIN')}">
+                    rendered="#{authBean.hasPermission('function:create')}">
                 <i class="bi bi-plus-circle"></i>
                 <span>#{msg['functions.add']}</span>
             </h:link>
@@ -77,24 +77,29 @@
                             #{function.mandatory ? msg['common.yes'] : msg['common.no']}
                         </p:column>
 
-                        <p:column headerText="#{msg['functions.activeStatus']}" sortBy="#{function.isActive}">
+                    <p:column headerText="#{msg['functions.activeStatus']}"
+                              sortBy="#{function.isActive}"
+                              rendered="#{authBean.hasPermission('function:delete')}">
                             <span class="#{function.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
                                 #{function.isActive ? msg['functions.status.active'] : msg['functions.status.inactive']}
                             </span>
                         </p:column>
 
-                        <p:column headerText="#{msg['functions.action']}" rendered="#{authBean.hasRole('ADMIN')}">
-                            <h:link outcome="/views/function-edit"
-                                    styleClass="btn btn-sm btn-primary"
-                                    title="#{msg['functions.edit']}">
+                    <p:column headerText="#{msg['functions.action']}"
+                              rendered="#{authBean.hasPermission('function:edit') or authBean.hasPermission('function:delete')}">
+                        <h:link outcome="/views/function-edit"
+                                styleClass="btn btn-sm btn-primary"
+                                title="#{msg['functions.edit']}"
+                                rendered="#{authBean.hasPermission('function:edit')}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="visually-hidden">#{msg['functions.edit']}</span>
                                 <f:param name="id" value="#{function.id}"/>
                             </h:link>
 
-                            <p:commandLink styleClass="#{function.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
-                                           title="#{function.isActive ? msg['functions.delete'] : msg['functions.activate']}"
-                                           action="#{functionsBean.changeFunctionActiveStatus(function.id, function.isActive)}"
+                        <p:commandLink styleClass="#{function.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                       title="#{function.isActive ? msg['functions.delete'] : msg['functions.activate']}"
+                                       rendered="#{authBean.hasPermission('function:delete')}"
+                                       action="#{functionsBean.changeFunctionActiveStatus(function.id, function.isActive)}"
                                            process="@this"
                                            immediate="true"
                                            update="@form :globalGrowl">

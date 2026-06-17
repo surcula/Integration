@@ -47,12 +47,13 @@
                             <span>#{msg['functions.form.title']}</span>
                         </h2>
                         <p class="text-muted mb-0">#{msg['functions.form.subtitle']}</p>
+                        <p class="text-muted small mb-0">#{msg['common.requiredFields']}</p>
                     </div>
                 </div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h:outputLabel for="functionName" styleClass="form-label" value="#{msg['functions.name']}"/>
+                        <h:outputLabel for="functionName" styleClass="form-label" value="#{msg['functions.name']} *"/>
                         <h:inputText id="functionName"
                                      styleClass="form-control function-edit-input function-edit-required"
                                      value="#{functionEditBean.function.functionName}"

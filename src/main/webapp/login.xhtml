@@ -17,15 +17,20 @@
         </span>
 
         <h:form styleClass="login100-form validate-form p-b-33 p-t-5">
+            <p class="login-required-note">
+                #{msg['common.requiredFields']}
+            </p>
 
             <div class="wrap-input100 validate-input" data-validate="#{msg['login.emailRequired']}">
                 <h:inputText styleClass="input100 login-email-input"
                              value="#{authBean.email}"
                              id="email"
                              pt:type="email"
-                             pt:placeholder="#{msg['login.email']}"
+                             pt:placeholder="#{msg['login.email']} *"
                              pt:data-required-message="#{msg['login.emailRequired']}"
-                             pt:data-invalid-message="#{msg['login.emailInvalid']}"/>
+                             pt:data-invalid-message="#{msg['login.emailInvalid']}"
+                             pt:data-length-message="#{msg['login.email.length']}"
+                             pt:data-max-length="150"/>
                 <span class="focus-input100" data-placeholder="&#xe82a;"></span>
             </div>
 
@@ -33,7 +38,7 @@
                 <h:inputSecret styleClass="input100 login-password-input"
                                value="#{authBean.password}"
                                id="password"
-                               pt:placeholder="#{msg['login.password']}"
+                               pt:placeholder="#{msg['login.password']} *"
                                pt:data-required-message="#{msg['login.passwordRequired']}"/>
                 <span class="focus-input100" data-placeholder="&#xe80f;"></span>
             </div>

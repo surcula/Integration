@@ -2,6 +2,7 @@
 
 (function () {
   var sidebarStorageKey = "adminHMD.sidebarMini";
+  var sidebarScrollStorageKey = "adminHMD.sidebarScrollTop";
   var themeStorageKey = "adminHMD.colorTheme";
   var desktopMedia = "(min-width: 992px)";
 
@@ -43,6 +44,22 @@
     }
   }
 
+  function getSavedSidebarScroll() {
+    try {
+      return window.sessionStorage.getItem(sidebarScrollStorageKey);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function saveSidebarScroll(scrollTop) {
+    try {
+      window.sessionStorage.setItem(sidebarScrollStorageKey, String(scrollTop));
+    } catch (error) {
+      // Ignore storage errors: the sidebar can still work without scroll memory.
+    }
+  }
+
   function getPreferredTheme(storageAvailable) {
     var savedTheme = storageAvailable ? window.localStorage.getItem(themeStorageKey) : "";
 
@@ -59,6 +76,7 @@
 
   onReady(function () {
     var body = document.body;
+    var sidebar = document.querySelector(".admin-sidebar");
     var sidebarToggle = document.querySelector("[data-sidebar-toggle]");
     var themeToggles = document.querySelectorAll("[data-theme-toggle]");
     var themeIcons = document.querySelectorAll("[data-theme-icon]");
@@ -141,9 +159,44 @@
       });
     }
 
+    function initSidebarScrollMemory() {
+      if (!sidebar) {
+        return;
+      }
+
+      var savedScroll = getSavedSidebarScroll();
+
+      if (savedScroll !== null) {
+        var scrollTop = parseInt(savedScroll, 10);
+
+        if (!isNaN(scrollTop)) {
+          var restoreScroll = function () {
+            sidebar.scrollTop = scrollTop;
+          };
+
+          if (window.requestAnimationFrame) {
+            window.requestAnimationFrame(restoreScroll);
+          } else {
+            restoreScroll();
+          }
+        }
+      }
+
+      sidebar.addEventListener("scroll", function () {
+        saveSidebarScroll(sidebar.scrollTop);
+      });
+
+      Array.prototype.forEach.call(sidebarLinks, function (link) {
+        link.addEventListener("click", function () {
+          saveSidebarScroll(sidebar.scrollTop);
+        });
+      });
+    }
+
     initValidation();
     initTableSearch();
     initThemeToggle();
+    initSidebarScrollMemory();
 
 
 

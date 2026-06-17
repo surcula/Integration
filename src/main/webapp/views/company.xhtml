@@ -4,6 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
       xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
@@ -38,6 +39,11 @@
                             <span>#{msg['company.form.title']}</span>
                         </h2>
                         <p class="text-muted mb-0">#{msg['company.form.subtitle']}</p>
+                        <h:panelGroup layout="block"
+                                      styleClass="text-muted small mb-0"
+                                      rendered="#{companyBean.editMode}">
+                            #{msg['common.requiredFields']}
+                        </h:panelGroup>
                     </div>
                     <p:commandButton styleClass="btn btn-primary"
                                      value="#{msg['company.edit']}"
@@ -46,70 +52,171 @@
                                      update=":companyContent"/>
                 </div>
 
-                <div class="row g-3">
+                <h:panelGroup layout="block"
+                              styleClass="info-list text-start"
+                              rendered="#{not companyBean.editMode}">
+                    <div>
+                        <span>#{msg['company.name']}</span>
+                        <strong>#{companyBean.company.name}</strong>
+                    </div>
+                    <div>
+                        <span>#{msg['company.email']}</span>
+                        <strong>#{companyBean.company.email}</strong>
+                    </div>
+                    <div>
+                        <span>#{msg['company.phone']}</span>
+                        <strong>#{companyBean.company.phone}</strong>
+                    </div>
+                    <div>
+                        <span>#{msg['company.website']}</span>
+                        <strong>#{companyBean.company.website}</strong>
+                    </div>
+                    <div>
+                        <span>#{msg['company.bank']}</span>
+                        <strong>#{companyBean.company.bank}</strong>
+                    </div>
+                    <div>
+                        <span>#{msg['company.iban']}</span>
+                        <strong>#{companyBean.company.iban}</strong>
+                    </div>
+                    <div>
+                        <span>#{msg['company.address']}</span>
+                        <strong>#{companyBean.companyAddress}</strong>
+                    </div>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block"
+                              styleClass="row g-3"
+                              rendered="#{companyBean.editMode}">
                     <div class="col-md-6">
-                        <h:outputLabel for="name" styleClass="form-label" value="#{msg['company.name']}"/>
+                        <h:outputLabel for="name" styleClass="form-label" value="#{msg['company.name']} *"/>
                         <h:inputText id="name"
-                                     styleClass="form-control"
+                                     styleClass="form-control company-edit-input company-edit-required"
                                      value="#{companyBean.company.name}"
-                                     disabled="#{not companyBean.editMode}"/>
+                                     pt:data-required-message="#{msg['company.error.name.required']}"
+                                     pt:data-length-message="#{msg['company.error.name.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="200"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-6">
                         <h:outputLabel for="email" styleClass="form-label" value="#{msg['company.email']}"/>
                         <h:inputText id="email"
-                                     styleClass="form-control"
+                                     styleClass="form-control company-edit-input"
                                      value="#{companyBean.company.email}"
-                                     disabled="#{not companyBean.editMode}"/>
+                                     pt:data-length-message="#{msg['company.error.email.length']}"
+                                     pt:data-max-length="150"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-6">
                         <h:outputLabel for="phone" styleClass="form-label" value="#{msg['company.phone']}"/>
                         <h:inputText id="phone"
-                                     styleClass="form-control"
+                                     styleClass="form-control company-edit-input"
                                      value="#{companyBean.company.phone}"
-                                     disabled="#{not companyBean.editMode}"/>
+                                     pt:data-length-message="#{msg['company.error.phone.length']}"
+                                     pt:data-max-length="20"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-6">
                         <h:outputLabel for="website" styleClass="form-label" value="#{msg['company.website']}"/>
                         <h:inputText id="website"
-                                     styleClass="form-control"
+                                     styleClass="form-control company-edit-input"
                                      value="#{companyBean.company.website}"
-                                     disabled="#{not companyBean.editMode}"/>
+                                     pt:data-length-message="#{msg['company.error.website.length']}"
+                                     pt:data-max-length="255"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-6">
                         <h:outputLabel for="bank" styleClass="form-label" value="#{msg['company.bank']}"/>
                         <h:inputText id="bank"
-                                     styleClass="form-control"
+                                     styleClass="form-control company-edit-input"
                                      value="#{companyBean.company.bank}"
-                                     disabled="#{not companyBean.editMode}"/>
+                                     pt:data-length-message="#{msg['company.error.bank.length']}"
+                                     pt:data-max-length="100"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-6">
                         <h:outputLabel for="iban" styleClass="form-label" value="#{msg['company.iban']}"/>
                         <h:inputText id="iban"
-                                     styleClass="form-control"
+                                     styleClass="form-control company-edit-input company-edit-iban"
                                      value="#{companyBean.company.iban}"
-                                     disabled="#{not companyBean.editMode}"/>
+                                     pt:data-length-message="#{msg['company.error.iban.length']}"
+                                     pt:data-invalid-message="#{msg['company.error.iban.invalid']}"
+                                     pt:data-max-length="34"/>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-12">
                         <h:outputLabel for="logo" styleClass="form-label" value="#{msg['company.logo']}"/>
                         <h:inputText id="logo"
-                                     styleClass="form-control"
+                                     styleClass="form-control company-edit-input"
                                      value="#{companyBean.company.logo}"
-                                     disabled="#{not companyBean.editMode}"/>
+                                     pt:data-length-message="#{msg['company.error.logo.length']}"
+                                     pt:data-max-length="500"/>
+                        <div class="invalid-feedback"></div>
                     </div>
-                </div>
 
-                <div class="info-list mt-4 text-start">
-                    <div>
-                        <span>#{msg['company.address']}</span>
-                        <strong>#{companyBean.companyAddress}</strong>
+                    <div class="col-12">
+                        <hr class="my-2"/>
                     </div>
-                </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="streetName" styleClass="form-label" value="#{msg['employee.address.streetName']} *"/>
+                        <h:inputText id="streetName"
+                                     styleClass="form-control company-edit-input company-edit-required"
+                                     value="#{companyBean.company.address.streetName}"
+                                     pt:data-required-message="#{msg['employee.address.error.streetName.required']}"
+                                     pt:data-length-message="#{msg['employee.address.error.streetName.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="50"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <h:outputLabel for="streetNumber" styleClass="form-label" value="#{msg['employee.address.streetNumber']}"/>
+                        <h:inputText id="streetNumber"
+                                     styleClass="form-control company-edit-input"
+                                     value="#{companyBean.company.address.streetNumber}"
+                                     pt:data-length-message="#{msg['employee.address.error.streetNumber.length']}"
+                                     pt:data-max-length="11"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <h:outputLabel for="boxNumber" styleClass="form-label" value="#{msg['employee.address.boxNumber']}"/>
+                        <h:inputText id="boxNumber"
+                                     styleClass="form-control company-edit-input"
+                                     value="#{companyBean.company.address.boxNumber}"
+                                     pt:data-length-message="#{msg['employee.address.error.boxNumber.length']}"
+                                     pt:data-max-length="5"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="city" styleClass="form-label" value="#{msg['profile.city']} *"/>
+                        <p:autoComplete id="city"
+                                        value="#{companyBean.selectedCity}"
+                                        completeMethod="#{companyBean.completeCity}"
+                                        var="city"
+                                        itemLabel="#{city.cityName} - #{city.zipCode}"
+                                        itemValue="#{city}"
+                                        converter="cityConverter"
+                                        styleClass="erp-city-autocomplete"
+                                        panelStyleClass="erp-city-autocomplete-panel"
+                                        forceSelection="true"
+                                        dropdown="true"
+                                        minQueryLength="2"
+                                        maxResults="20"
+                                        scrollHeight="250"
+                                        inputStyleClass="form-control"
+                                        placeholder="#{msg['employee.address.citySearch']}"/>
+                    </div>
+                </h:panelGroup>
 
                 <h:panelGroup layout="block"
                               styleClass="d-flex justify-content-end gap-2 mt-4"
@@ -119,13 +226,17 @@
                                      action="#{companyBean.cancel}"
                                      update=":companyContent :globalGrowl"
                                      immediate="true"/>
-                    <p:commandButton styleClass="btn btn-primary"
+                    <p:commandButton styleClass="btn btn-primary company-edit-save-button"
                                      value="#{msg['company.save']}"
                                      action="#{companyBean.save}"
+                                     onstart="return window.validateCompanyFormBeforeSubmit ? window.validateCompanyFormBeforeSubmit() : true"
+                                     oncomplete="window.initCompanyEditValidation &amp;&amp; window.initCompanyEditValidation()"
                                      update=":companyContent :globalGrowl"/>
                 </h:panelGroup>
             </h:form>
         </h:panelGroup>
+
+        <script src="#{request.contextPath}/app-assets/js/company-edit-validation.js"></script>
     </ui:define>
 </ui:composition>
 </html>

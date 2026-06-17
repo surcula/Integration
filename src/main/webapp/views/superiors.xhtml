@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">#{msg['superiors.pageTitle']}</ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="bi bi-person-vcard"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['superiors.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['superiors.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['superiors.subtitle']}</p>
+                </div>
+            </div>
+            <h:link outcome="/views/superior-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{authBean.hasRole('ADMIN')}">
+                <i class="bi bi-plus-circle"></i>
+                <span>#{msg['superiors.add']}</span>
+            </h:link>
+        </div>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="superiorsForm">
+                    <div class="d-flex justify-content-between align-items-end gap-3 mb-3 flex-wrap">
+                        <div class="col-12 col-md-4 col-lg-3 p-0">
+                            <h:outputLabel for="departmentFilter"
+                                           styleClass="form-label"
+                                           value="#{msg['superiors.departmentFilter']}"/>
+                            <h:selectOneMenu id="departmentFilter"
+                                             styleClass="form-control"
+                                             value="#{superiorsBean.selectedDepartmentName}">
+                                <f:selectItem itemLabel="#{msg['superiors.allDepartments']}" itemValue="#{null}"/>
+                                <f:selectItems value="#{superiorsBean.departmentNames}"
+                                               var="department"
+                                               itemLabel="#{department}"
+                                               itemValue="#{department}"/>
+                                <p:ajax update="superiorsTable" oncomplete="PF('superiorsTable').clearFilters()"/>
+                            </h:selectOneMenu>
+                        </div>
+
+                        <p:commandButton value="#{msg['superiors.clearFilter']}"
+                                         styleClass="btn btn-outline-secondary"
+                                         action="#{superiorsBean.clearDepartmentFilter}"
+                                         process="@this"
+                                         update="departmentFilter superiorsTable"/>
+                    </div>
+
+                    <p:dataTable id="superiorsTable"
+                                 value="#{superiorsBean.filteredSuperiors}"
+                                 var="superior"
+                                 widgetVar="superiorsTable"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="both"
+                                 emptyMessage="#{msg['superiors.empty']}">
+
+                        <f:facet name="header">
+                            <div class="d-flex justify-content-end">
+                                <span class="p-input-icon-left employee-global-search">
+                                    <i class="bi bi-search"></i>
+                                    <p:inputText id="globalFilter"
+                                                 styleClass="form-control"
+                                                 onkeyup="PF('superiorsTable').filter()"
+                                                 placeholder="#{msg['superiors.search']}"/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="#{msg['superiors.superior']}"
+                                  sortBy="#{superior.superiorFullName}"
+                                  filterBy="#{superior.superiorFullName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            <strong>#{superior.superiorFullName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['superiors.department']}"
+                                  sortBy="#{superior.departmentName}"
+                                  filterBy="#{superior.departmentName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{empty superior.departmentName ? '-' : superior.departmentName}
+                        </p:column>
+
+                        <p:column headerText="#{msg['superiors.managedEmployeesCount']}"
+                                  sortBy="#{superior.managedEmployeesCount}">
+                            #{superior.managedEmployeesCount}
+                        </p:column>
+
+                        <p:column headerText="#{msg['superiors.action']}">
+                            <div class="d-flex gap-2">
+                                <h:link outcome="/views/superior-edit"
+                                        styleClass="btn btn-sm btn-primary"
+                                        title="#{msg['superiors.edit']}">
+                                    <i class="bi bi-pencil"></i>
+                                    <span class="visually-hidden">#{msg['superiors.edit']}</span>
+                                    <f:param name="id" value="#{superior.superiorEmployeeId}"/>
+                                    <f:param name="departmentId" value="#{superior.departmentId}"/>
+                                </h:link>
+
+                                <p:commandLink styleClass="btn btn-sm btn-outline-danger"
+                                               title="#{msg['superiors.departmentHead.delete']}"
+                                               action="#{superiorsBean.removeDepartmentHead(superior.departmentHeadId)}"
+                                               process="@this"
+                                               update="@form :globalGrowl">
+                                    <i class="bi bi-trash"></i>
+                                    <span class="visually-hidden">#{msg['superiors.departmentHead.delete']}</span>
+                                    <p:confirm header="#{msg['confirm.title']}"
+                                               message="#{msg['superiors.departmentHead.delete.confirm']}"
+                                               icon="pi pi-exclamation-triangle"/>
+                                </p:commandLink>
+                            </div>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['confirm.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-danger"/>
+                        <p:commandButton value="#{msg['confirm.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-outline-secondary"/>
+                    </p:confirmDialog>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

@@ -1,37 +1,165 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
 
     <ui:define name="title">
-        Hub | ERP RH
+        #{msg['hub.pageTitle']}
     </ui:define>
 
     <ui:define name="content">
         <div class="page-heading">
             <div class="page-heading-copy">
-                <span class="page-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                <span class="page-icon"><i class="bi bi-speedometer2"></i></span>
                 <div>
-                    <p class="eyebrow mb-1">Overview</p>
-                    <h1 class="h3 mb-1">Hub</h1>
-                    <p class="text-muted mb-0">Bienvenue dans votre espace ERP RH.</p>
+                    <p class="eyebrow mb-1">#{msg['hub.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['hub.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['hub.subtitle']}</p>
                 </div>
             </div>
         </div>
 
         <section class="row g-3 mt-1">
-            <div class="col-12 col-md-6 col-xl-3">
+            <h:panelGroup layout="block" styleClass="col-12 col-md-6 col-xl-3"
+                          rendered="#{authBean.hasPermission('employee:read')}">
                 <article class="metric-card metric-primary">
                     <div class="metric-top">
-                        <span class="metric-label">Employes</span>
-                        <span class="metric-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                        <span class="metric-label">#{msg['hub.metric.employees']}</span>
+                        <span class="metric-icon"><i class="bi bi-people"></i></span>
                     </div>
-                    <div class="metric-value">--</div>
+                    <div class="metric-value">#{hubBean.employeeCount}</div>
                     <div class="metric-meta">
-                        <span>Gestion RH</span>
+                        <h:link outcome="/views/employees">#{msg['hub.metric.open']}</h:link>
                     </div>
                 </article>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" styleClass="col-12 col-md-6 col-xl-3"
+                          rendered="#{authBean.hasPermission('department:read')}">
+                <article class="metric-card metric-success">
+                    <div class="metric-top">
+                        <span class="metric-label">#{msg['hub.metric.departments']}</span>
+                        <span class="metric-icon"><i class="bi bi-hospital"></i></span>
+                    </div>
+                    <div class="metric-value">#{hubBean.departmentCount}</div>
+                    <div class="metric-meta">
+                        <h:link outcome="/views/departments">#{msg['hub.metric.open']}</h:link>
+                    </div>
+                </article>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" styleClass="col-12 col-md-6 col-xl-3"
+                          rendered="#{authBean.hasPermission('function:read')}">
+                <article class="metric-card metric-warning">
+                    <div class="metric-top">
+                        <span class="metric-label">#{msg['hub.metric.functions']}</span>
+                        <span class="metric-icon"><i class="bi bi-diagram-3"></i></span>
+                    </div>
+                    <div class="metric-value">#{hubBean.functionCount}</div>
+                    <div class="metric-meta">
+                        <h:link outcome="/views/functions">#{msg['hub.metric.open']}</h:link>
+                    </div>
+                </article>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" styleClass="col-12 col-md-6 col-xl-3"
+                          rendered="#{authBean.hasPermission('evaluation:read')}">
+                <article class="metric-card metric-danger">
+                    <div class="metric-top">
+                        <span class="metric-label">#{msg['hub.metric.evaluations']}</span>
+                        <span class="metric-icon"><i class="bi bi-clipboard-check"></i></span>
+                    </div>
+                    <div class="metric-value">#{hubBean.evaluationCount}</div>
+                    <div class="metric-meta">
+                        <h:link outcome="/views/evaluations">#{msg['hub.metric.open']}</h:link>
+                    </div>
+                </article>
+            </h:panelGroup>
+        </section>
+
+        <section class="row g-3 mt-1">
+            <div class="col-12 col-xl-8">
+                <div class="panel h-100">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="h5 mb-1 section-title">
+                                <i class="bi bi-lightning-charge"></i>
+                                <span>#{msg['hub.quick.title']}</span>
+                            </h2>
+                            <p class="text-muted mb-0">#{msg['hub.quick.subtitle']}</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <h:link outcome="/views/employee-edit" styleClass="btn btn-primary w-100">
+                                <i class="bi bi-person-plus"></i>
+                                <span>#{msg['hub.quick.addEmployee']}</span>
+                            </h:link>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <h:link outcome="/views/profile"
+                                    styleClass="btn btn-outline-secondary w-100"
+                                    rendered="#{authBean.hasPermission('profile:read')}">
+                                <i class="bi bi-person-badge"></i>
+                                <span>#{msg['hub.quick.profile']}</span>
+                            </h:link>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <h:link outcome="/views/planning" styleClass="btn btn-outline-secondary w-100">
+                                <i class="bi bi-calendar3"></i>
+                                <span>#{msg['hub.quick.planning']}</span>
+                            </h:link>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <h:link outcome="/views/company" styleClass="btn btn-outline-secondary w-100"
+                                    rendered="#{authBean.hasRole('ADMIN')}">
+                                <i class="bi bi-building"></i>
+                                <span>#{msg['hub.quick.company']}</span>
+                            </h:link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="panel h-100">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="h5 mb-1 section-title">
+                                <i class="bi bi-list-check"></i>
+                                <span>#{msg['hub.todo.title']}</span>
+                            </h2>
+                            <p class="text-muted mb-0">#{msg['hub.todo.subtitle']}</p>
+                        </div>
+                    </div>
+
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <span class="activity-dot"></span>
+                            <div>
+                                <strong>#{msg['hub.todo.employee']}</strong>
+                                <p class="text-muted mb-0">#{msg['hub.todo.employeeText']}</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-dot"></span>
+                            <div>
+                                <strong>#{msg['hub.todo.planning']}</strong>
+                                <p class="text-muted mb-0">#{msg['hub.todo.planningText']}</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-dot"></span>
+                            <div>
+                                <strong>#{msg['hub.todo.evaluations']}</strong>
+                                <p class="text-muted mb-0">#{msg['hub.todo.evaluationsText']}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </ui:define>

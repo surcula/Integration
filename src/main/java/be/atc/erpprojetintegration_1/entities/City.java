@@ -13,6 +13,10 @@ import javax.validation.constraints.Size;
         @NamedQuery(
                 name = "getActiveCitiesByZip",
                 query = "SELECT c FROM City c WHERE c.active = true AND c.zipCode = :zip ORDER BY c.cityName"
+        ),
+        @NamedQuery(
+                name = "getAllCities",
+                query = "SELECT c FROM City c ORDER BY c.cityName, c.zipCode"
         )
 })
 @Entity

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">#{msg['cities.admin.pageTitle']}</ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="bi bi-map"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['cities.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['cities.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['cities.subtitle']}</p>
+                </div>
+            </div>
+            <h:link outcome="/views/city-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{authBean.hasPermission('city:create')}">
+                <i class="bi bi-plus-circle"></i>
+                <span>#{msg['cities.add']}</span>
+            </h:link>
+        </div>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="citiesForm">
+                    <p:dataTable value="#{citiesBean.cities}"
+                                 var="city"
+                                 widgetVar="citiesAdminTable"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="both"
+                                 emptyMessage="#{msg['cities.empty']}">
+
+                        <f:facet name="header">
+                            <div class="d-flex justify-content-end">
+                                <span class="p-input-icon-left employee-global-search">
+                                    <i class="bi bi-search"></i>
+                                    <p:inputText id="globalFilter"
+                                                 styleClass="form-control"
+                                                 onkeyup="PF('citiesAdminTable').filter()"
+                                                 placeholder="#{msg['cities.search']}"/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="#{msg['cities.name']}"
+                                  sortBy="#{city.cityName}"
+                                  filterBy="#{city.cityName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            <strong>#{city.cityName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['cities.zipCode']}"
+                                  sortBy="#{city.zipCode}"
+                                  filterBy="#{city.zipCode}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{city.zipCode}
+                        </p:column>
+
+                        <p:column headerText="#{msg['cities.status']}"
+                                  sortBy="#{city.isActive}"
+                                  rendered="#{authBean.hasPermission('city:delete')}">
+                            <span class="#{city.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{city.isActive ? msg['cities.status.active'] : msg['cities.status.inactive']}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['cities.action']}"
+                                  rendered="#{authBean.hasPermission('city:edit') or authBean.hasPermission('city:delete')}">
+                            <h:link outcome="/views/city-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['cities.edit']}"
+                                    rendered="#{authBean.hasPermission('city:edit')}">
+                                <i class="bi bi-pencil"></i>
+                                <span class="visually-hidden">#{msg['cities.edit']}</span>
+                                <f:param name="id" value="#{city.id}"/>
+                            </h:link>
+
+                            <p:commandLink styleClass="#{city.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                           title="#{city.isActive ? msg['cities.delete'] : msg['cities.activate']}"
+                                           rendered="#{authBean.hasPermission('city:delete')}"
+                                           action="#{citiesBean.changeCityActiveStatus(city.id, city.isActive)}"
+                                           process="@this"
+                                           immediate="true"
+                                           update="@form :globalGrowl">
+                                <i class="#{city.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
+                                <span class="visually-hidden">
+                                    #{city.isActive ? msg['cities.delete'] : msg['cities.activate']}
+                                </span>
+                                <p:confirm header="#{city.isActive ? msg['cities.delete'] : msg['cities.activate']}"
+                                           message="#{city.isActive ? msg['cities.delete.confirm'] : msg['cities.activate.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"
+                                         icon="pi pi-check"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-secondary"
+                                         icon="pi pi-times"/>
+                    </p:confirmDialog>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

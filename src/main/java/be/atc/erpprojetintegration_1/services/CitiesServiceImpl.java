@@ -17,6 +17,29 @@ public class CitiesServiceImpl implements ICitiesService {
 
     private static final Logger log = Logger.getLogger(CitiesServiceImpl.class);
 
+    @Override
+    public Result<List<City>> getAll() {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching all cities");
+            List<City> cities = em.createNamedQuery("getAllCities", City.class).getResultList();
+
+            log.info("Cities found: " + cities.size());
+            return Result.ok(cities);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "cities.error.load");
+
+            log.error("Error while searching all cities", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
     /**
      * @return un Resultat ou une erreur. dans la liste des villes,
      *      *
@@ -93,6 +116,98 @@ public class CitiesServiceImpl implements ICitiesService {
             errors.put("message", ex.getMessage());
 
             log.error("Error while searching city by id: " + id, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<City> create(City city) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Creating city");
+            em.getTransaction().begin();
+            em.persist(city);
+            em.getTransaction().commit();
+            log.info("City created with id: " + city.getId());
+            return Result.ok(city);
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "cities.error.save");
+            log.error("Error while creating city", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<City> update(City city) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Updating city id: " + city.getId());
+            em.getTransaction().begin();
+            City updatedCity = em.merge(city);
+            em.getTransaction().commit();
+            log.info("City updated with id: " + updatedCity.getId());
+            return Result.ok(updatedCity);
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "cities.error.save");
+            log.error("Error while updating city id: " + city.getId(), ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<Void> setActive(Integer id, boolean active) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Updating city active status. Id: " + id + ", active: " + active);
+            em.getTransaction().begin();
+            City city = em.find(City.class, id);
+
+            if (city == null) {
+                em.getTransaction().rollback();
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "cities.error.notFound");
+                log.warn("Cannot update city active status. City not found with id: " + id);
+                return Result.fail(errors);
+            }
+
+            city.setIsActive(active);
+            em.merge(city);
+            em.getTransaction().commit();
+            log.info("City active status updated. Id: " + id + ", active: " + active);
+            return Result.ok();
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", active ? "cities.activate.error" : "cities.delete.error");
+            log.error("Error while updating city active status. Id: " + id, ex);
             return Result.fail(errors);
 
         } finally {

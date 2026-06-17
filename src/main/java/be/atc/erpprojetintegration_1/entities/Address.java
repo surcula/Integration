@@ -4,6 +4,14 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllAddresses",
+                query = "SELECT a FROM Address a " +
+                        "JOIN FETCH a.city c " +
+                        "ORDER BY a.streetName, a.streetNumber"
+        )
+})
 @Entity
 @Table(name = "addresses")
 public class Address {

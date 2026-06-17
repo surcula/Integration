@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{cityEditBean.cityId}"/>
+    <f:viewAction action="#{cityEditBean.loadCity}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">
+        #{cityEditBean.createMode ? msg['cities.create.pageTitle'] : msg['cities.edit.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="bi bi-map"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['cities.section']}</p>
+                    <h1 class="h3 mb-1">
+                        #{cityEditBean.createMode ? msg['cities.create.title'] : msg['cities.edit.title']}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        #{cityEditBean.createMode ? msg['cities.create.subtitle'] : msg['cities.edit.subtitle']}
+                    </p>
+                </div>
+            </div>
+            <h:link outcome="/views/cities-admin" styleClass="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                <span>#{msg['common.back']}</span>
+            </h:link>
+        </div>
+
+        <h:panelGroup id="cityEditContent" layout="block">
+            <h:form id="cityForm" styleClass="panel" rendered="#{not empty cityEditBean.city}">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-map"></i>
+                            <span>#{msg['cities.form.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['cities.form.subtitle']}</p>
+                        <p class="text-muted small mb-0">#{msg['common.requiredFields']}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <h:outputLabel for="cityName" styleClass="form-label" value="#{msg['cities.name']} *"/>
+                        <h:inputText id="cityName"
+                                     styleClass="form-control city-edit-input city-edit-required"
+                                     value="#{cityEditBean.city.cityName}"
+                                     pt:data-required-message="#{msg['cities.error.name.required']}"
+                                     pt:data-length-message="#{msg['cities.error.name.length']}"
+                                     pt:data-min-length="1"
+                                     pt:data-max-length="100"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h:outputLabel for="zipCode" styleClass="form-label" value="#{msg['cities.zipCode']} *"/>
+                        <h:inputText id="zipCode"
+                                     styleClass="form-control city-edit-input city-edit-required city-edit-zip"
+                                     value="#{cityEditBean.city.zipCode}"
+                                     pt:data-required-message="#{msg['cities.error.zipCode.required']}"
+                                     pt:data-invalid-message="#{msg['cities.error.zipCode.invalid']}"/>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary city-edit-save-button"
+                                     value="#{msg['cities.save']}"
+                                     action="#{cityEditBean.save}"
+                                     onclick="return window.validateCityFormBeforeSubmit &amp;&amp; window.validateCityFormBeforeSubmit()"
+                                     oncomplete="window.initCityEditValidation &amp;&amp; window.initCityEditValidation()"
+                                     update=":cityEditContent :globalGrowl"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+
+        <script src="#{request.contextPath}/app-assets/js/city-edit-validation.js"></script>
+    </ui:define>
+</ui:composition>
+</html>

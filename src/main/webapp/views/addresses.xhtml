@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">#{msg['addresses.pageTitle']}</ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="bi bi-geo-alt"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['addresses.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['addresses.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['addresses.subtitle']}</p>
+                </div>
+            </div>
+            <h:link outcome="/views/address-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{authBean.hasPermission('address:create')}">
+                <i class="bi bi-plus-circle"></i>
+                <span>#{msg['addresses.add']}</span>
+            </h:link>
+        </div>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="addressesForm">
+                    <p:dataTable value="#{addressesBean.addresses}"
+                                 var="address"
+                                 widgetVar="addressesTable"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="both"
+                                 emptyMessage="#{msg['addresses.empty']}">
+
+                        <f:facet name="header">
+                            <div class="d-flex justify-content-end">
+                                <span class="p-input-icon-left employee-global-search">
+                                    <i class="bi bi-search"></i>
+                                    <p:inputText id="globalFilter"
+                                                 styleClass="form-control"
+                                                 onkeyup="PF('addressesTable').filter()"
+                                                 placeholder="#{msg['addresses.search']}"/>
+                                </span>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="#{msg['addresses.streetName']}"
+                                  sortBy="#{address.streetName}"
+                                  filterBy="#{address.streetName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            <strong>#{address.streetName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['addresses.streetNumber']}"
+                                  sortBy="#{address.streetNumber}"
+                                  filterBy="#{address.streetNumber}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{address.streetNumber}
+                        </p:column>
+
+                        <p:column headerText="#{msg['addresses.boxNumber']}"
+                                  filterBy="#{address.boxNumber}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{empty address.boxNumber ? '-' : address.boxNumber}
+                        </p:column>
+
+                        <p:column headerText="#{msg['addresses.city']}"
+                                  sortBy="#{address.city.cityName}"
+                                  filterBy="#{address.city.cityName}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{address.city.cityName}
+                        </p:column>
+
+                        <p:column headerText="#{msg['addresses.zipCode']}"
+                                  sortBy="#{address.city.zipCode}"
+                                  filterBy="#{address.city.zipCode}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display:none">
+                            #{address.city.zipCode}
+                        </p:column>
+
+                        <p:column headerText="#{msg['addresses.status']}"
+                                  sortBy="#{address.isActive}"
+                                  rendered="#{authBean.hasPermission('address:delete')}">
+                            <span class="#{address.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{address.isActive ? msg['addresses.status.active'] : msg['addresses.status.inactive']}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['addresses.action']}"
+                                  rendered="#{authBean.hasPermission('address:edit') or authBean.hasPermission('address:delete')}">
+                            <h:link outcome="/views/address-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['addresses.edit']}"
+                                    rendered="#{authBean.hasPermission('address:edit')}">
+                                <i class="bi bi-pencil"></i>
+                                <span class="visually-hidden">#{msg['addresses.edit']}</span>
+                                <f:param name="id" value="#{address.id}"/>
+                            </h:link>
+
+                            <p:commandLink styleClass="#{address.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                           title="#{address.isActive ? msg['addresses.delete'] : msg['addresses.activate']}"
+                                           rendered="#{authBean.hasPermission('address:delete')}"
+                                           action="#{addressesBean.changeAddressActiveStatus(address.id, address.isActive)}"
+                                           process="@this"
+                                           immediate="true"
+                                           update="@form :globalGrowl">
+                                <i class="#{address.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
+                                <span class="visually-hidden">
+                                    #{address.isActive ? msg['addresses.delete'] : msg['addresses.activate']}
+                                </span>
+                                <p:confirm header="#{address.isActive ? msg['addresses.delete'] : msg['addresses.activate']}"
+                                           message="#{address.isActive ? msg['addresses.delete.confirm'] : msg['addresses.activate.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"
+                                         icon="pi pi-check"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-secondary"
+                                         icon="pi pi-times"/>
+                    </p:confirmDialog>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

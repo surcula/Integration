@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
     <ui:define name="title">#{msg['nav.absences']} | ERP RH</ui:define>
@@ -11,10 +14,283 @@
                 <div>
                     <p class="eyebrow mb-1">#{msg['nav.timePlanning']}</p>
                     <h1 class="h3 mb-1">#{msg['nav.absences']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+                    <p class="text-muted mb-0">Demandes, justificatifs et validation des absences.</p>
                 </div>
             </div>
+            <h:form>
+                <p:commandButton value="Nouvelle demande" icon="bi bi-plus-circle" styleClass="btn btn-primary"
+                                 process="@this" actionListener="#{absencesBean.prepareNew}"
+                                 update=":absenceForm:absenceDialog" oncomplete="PF('absenceDialogWidget').show();"/>
+            </h:form>
         </div>
+
+        <div class="panel">
+            <div class="absence-summary" aria-label="Resume des demandes d'absence">
+                <div class="absence-summary-item absence-summary-pending">
+                    <span class="absence-summary-icon"><i class="bi bi-clock" aria-hidden="true"></i></span>
+                    <div>
+                        <strong>#{absencesBean.pendingCount}</strong>
+                        <span>En attente</span>
+                    </div>
+                </div>
+                <div class="absence-summary-item absence-summary-approved">
+                    <span class="absence-summary-icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span>
+                    <div>
+                        <strong>#{absencesBean.approvedCount}</strong>
+                        <span>Approuvees</span>
+                    </div>
+                </div>
+                <div class="absence-summary-item absence-summary-refused">
+                    <span class="absence-summary-icon"><i class="bi bi-x-circle" aria-hidden="true"></i></span>
+                    <div>
+                        <strong>#{absencesBean.refusedCount}</strong>
+                        <span>Refusees</span>
+                    </div>
+                </div>
+            </div>
+
+            <h:form id="absenceForm" enctype="multipart/form-data">
+                <p:dataTable id="absenceTable" value="#{absencesBean.absences}" var="absence"
+                             widgetVar="absenceTableWidget" paginator="true" rows="10"
+                             styleClass="table align-middle mb-0 erp-data-table"
+                             emptyMessage="Aucune demande d'absence.">
+                    <p:column headerText="Employe" sortBy="#{absence.employee.lastName}"
+                              filterBy="#{absence.employee.firstName} #{absence.employee.lastName}" filterMatchMode="contains">
+                        <f:facet name="filter">
+                            <p:selectOneMenu editable="true"
+                                             rendered="#{authBean.hrOrAdmin or absencesBean.departmentHead}"
+                                             onchange="PF('absenceTableWidget').filter()"
+                                             styleClass="absence-filter-select">
+                                <f:selectItem itemLabel="Tous les employes" itemValue=""/>
+                                <f:selectItems value="#{absencesBean.absenceEmployeeNames}"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                        <strong>#{absence.employee.firstName} #{absence.employee.lastName}</strong>
+                    </p:column>
+                    <p:column headerText="Type" sortBy="#{absence.type.label}" filterBy="#{absence.type.label}" filterMatchMode="contains">
+                        <f:facet name="filter">
+                            <p:selectOneMenu editable="true"
+                                             onchange="PF('absenceTableWidget').filter()"
+                                             styleClass="absence-filter-select">
+                                <f:selectItem itemLabel="Tous les types" itemValue=""/>
+                                <f:selectItems value="#{absencesBean.types}" var="absenceType"
+                                               itemLabel="#{absenceType.label}" itemValue="#{absenceType.label}"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                        #{absence.type.label}
+                    </p:column>
+                    <p:column headerText="Periode" sortBy="#{absence.startDate}">
+                        <h:outputText value="#{absence.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText>
+                        <h:panelGroup rendered="#{absence.endDate ne absence.startDate}">
+                            au <h:outputText value="#{absence.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText>
+                        </h:panelGroup>
+                        <div class="text-muted small">
+                            <h:outputText value="Journee complete" rendered="#{absence.allDay}"/>
+                            <h:panelGroup rendered="#{not absence.allDay}">
+                                <h:outputText value="#{absence.startHour}"><f:convertDateTime type="localTime" pattern="HH:mm"/></h:outputText>
+                                - <h:outputText value="#{absence.endHour}"><f:convertDateTime type="localTime" pattern="HH:mm"/></h:outputText>
+                            </h:panelGroup>
+                        </div>
+                    </p:column>
+                    <p:column headerText="Justificatif">
+                        <h:panelGroup rendered="#{not empty absence.documentName and absencesBean.canAccessDocument}">
+                            <h:outputLink value="#{request.contextPath}/absence-document"
+                                          target="_blank" title="Consulter"
+                                          styleClass="btn btn-sm btn-outline-primary">
+                                <f:param name="id" value="#{absence.id}"/>
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </h:outputLink>
+                            <h:outputLink value="#{request.contextPath}/absence-document"
+                                          title="Telecharger"
+                                          styleClass="btn btn-sm btn-outline-secondary ms-2">
+                                <f:param name="id" value="#{absence.id}"/>
+                                <f:param name="download" value="true"/>
+                                <i class="bi bi-download" aria-hidden="true"></i>
+                            </h:outputLink>
+                        </h:panelGroup>
+                        <h:outputText value="Déposé" styleClass="status-badge status-badge-active"
+                                      rendered="#{not empty absence.documentName and not absencesBean.canAccessDocument}"/>
+                        <h:outputText value="-" rendered="#{empty absence.documentName}"/>
+                    </p:column>
+                    <p:column headerText="Statut" sortBy="#{absence.status.label}" filterBy="#{absence.status.label}" filterMatchMode="contains">
+                        <f:facet name="filter">
+                            <p:selectOneMenu editable="true"
+                                             onchange="PF('absenceTableWidget').filter()"
+                                             styleClass="absence-filter-select">
+                                <f:selectItem itemLabel="Tous les statuts" itemValue=""/>
+                                <f:selectItems value="#{absencesBean.statuses}" var="absenceStatus"
+                                               itemLabel="#{absenceStatus.label}" itemValue="#{absenceStatus.label}"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                        <span class="#{absencesBean.statusClass(absence)}">#{absence.status.label}</span>
+                    </p:column>
+                    <p:column headerText="Actions" style="white-space: nowrap">
+                        <p:commandButton icon="bi bi-eye" title="Consulter" styleClass="btn btn-sm btn-outline-primary"
+                                         process="@this" actionListener="#{absencesBean.edit(absence)}"
+                                         update=":absenceForm:absenceDialog" oncomplete="PF('absenceDialogWidget').show();"/>
+                        <p:commandButton icon="bi bi-x-circle" title="Annuler" styleClass="btn btn-sm btn-outline-danger ms-2"
+                                         rendered="#{absencesBean.canCancel(absence)}" process="@this"
+                                         actionListener="#{absencesBean.cancel(absence)}" update="@form :globalGrowl">
+                            <p:confirm header="Confirmation" message="Annuler cette demande ?" icon="bi bi-exclamation-triangle"/>
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+
+                <p:dialog id="absenceDialog" widgetVar="absenceDialogWidget" header="Demande d'absence"
+                          modal="true" responsive="true" width="760" closeOnEscape="true">
+                    <div class="row g-3">
+                        <h:panelGroup layout="block" styleClass="col-md-6" rendered="#{authBean.hrOrAdmin}">
+                            <p:outputLabel for="employee" value="Employe"/>
+                            <p:selectOneMenu id="employee" value="#{absencesBean.selectedEmployeeId}" styleClass="w-100"
+                                             disabled="#{not absencesBean.canEditSelected}">
+                                <f:selectItem itemLabel="Selectionner" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{absencesBean.employees}" var="employee"
+                                               itemLabel="#{employee.fullName}" itemValue="#{employee.id}"/>
+                            </p:selectOneMenu>
+                        </h:panelGroup>
+                        <div class="#{authBean.hrOrAdmin ? 'col-md-6' : 'col-12'}">
+                            <p:outputLabel for="type" value="Type d'absence"/>
+                            <p:selectOneMenu id="type" value="#{absencesBean.selectedAbsence.type}" styleClass="w-100"
+                                             disabled="#{not absencesBean.canEditSelected}">
+                                <f:selectItem itemLabel="Selectionner" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{absencesBean.types}" var="type" itemLabel="#{type.label}" itemValue="#{type}"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="col-md-6">
+                            <p:outputLabel for="startDate" value="Date de debut"/>
+                            <p:datePicker id="startDate" value="#{absencesBean.selectedAbsence.startDate}" pattern="dd/MM/yyyy"
+                                          showIcon="true" styleClass="w-100" disabled="#{not absencesBean.canEditSelected}"/>
+                        </div>
+                        <div class="col-md-6">
+                            <p:outputLabel for="endDate" value="Date de fin"/>
+                            <p:datePicker id="endDate" value="#{absencesBean.selectedAbsence.endDate}" pattern="dd/MM/yyyy"
+                                          showIcon="true" styleClass="w-100" disabled="#{not absencesBean.canEditSelected}"/>
+                        </div>
+                        <div class="col-12">
+                            <p:selectBooleanCheckbox id="allDay" value="#{absencesBean.selectedAbsence.allDay}"
+                                                     itemLabel="Journee complete" disabled="#{not absencesBean.canEditSelected}">
+                                <p:ajax update="hoursPanel"/>
+                            </p:selectBooleanCheckbox>
+                        </div>
+                        <h:panelGroup id="hoursPanel" layout="block" styleClass="row g-3">
+                            <h:panelGroup layout="block" styleClass="col-md-6" rendered="#{not absencesBean.selectedAbsence.allDay}">
+                                <p:outputLabel for="startHour" value="Heure de debut"/>
+                                <p:datePicker id="startHour" value="#{absencesBean.selectedAbsence.startHour}" timeOnly="true"
+                                              pattern="HH:mm" stepMinute="15" styleClass="w-100"/>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="col-md-6" rendered="#{not absencesBean.selectedAbsence.allDay}">
+                                <p:outputLabel for="endHour" value="Heure de fin"/>
+                                <p:datePicker id="endHour" value="#{absencesBean.selectedAbsence.endHour}" timeOnly="true"
+                                              pattern="HH:mm" stepMinute="15" styleClass="w-100"/>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                        <div class="col-md-6">
+                            <p:outputLabel for="reason" value="Motif court"/>
+                            <p:inputText id="reason" value="#{absencesBean.selectedAbsence.reason}" maxlength="100"
+                                         styleClass="form-control" disabled="#{not absencesBean.canEditSelected}"/>
+                        </div>
+                        <div class="col-md-6">
+                            <p:fileUpload id="document" value="#{absencesBean.document}" mode="simple" skinSimple="true"
+                                          label="Justificatif"
+                                          disabled="#{not absencesBean.canEditSelected}"/>
+                            <h:panelGroup layout="block" styleClass="absence-document-existing"
+                                          rendered="#{not empty absencesBean.selectedAbsence.documentName and absencesBean.canAccessDocument}">
+                                <h:outputText styleClass="absence-document-name"
+                                              value="#{absencesBean.selectedAbsence.documentName}"/>
+                                <h:outputLink value="#{request.contextPath}/absence-document"
+                                              target="_blank" title="Consulter"
+                                              styleClass="btn btn-sm btn-outline-primary">
+                                    <f:param name="id" value="#{absencesBean.selectedAbsence.id}"/>
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
+                                </h:outputLink>
+                                <h:outputLink value="#{request.contextPath}/absence-document"
+                                              title="Telecharger"
+                                              styleClass="btn btn-sm btn-outline-secondary">
+                                    <f:param name="id" value="#{absencesBean.selectedAbsence.id}"/>
+                                    <f:param name="download" value="true"/>
+                                    <i class="bi bi-download" aria-hidden="true"></i>
+                                </h:outputLink>
+                                <p:commandButton value="Valider le certificat" icon="pi pi-check-circle"
+                                                 styleClass="ui-button-success"
+                                                 rendered="#{absencesBean.canValidateCertificate}"
+                                                 action="#{absencesBean.validateCertificate}"
+                                                 process="@this" update="absenceDialog :globalGrowl"/>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="mt-2"
+                                          rendered="#{not empty absencesBean.selectedAbsence.documentName and not absencesBean.canAccessDocument}">
+                                <span class="status-badge status-badge-active">Justificatif déposé</span>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="mt-2"
+                                          rendered="#{not empty absencesBean.selectedAbsence.type and absencesBean.selectedAbsence.type.toString() eq 'SICKNESS' and absencesBean.selectedAbsence.certificateValidated}">
+                                <span class="status-badge status-badge-active">Certificat validé par la RH</span>
+                            </h:panelGroup>
+                        </div>
+                        <div class="col-12">
+                            <p:outputLabel for="comment" value="Commentaire"/>
+                            <p:inputTextarea id="comment" value="#{absencesBean.selectedAbsence.comment}" rows="3"
+                                             autoResize="false" styleClass="form-control" disabled="#{not absencesBean.canEditSelected}"/>
+                        </div>
+                        <h:panelGroup layout="block" styleClass="col-12 absence-review-box"
+                                      rendered="#{absencesBean.selectedAbsence.id ne null and (absencesBean.canReviewSelected or absencesBean.selectedAbsence.reviewComment ne null)}">
+                            <h:panelGroup rendered="#{absencesBean.canReviewSelected}">
+                                <p:outputLabel for="reviewComment" value="Commentaire de validation"/>
+                                <p:inputTextarea id="reviewComment" value="#{absencesBean.reviewComment}" rows="3" autoResize="false"
+                                                 styleClass="form-control"/>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="absence-review-content"
+                                          rendered="#{not absencesBean.canReviewSelected}">
+                                <div class="absence-review-heading">
+                                    <span class="absence-review-icon"><i class="bi bi-chat-left-text" aria-hidden="true"></i></span>
+                                    <div>
+                                        <strong>Commentaire de validation</strong>
+                                        <h:panelGroup layout="block" styleClass="absence-review-meta"
+                                                      rendered="#{absencesBean.selectedAbsence.reviewer ne null}">
+                                            #{absencesBean.selectedAbsence.reviewer.firstName} #{absencesBean.selectedAbsence.reviewer.lastName}
+                                            <h:panelGroup rendered="#{absencesBean.selectedAbsence.reviewedAt ne null}">
+                                                - <h:outputText value="#{absencesBean.selectedAbsence.reviewedAt}">
+                                                    <f:convertDateTime type="localDateTime" pattern="dd/MM/yyyy HH:mm"/>
+                                                </h:outputText>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                                <h:outputText styleClass="absence-review-text"
+                                              value="#{empty absencesBean.selectedAbsence.reviewComment ? 'Aucun commentaire ajoute.' : absencesBean.selectedAbsence.reviewComment}"/>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </div>
+                    <f:facet name="footer">
+                        <h:panelGroup rendered="#{absencesBean.canEditSelected}">
+                            <p:commandButton value="Brouillon" icon="bi bi-save" styleClass="btn btn-outline-primary"
+                                             action="#{absencesBean.saveDraft}" ajax="false"/>
+                            <p:commandButton value="Envoyer" icon="bi bi-send" styleClass="btn btn-primary ms-2"
+                                             action="#{absencesBean.submit}" ajax="false"/>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{absencesBean.canReviewSelected}">
+                            <p:commandButton value="Refuser" icon="bi bi-x-lg" styleClass="btn btn-outline-danger"
+                                             action="#{absencesBean.refuse}" process="absenceDialog" update="@form :globalGrowl"/>
+                            <p:commandButton value="Approuver" icon="bi bi-check2" styleClass="btn btn-success ms-2"
+                                             disabled="#{not absencesBean.canApproveSelected}"
+                                             action="#{absencesBean.approve}" process="absenceDialog" update="@form :globalGrowl"/>
+                        </h:panelGroup>
+                    </f:facet>
+                </p:dialog>
+                <p:confirmDialog global="true" responsive="true">
+                    <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes btn btn-danger"/>
+                    <p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no btn btn-outline-secondary"/>
+                </p:confirmDialog>
+            </h:form>
+        </div>
+
+    </ui:define>
+    <ui:define name="scripts">
+        <ui:fragment rendered="#{not empty absencesBean.approvedVacationCelebrationKey}">
+            <script>
+                window.setTimeout(function () {
+                    window.launchApprovedVacationConfetti('#{absencesBean.approvedVacationCelebrationKey}');
+                }, 300);
+            </script>
+        </ui:fragment>
     </ui:define>
 </ui:composition>
 </html>

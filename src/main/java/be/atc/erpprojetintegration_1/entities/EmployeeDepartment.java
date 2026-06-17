@@ -29,6 +29,22 @@ import java.time.LocalDate;
                         "AND e.isActive = true " +
                         "AND d.isActive = true " +
                         "ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
+                name = "getAllEmployeeDepartments",
+                query = "SELECT ed FROM EmployeeDepartment ed " +
+                        "JOIN FETCH ed.employee e JOIN FETCH ed.department d " +
+                        "ORDER BY ed.isActive DESC, e.lastName, e.firstName, ed.startDate DESC"
+        ),
+        @NamedQuery(
+                name = "getEmployeeDepartmentById",
+                query = "SELECT ed FROM EmployeeDepartment ed " +
+                        "JOIN FETCH ed.employee JOIN FETCH ed.department WHERE ed.id = :id"
+        ),
+        @NamedQuery(
+                name = "closeActiveEmployeeDepartments",
+                query = "UPDATE EmployeeDepartment ed SET ed.isActive = false, ed.endDate = :endDate " +
+                        "WHERE ed.employee.id = :employeeId AND ed.isActive = true"
         )
 })
 @Entity

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{jobOfferDetailBean.jobOfferId}"/>
+    <f:viewAction action="#{jobOfferDetailBean.loadJobOffer}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">#{msg['jobOffers.detail.pageTitle']}</ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="pi pi-briefcase"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['jobOffers.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['jobOffers.detail.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['jobOffers.detail.subtitle']}</p>
+                </div>
+            </div>
+            <p:button outcome="/views/job-offers-public"
+                      styleClass="btn btn-outline-secondary"
+                      icon="pi pi-arrow-left"
+                      value="#{msg['jobOffers.public.back']}"/>
+        </div>
+
+        <h:panelGroup layout="block" styleClass="alert alert-warning"
+                      rendered="#{empty jobOfferDetailBean.jobOffer}">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>#{msg['jobOffers.detail.notAvailable']}</span>
+        </h:panelGroup>
+
+        <h:panelGroup layout="block" styleClass="panel" rendered="#{not empty jobOfferDetailBean.jobOffer}">
+            <div class="panel-header">
+                <div>
+                    <h2 class="h4 mb-2">#{jobOfferDetailBean.jobOffer.jobOfferName}</h2>
+                    <p class="text-muted mb-0">
+                        <i class="pi pi-id-card"></i>
+                        <span>#{jobOfferDetailBean.jobOffer.function.functionName}</span>
+                    </p>
+                </div>
+            </div>
+
+            <h:panelGroup layout="block"
+                          styleClass="mb-4"
+                          rendered="#{not empty jobOfferDetailBean.jobOffer.publishStartDate
+                                      or not empty jobOfferDetailBean.jobOffer.publishEndDate
+                                      or not empty jobOfferDetailBean.jobOffer.duration
+                                      or not empty jobOfferDetailBean.jobOffer.numberOfOpenPositions}">
+                <h:panelGroup rendered="#{not empty jobOfferDetailBean.jobOffer.publishStartDate}"
+                              styleClass="text-muted">
+                    <i class="pi pi-calendar"></i>
+                    <span>#{msg['jobOffers.publishStartDate']} : #{jobOfferDetailBean.formatDate(jobOfferDetailBean.jobOffer.publishStartDate)}</span>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{not empty jobOfferDetailBean.jobOffer.publishEndDate}"
+                              styleClass="text-muted ms-3">
+                    <i class="pi pi-calendar-times"></i>
+                    <span>#{msg['jobOffers.publishEndDate']} : #{jobOfferDetailBean.formatDate(jobOfferDetailBean.jobOffer.publishEndDate)}</span>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{not empty jobOfferDetailBean.jobOffer.duration}"
+                              styleClass="text-muted ms-3">
+                    <i class="pi pi-clock"></i>
+                    <span>#{msg['jobOffers.workRegime']} : #{jobOfferDetailBean.jobOffer.duration}</span>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{not empty jobOfferDetailBean.jobOffer.numberOfOpenPositions}"
+                              styleClass="text-muted ms-3">
+                    <i class="pi pi-users"></i>
+                    <span>#{msg['jobOffers.openPositions']} : #{jobOfferDetailBean.jobOffer.numberOfOpenPositions}</span>
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" rendered="#{not empty jobOfferDetailBean.jobOffer.description}">
+                <h3 class="h5 mb-3">#{msg['jobOffers.description']}</h3>
+                <p class="mb-0">
+                    #{jobOfferDetailBean.jobOffer.description}
+                </p>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" rendered="#{not empty jobOfferDetailBean.jobOffer.jobDescription}">
+                <h3 class="h5 mt-4 mb-3">#{msg['jobOffers.jobDescription']}</h3>
+                <p class="mb-0">
+                    #{jobOfferDetailBean.jobOffer.jobDescription}
+                </p>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" rendered="#{not empty jobOfferDetailBean.jobOffer.profil}">
+                <h3 class="h5 mt-4 mb-3">#{msg['jobOffers.profil']}</h3>
+                <p class="mb-0">
+                    #{jobOfferDetailBean.jobOffer.profil}
+                </p>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" rendered="#{not empty jobOfferDetailBean.jobOffer.requirements}">
+                <h3 class="h5 mt-4 mb-3">#{msg['jobOffers.requirements']}</h3>
+                <p class="mb-0">
+                    #{jobOfferDetailBean.jobOffer.requirements}
+                </p>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" rendered="#{not empty jobOfferDetailBean.jobOffer.comments}">
+                <h3 class="h5 mt-4 mb-3">#{msg['jobOffers.additionalInfo']}</h3>
+                <p class="mb-0">
+                    #{jobOfferDetailBean.jobOffer.comments}
+                </p>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block"
+                          rendered="#{not empty jobOfferDetailBean.jobOffer.contact
+                                      or not empty jobOfferDetailBean.jobOffer.email}">
+                <h3 class="h5 mt-4 mb-3">#{msg['jobOffers.contactBlock']}</h3>
+                <h:panelGroup layout="block" rendered="#{not empty jobOfferDetailBean.jobOffer.contact}">
+                    <p class="mb-1">
+                        <i class="pi pi-user"></i>
+                        <span>#{jobOfferDetailBean.jobOffer.contact}</span>
+                    </p>
+                </h:panelGroup>
+                <h:panelGroup layout="block" rendered="#{not empty jobOfferDetailBean.jobOffer.email}">
+                    <p class="mb-0">
+                        <i class="pi pi-envelope"></i>
+                        <span>#{jobOfferDetailBean.jobOffer.email}</span>
+                    </p>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:panelGroup>
+    </ui:define>
+</ui:composition>
+</html>

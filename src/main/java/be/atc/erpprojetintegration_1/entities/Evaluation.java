@@ -1,5 +1,7 @@
 package be.atc.erpprojetintegration_1.entities;
 
+import be.atc.erpprojetintegration_1.enums.EvaluationStatus;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -47,6 +49,11 @@ public class Evaluation {
 
     @Column(name = "self_global_score", precision = 10, scale = 2)
     private BigDecimal selfGlobalScore;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    private EvaluationStatus status;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -128,6 +135,14 @@ public class Evaluation {
 
     public void setSelfGlobalScore(BigDecimal selfGlobalScore) {
         this.selfGlobalScore = selfGlobalScore;
+    }
+
+    public EvaluationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EvaluationStatus status) {
+        this.status = status;
     }
 
     public Employee getEvaluator() {

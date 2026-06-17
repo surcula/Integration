@@ -1,20 +1,223 @@
-<!DOCTYPE html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-    <ui:define name="title">#{msg['nav.applications']} | ERP RH</ui:define>
+    <ui:define name="title">#{msg['candidates.pageTitle']}</ui:define>
+
     <ui:define name="content">
         <div class="page-heading">
             <div class="page-heading-copy">
-                <span class="page-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
+                <span class="page-icon"><i class="pi pi-users"></i></span>
                 <div>
-                    <p class="eyebrow mb-1">#{msg['nav.recruitment']}</p>
-                    <h1 class="h3 mb-1">#{msg['nav.applications']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+                    <p class="eyebrow mb-1">#{msg['candidates.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['candidates.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['candidates.subtitle']}</p>
                 </div>
             </div>
+            <h:link outcome="/views/candidate-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                <i class="pi pi-plus-circle"></i>
+                <span>#{msg['candidates.add']}</span>
+            </h:link>
         </div>
+
+        <h:panelGroup layout="block"
+                      rendered="#{not (authBean.hasRole('ADMIN') or authBean.hasRole('HR'))}"
+                      styleClass="alert alert-warning">
+            <i class="pi pi-lock"></i>
+            <span>#{msg['candidates.access.denied']}</span>
+        </h:panelGroup>
+
+        <h:panelGroup layout="block" rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+        <h:form id="candidateStatsForm">
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-xl">
+                <p:commandLink styleClass="candidate-card-link"
+                               action="#{candidatesBean.clearStatusFilter}"
+                               update=":candidateStatsForm :applicationsTableForm:applicationsTable">
+                    <div class="candidate-stat-card candidate-card-all #{candidatesBean.allStatusesSelected ? 'candidate-card-selected' : ''}">
+                        <p class="text-muted mb-1">#{msg['candidates.stats.all']}</p>
+                        <strong class="h3 mb-0">#{candidatesBean.applicationsCount}</strong>
+                    </div>
+                </p:commandLink>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <p:commandLink styleClass="candidate-card-link"
+                               action="#{candidatesBean.toggleStatusFilter(candidatesBean.receivedStatus)}"
+                               update=":candidateStatsForm :applicationsTableForm:applicationsTable">
+                    <div class="candidate-stat-card candidate-card-pending #{candidatesBean.isStatusSelected(candidatesBean.receivedStatus) ? 'candidate-card-selected' : ''}">
+                        <p class="text-muted mb-1">#{msg['candidates.stats.received']}</p>
+                        <strong class="h3 mb-0">#{candidatesBean.countByStatus(candidatesBean.receivedStatus)}</strong>
+                    </div>
+                </p:commandLink>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <p:commandLink styleClass="candidate-card-link"
+                               action="#{candidatesBean.toggleStatusFilter(candidatesBean.underReviewStatus)}"
+                               update=":candidateStatsForm :applicationsTableForm:applicationsTable">
+                    <div class="candidate-stat-card candidate-card-review #{candidatesBean.isStatusSelected(candidatesBean.underReviewStatus) ? 'candidate-card-selected' : ''}">
+                        <p class="text-muted mb-1">#{msg['candidates.stats.underReview']}</p>
+                        <strong class="h3 mb-0">#{candidatesBean.countByStatus(candidatesBean.underReviewStatus)}</strong>
+                    </div>
+                </p:commandLink>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <p:commandLink styleClass="candidate-card-link"
+                               action="#{candidatesBean.toggleStatusFilter(candidatesBean.interviewStatus)}"
+                               update=":candidateStatsForm :applicationsTableForm:applicationsTable">
+                    <div class="candidate-stat-card candidate-card-interview #{candidatesBean.isStatusSelected(candidatesBean.interviewStatus) ? 'candidate-card-selected' : ''}">
+                        <p class="text-muted mb-1">#{msg['candidates.stats.interview']}</p>
+                        <strong class="h3 mb-0">#{candidatesBean.countByStatus(candidatesBean.interviewStatus)}</strong>
+                    </div>
+                </p:commandLink>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <p:commandLink styleClass="candidate-card-link"
+                               action="#{candidatesBean.toggleStatusFilter(candidatesBean.acceptedStatus)}"
+                               update=":candidateStatsForm :applicationsTableForm:applicationsTable">
+                    <div class="candidate-stat-card candidate-card-accepted #{candidatesBean.isStatusSelected(candidatesBean.acceptedStatus) ? 'candidate-card-selected' : ''}">
+                        <p class="text-muted mb-1">#{msg['candidates.stats.accepted']}</p>
+                        <strong class="h3 mb-0">#{candidatesBean.countByStatus(candidatesBean.acceptedStatus)}</strong>
+                    </div>
+                </p:commandLink>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <p:commandLink styleClass="candidate-card-link"
+                               action="#{candidatesBean.toggleStatusFilter(candidatesBean.rejectedStatus)}"
+                               update=":candidateStatsForm :applicationsTableForm:applicationsTable">
+                    <div class="candidate-stat-card candidate-card-rejected #{candidatesBean.isStatusSelected(candidatesBean.rejectedStatus) ? 'candidate-card-selected' : ''}">
+                        <p class="text-muted mb-1">#{msg['candidates.stats.rejected']}</p>
+                        <strong class="h3 mb-0">#{candidatesBean.countByStatus(candidatesBean.rejectedStatus)}</strong>
+                    </div>
+                </p:commandLink>
+            </div>
+            <div class="col-12 col-md-6 col-xl">
+                <p:commandLink styleClass="candidate-card-link"
+                               action="#{candidatesBean.toggleStatusFilter(candidatesBean.archivedStatus)}"
+                               update=":candidateStatsForm :applicationsTableForm:applicationsTable">
+                    <div class="candidate-stat-card candidate-card-archived #{candidatesBean.isStatusSelected(candidatesBean.archivedStatus) ? 'candidate-card-selected' : ''}">
+                        <p class="text-muted mb-1">#{msg['candidates.stats.archived']}</p>
+                        <strong class="h3 mb-0">#{candidatesBean.countByStatus(candidatesBean.archivedStatus)}</strong>
+                    </div>
+                </p:commandLink>
+            </div>
+        </div>
+        </h:form>
+
+        <h:form id="applicationsFilters" styleClass="panel mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-10">
+                    <h:outputLabel for="keyword" styleClass="form-label" value="#{msg['candidates.search']}"/>
+                    <p:inputText id="keyword"
+                                 styleClass="form-control"
+                                 value="#{candidatesBean.keyword}"
+                                 placeholder="#{msg['candidates.search.placeholder']}"/>
+                </div>
+                <div class="col-12 col-md-2">
+                    <p:commandButton styleClass="btn btn-primary w-100"
+                                     icon="pi pi-search"
+                                     value="#{msg['candidates.filter']}"
+                                     action="#{candidatesBean.filterApplications}"
+                                     update=":applicationsTableForm:applicationsTable"/>
+                </div>
+            </div>
+        </h:form>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="applicationsTableForm">
+                    <p:dataTable id="applicationsTable"
+                                 value="#{candidatesBean.filteredApplications}"
+                                 var="applicationItem"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="bottom"
+                                 emptyMessage="#{msg['candidates.empty']}">
+
+                        <p:column headerText="#{msg['candidates.lastName']}" sortBy="#{applicationItem.candidate.lastName}">
+                            <strong>#{applicationItem.candidate.lastName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.firstName']}" sortBy="#{applicationItem.candidate.firstName}">
+                            #{applicationItem.candidate.firstName}
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.jobOffer']}" sortBy="#{applicationItem.jobOfferName}">
+                            #{applicationItem.jobOfferName}
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.applicationDate']}" sortBy="#{applicationItem.applicationDate}">
+                            #{candidatesBean.formatDate(applicationItem.applicationDate)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.applicationStatus']}" sortBy="#{applicationItem.applicationStatus}">
+                            <span class="#{candidatesBean.getStatusBadgeClass(applicationItem.applicationStatus)}">
+                                #{candidatesBean.getStatusLabel(applicationItem.applicationStatus)}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.email']}" sortBy="#{applicationItem.candidate.email}">
+                            #{applicationItem.candidate.email}
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.phone']}" sortBy="#{applicationItem.candidate.phone}">
+                            #{applicationItem.candidate.phone}
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.activeStatus']}" sortBy="#{applicationItem.isActive}">
+                            <span class="#{applicationItem.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{applicationItem.isActive ? msg['candidates.active'] : msg['candidates.inactive']}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['candidates.action']}"
+                                  rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                            <h:link outcome="/views/candidate-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['candidates.edit']}">
+                                <i class="pi pi-pencil"></i>
+                                <span class="visually-hidden">#{msg['candidates.edit']}</span>
+                                <f:param name="id" value="#{applicationItem.id}"/>
+                            </h:link>
+
+                            <p:commandLink styleClass="btn btn-sm btn-outline-danger ms-2"
+                                           title="#{msg['candidates.delete']}"
+                                           action="#{candidatesBean.softDelete(applicationItem.id)}"
+                                           rendered="#{applicationItem.isActive}"
+                                           process="@this"
+                                           update="@form :globalGrowl">
+                                <i class="pi pi-trash"></i>
+                                <span class="visually-hidden">#{msg['candidates.delete']}</span>
+                                <p:confirm header="#{msg['candidates.delete']}"
+                                           message="#{msg['candidates.delete.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"
+                                         icon="pi pi-check"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-secondary"
+                                         icon="pi pi-times"/>
+                    </p:confirmDialog>
+                </h:form>
+            </div>
+        </div>
+        </h:panelGroup>
     </ui:define>
 </ui:composition>
 </html>

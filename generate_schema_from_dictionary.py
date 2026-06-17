@@ -177,6 +177,157 @@ def parse_dictionary():
     return cleaned_tables
 
 
+def apply_manual_schema_overrides(tables):
+    columns_by_table = {
+        table["name"]: {column["name"] for column in table["columns"]}
+        for table in tables
+    }
+
+    manual_columns = {
+        "evaluations": {
+            "source": "status",
+            "type": "VARCHAR",
+            "length": 50,
+            "description": "Evaluation workflow status",
+            "not_null": True,
+            "default": "CREATED",
+            "pk": False,
+            "unique": False,
+            "auto_increment": False,
+            "fk": False,
+            "name": "status",
+        },
+        "evaluations_objectives": {
+            "source": "status",
+            "type": "VARCHAR",
+            "length": 50,
+            "description": "Evaluation objective workflow status",
+            "not_null": True,
+            "default": "TO_DO",
+            "pk": False,
+            "unique": False,
+            "auto_increment": False,
+            "fk": False,
+            "name": "status",
+        },
+        "job_offers": [
+            {
+                "source": "email",
+                "type": "VARCHAR",
+                "length": 150,
+                "description": "Job offer contact email",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "email",
+            },
+            {
+                "source": "contact",
+                "type": "VARCHAR",
+                "length": 150,
+                "description": "Job offer contact person",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "contact",
+            },
+            {
+                "source": "duration",
+                "type": "VARCHAR",
+                "length": 100,
+                "description": "Job offer duration",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "duration",
+            },
+            {
+                "source": "number_of_open_positions",
+                "type": "INT",
+                "length": None,
+                "description": "Number of open positions",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "number_of_open_positions",
+            },
+            {
+                "source": "profil",
+                "type": "TEXT",
+                "length": None,
+                "description": "Expected candidate profile",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "profil",
+            },
+            {
+                "source": "job_description",
+                "type": "TEXT",
+                "length": None,
+                "description": "Job description",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "job_description",
+            },
+            {
+                "source": "requirements",
+                "type": "TEXT",
+                "length": None,
+                "description": "Job requirements",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "requirements",
+            },
+            {
+                "source": "comments",
+                "type": "TEXT",
+                "length": None,
+                "description": "Internal comments",
+                "not_null": False,
+                "default": None,
+                "pk": False,
+                "unique": False,
+                "auto_increment": False,
+                "fk": False,
+                "name": "comments",
+            },
+        ],
+    }
+
+    for table in tables:
+        column = manual_columns.get(table["name"])
+        if isinstance(column, list):
+            for item in column:
+                if item["name"] not in columns_by_table[table["name"]]:
+                    table["columns"].append(item)
+        elif column and column["name"] not in columns_by_table[table["name"]]:
+            table["columns"].append(column)
+
+
 def build_foreign_key_reference(table_names, pk_by_table, column):
     source = column["source"].lower().replace("addresse", "address")
     description = column["description"].lower().replace("addresse", "address")
@@ -330,6 +481,7 @@ def generate_sql(tables):
 
 def main():
     tables = parse_dictionary()
+    apply_manual_schema_overrides(tables)
     OUTPUT.write_text(generate_sql(tables), encoding="utf-8")
     print(f"Created {OUTPUT}")
     print(f"Tables: {len(tables)}")

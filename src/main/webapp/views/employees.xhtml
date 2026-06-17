@@ -15,6 +15,7 @@
 
     <ui:define name="content">
 
+        <h:panelGroup layout="block" rendered="#{employeesBean.canViewEmployeeList}">
         <div class="page-heading">
             <div class="page-heading-copy">
                 <span class="page-icon">
@@ -142,6 +143,8 @@
                 </h:form>
             </div>
         </div>
+        </h:panelGroup>
+
 
     </ui:define>
 

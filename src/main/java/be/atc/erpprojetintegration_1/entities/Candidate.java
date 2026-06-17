@@ -5,6 +5,28 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
+/**
+ * Entité JPA liée à la table candidates.
+ * Elle contient les informations personnelles d'un candidat.
+ */
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllCandidates",
+                query = "SELECT c FROM Candidate c ORDER BY c.lastName, c.firstName"
+        ),
+        @NamedQuery(
+                name = "getActiveCandidates",
+                query = "SELECT c FROM Candidate c WHERE c.isActive = true ORDER BY c.lastName, c.firstName"
+        ),
+        @NamedQuery(
+                name = "getCandidateById",
+                query = "SELECT c FROM Candidate c WHERE c.id = :id"
+        ),
+        @NamedQuery(
+                name = "getCandidateByEmail",
+                query = "SELECT c FROM Candidate c WHERE LOWER(c.email) = LOWER(:email)"
+        )
+})
 @Entity
 @Table(name = "candidates")
 public class Candidate {

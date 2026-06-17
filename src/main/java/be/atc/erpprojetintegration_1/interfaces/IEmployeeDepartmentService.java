@@ -21,4 +21,12 @@ public interface IEmployeeDepartmentService {
      * @return employee department list result
      */
     Result<List<EmployeeDepartment>> getEmployeeList();
+
+    Result<List<EmployeeDepartment>> getAll();
+
+    Result<EmployeeDepartment> getById(Integer id);
+
+    Result<EmployeeDepartment> assign(EmployeeDepartment assignment);
+
+    Result<Void> deactivate(Integer id, java.time.LocalDate endDate);
 }

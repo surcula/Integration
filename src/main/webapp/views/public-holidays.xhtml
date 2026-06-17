@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
     <ui:define name="title">#{msg['nav.publicHolidays']} | ERP RH</ui:define>
@@ -11,9 +14,125 @@
                 <div>
                     <p class="eyebrow mb-1">#{msg['nav.timePlanning']}</p>
                     <h1 class="h3 mb-1">#{msg['nav.publicHolidays']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+                    <p class="text-muted mb-0">Gestion des jours feries affiches dans tous les plannings.</p>
                 </div>
             </div>
+            <h:panelGroup layout="block"
+                          styleClass="d-flex align-items-end gap-2 flex-wrap"
+                          rendered="#{authBean.hrOrAdmin}">
+                <h:form id="holidayGenerationForm" styleClass="d-flex align-items-end gap-2 flex-wrap">
+                    <div>
+                        <p:outputLabel for="generationYear" value="Annee"/>
+                        <p:spinner id="generationYear"
+                                   value="#{publicHolidaysBean.generationYear}"
+                                   min="1900"
+                                   max="2200"
+                                   styleClass="public-holiday-year"/>
+                    </div>
+                    <p:commandButton value="Generer"
+                                     icon="bi bi-calendar-plus"
+                                     styleClass="btn btn-outline-primary"
+                                     action="#{publicHolidaysBean.generateYear}"
+                                     process="@form"
+                                     update=":holidayForm:holidaysTable :globalGrowl"/>
+                    <p:commandButton value="Ajouter"
+                                     icon="bi bi-plus-circle"
+                                     styleClass="btn btn-primary"
+                                     process="@this"
+                                     update=":holidayForm:holidayDialog"
+                                     actionListener="#{publicHolidaysBean.prepareNew}"
+                                     oncomplete="PF('holidayDialogWidget').show();"/>
+                </h:form>
+            </h:panelGroup>
+        </div>
+
+        <div class="panel">
+            <h:form id="holidayForm">
+                <p:dataTable id="holidaysTable"
+                             value="#{publicHolidaysBean.publicHolidays}"
+                             var="holiday"
+                             widgetVar="publicHolidaysTable"
+                             styleClass="table align-middle mb-0 erp-data-table"
+                             paginator="true"
+                             rows="10"
+                             emptyMessage="Aucun jour ferie enregistre.">
+                    <p:column headerText="Date" sortBy="#{holiday.holidayDate}">
+                        <h:outputText value="#{holiday.holidayDate}">
+                            <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Nom" sortBy="#{holiday.name}" filterBy="#{holiday.name}" filterMatchMode="contains">
+                        <strong>#{holiday.name}</strong>
+                    </p:column>
+                    <p:column headerText="Description">
+                        #{holiday.description}
+                    </p:column>
+                    <p:column headerText="Statut" sortBy="#{holiday.isActive}">
+                        <span class="#{holiday.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                            #{holiday.isActive ? 'Actif' : 'Inactif'}
+                        </span>
+                    </p:column>
+                    <p:column headerText="Actions" rendered="#{authBean.hrOrAdmin}">
+                        <p:commandButton icon="bi bi-pencil"
+                                         title="Modifier"
+                                         styleClass="btn btn-sm btn-primary"
+                                         process="@this"
+                                         update=":holidayForm:holidayDialog"
+                                         actionListener="#{publicHolidaysBean.edit(holiday)}"
+                                         oncomplete="PF('holidayDialogWidget').show();"/>
+                        <p:commandButton icon="#{holiday.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"
+                                         title="#{holiday.isActive ? 'Desactiver' : 'Activer'}"
+                                         styleClass="#{holiday.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                         process="@this"
+                                         update="@form :globalGrowl"
+                                         actionListener="#{publicHolidaysBean.changeActiveStatus(holiday)}"/>
+                    </p:column>
+                </p:dataTable>
+
+                <p:dialog id="holidayDialog"
+                          widgetVar="holidayDialogWidget"
+                          header="Jour ferie"
+                          modal="true"
+                          responsive="true"
+                          width="480">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <p:outputLabel for="holidayName" value="Nom"/>
+                            <p:inputText id="holidayName"
+                                         value="#{publicHolidaysBean.selectedPublicHoliday.name}"
+                                         maxlength="150"
+                                         required="true"
+                                         styleClass="form-control"/>
+                        </div>
+                        <div class="col-12">
+                            <p:outputLabel for="holidayDate" value="Date"/>
+                            <p:datePicker id="holidayDate"
+                                          value="#{publicHolidaysBean.selectedPublicHoliday.holidayDate}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          styleClass="w-100"/>
+                        </div>
+                        <div class="col-12">
+                            <p:outputLabel for="holidayDescription" value="Description"/>
+                            <p:inputTextarea id="holidayDescription"
+                                             value="#{publicHolidaysBean.selectedPublicHoliday.description}"
+                                             rows="4"
+                                             autoResize="false"
+                                             styleClass="form-control"/>
+                        </div>
+                    </div>
+                    <f:facet name="footer">
+                        <p:commandButton value="Enregistrer"
+                                         icon="bi bi-check2"
+                                         styleClass="btn btn-primary"
+                                         action="#{publicHolidaysBean.save}"
+                                         process="holidayDialog"
+                                         update="@form :globalGrowl"
+                                         oncomplete="if (!args.validationFailed) PF('holidayDialogWidget').hide();"/>
+                    </f:facet>
+                </p:dialog>
+            </h:form>
         </div>
     </ui:define>
 </ui:composition>

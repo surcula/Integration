@@ -16,10 +16,23 @@
         <class>be.atc.erpprojetintegration_1.entities.Department</class>
         <class>be.atc.erpprojetintegration_1.entities.DepartmentHead</class>
         <class>be.atc.erpprojetintegration_1.entities.EmployeeDepartment</class>
-        <class>be.atc.erpprojetintegration_1.entities.Superior</class>
         <class>be.atc.erpprojetintegration_1.entities.Company</class>
         <class>be.atc.erpprojetintegration_1.entities.Function</class>
+        <class>be.atc.erpprojetintegration_1.entities.JobOffer</class>
+        <class>be.atc.erpprojetintegration_1.entities.Candidate</class>
+        <class>be.atc.erpprojetintegration_1.entities.JobOffersCandidate</class>
         <class>be.atc.erpprojetintegration_1.entities.Evaluation</class>
+        <class>be.atc.erpprojetintegration_1.entities.EvaluationCriterion</class>
+        <class>be.atc.erpprojetintegration_1.entities.EvaluationsObjective</class>
+        <class>be.atc.erpprojetintegration_1.entities.Objective</class>
+        <class>be.atc.erpprojetintegration_1.entities.Criterion</class>
+        <class>be.atc.erpprojetintegration_1.entities.Category</class>
+        <class>be.atc.erpprojetintegration_1.entities.CriteriaFunction</class>
+        <class>be.atc.erpprojetintegration_1.entities.Planning</class>
+        <class>be.atc.erpprojetintegration_1.entities.PlanningsEmployee</class>
+        <class>be.atc.erpprojetintegration_1.entities.PublicHoliday</class>
+        <class>be.atc.erpprojetintegration_1.entities.Absence</class>
+        <class>be.atc.erpprojetintegration_1.entities.Contract</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
@@ -27,6 +40,7 @@
                       value="jdbc:mysql://localhost:3306/erp_projet_integration?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8"/>
             <property name="javax.persistence.jdbc.user" value="root"/>
             <property name="javax.persistence.jdbc.password" value=""/>
+
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.ddl-generation" value="none"/>
             <property name="eclipselink.cache.shared.default" value="false"/>

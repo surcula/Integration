@@ -45,12 +45,10 @@
                         <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.dashboard']}</span>
                     </a>
-                    <ui:fragment rendered="#{authBean.hasPermission('profile:read')}">
-                        <a class="nav-link" href="#{request.contextPath}/views/profile.xhtml">
-                            <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
-                            <span class="nav-text">#{msg['nav.myProfile']}</span>
-                        </a>
-                    </ui:fragment>
+                    <a class="nav-link" href="#{request.contextPath}/views/profile.xhtml">
+                        <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.myProfile']}</span>
+                    </a>
 
                     <span class="nav-section-title">#{msg['nav.staff']}</span>
                     <a class="nav-link" href="#{request.contextPath}/views/employees.xhtml">
@@ -61,10 +59,16 @@
                         <span class="nav-icon"><i class="bi bi-hospital" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.departments']}</span>
                     </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/contracts.xhtml">
-                        <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.contracts']}</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/functions.xhtml">
+                        <span class="nav-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.functions']}</span>
                     </a>
+                    <ui:fragment rendered="#{authBean.hasRole('HR') or authBean.hasRole('ADMIN') or authBean.hasRole('EMPLOYEE')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/contracts.xhtml">
+                            <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.contracts']}</span>
+                        </a>
+                    </ui:fragment>
 
                     <span class="nav-section-title">#{msg['nav.timePlanning']}</span>
                     <a class="nav-link" href="#{request.contextPath}/views/planning.xhtml">
@@ -95,7 +99,7 @@
                     </a>
 
                     <span class="nav-section-title">#{msg['nav.recruitment']}</span>
-                    <a class="nav-link" href="#{request.contextPath}/views/job-offers.xhtml">
+                    <a class="nav-link" href="#{request.contextPath}/views/job-offers-public.xhtml">
                         <span class="nav-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.jobOffers']}</span>
                     </a>
@@ -105,32 +109,10 @@
                     </a>
 
                     <span class="nav-section-title">#{msg['nav.administration']}</span>
-                    <ui:fragment rendered="#{authBean.hasPermission('function:read') or authBean.hasPermission('function:create') or authBean.hasPermission('function:edit') or authBean.hasPermission('function:delete')}">
-                        <a class="nav-link" href="#{request.contextPath}/views/functions.xhtml">
-                            <span class="nav-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
-                            <span class="nav-text">#{msg['nav.functions']}</span>
-                        </a>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{authBean.hasPermission('address:read')}">
-                        <a class="nav-link" href="#{request.contextPath}/views/addresses.xhtml">
-                            <span class="nav-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></span>
-                            <span class="nav-text">#{msg['nav.addresses']}</span>
-                        </a>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{authBean.hasPermission('city:read')}">
-                        <a class="nav-link" href="#{request.contextPath}/views/cities-admin.xhtml">
-                            <span class="nav-icon"><i class="bi bi-map" aria-hidden="true"></i></span>
-                            <span class="nav-text">#{msg['nav.citiesAdmin']}</span>
-                        </a>
-                    </ui:fragment>
                     <ui:fragment rendered="#{authBean.hasRole('ADMIN')}">
                         <a class="nav-link" href="#{request.contextPath}/views/company.xhtml">
                             <span class="nav-icon"><i class="bi bi-building" aria-hidden="true"></i></span>
                             <span class="nav-text">#{msg['nav.company']}</span>
-                        </a>
-                        <a class="nav-link" href="#{request.contextPath}/views/superiors.xhtml">
-                            <span class="nav-icon"><i class="bi bi-person-vcard" aria-hidden="true"></i></span>
-                            <span class="nav-text">#{msg['nav.superiors']}</span>
                         </a>
                         <a class="nav-link" href="#{request.contextPath}/views/roles.xhtml">
                             <span class="nav-icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
@@ -215,11 +197,9 @@
                                     <span class="profile-name d-none d-sm-inline">#{authBean.connectedEmployeeFullName}</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <ui:fragment rendered="#{authBean.hasPermission('profile:read')}">
-                                        <li>
-                                            <a class="dropdown-item" href="#{request.contextPath}/views/profile.xhtml">#{msg['nav.myProfile']}</a>
-                                        </li>
-                                    </ui:fragment>
+                                    <li>
+                                        <a class="dropdown-item" href="#{request.contextPath}/views/profile.xhtml">#{msg['nav.myProfile']}</a>
+                                    </li>
                                     <li>
                                         <a class="dropdown-item" href="#{request.contextPath}/views/settings.xhtml">#{msg['nav.accountSettings']}</a>
                                     </li>
@@ -254,7 +234,8 @@
         </div>
 
         <script src="#{request.contextPath}/app-assets/js/bootstrap.bundle.min.js"></script>
-        <script src="#{request.contextPath}/app-assets/js/main.js"></script>
+        <script src="#{request.contextPath}/app-assets/js/main.js?v=20260613-5"></script>
+        <ui:insert name="scripts"/>
 
     </h:body>
 </f:view>

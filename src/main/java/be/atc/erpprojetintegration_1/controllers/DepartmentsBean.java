@@ -1,6 +1,8 @@
 package be.atc.erpprojetintegration_1.controllers;
 
 import be.atc.erpprojetintegration_1.business.DepartmentBusiness;
+import be.atc.erpprojetintegration_1.business.EmployeeBusiness;
+import be.atc.erpprojetintegration_1.dto.EmployeeListDto;
 import be.atc.erpprojetintegration_1.entities.Department;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -23,11 +25,20 @@ public class DepartmentsBean implements Serializable {
     @Inject
     private DepartmentBusiness departmentBusiness;
 
+    @Inject
+    private EmployeeBusiness employeeBusiness;
+
+    @Inject
+    private AuthBean authBean;
+
     private List<Department> departments;
+    private List<EmployeeListDto> managedEmployees = new ArrayList<>();
+    private boolean showManagedEmployees;
 
     @PostConstruct
     public void init() {
         loadDepartments();
+        loadManagedEmployees();
     }
 
     public void changeDepartmentActiveStatus(Integer id, boolean active) {
@@ -40,6 +51,7 @@ public class DepartmentsBean implements Serializable {
 
         MessageUtils.addInfoMessage(active ? "departments.delete.success" : "departments.activate.success");
         loadDepartments();
+        loadManagedEmployees();
     }
 
     private void loadDepartments() {
@@ -55,7 +67,36 @@ public class DepartmentsBean implements Serializable {
         }
     }
 
+
+    private void loadManagedEmployees() {
+        showManagedEmployees = false;
+        managedEmployees = new ArrayList<>();
+
+        if (authBean.isHrOrAdmin() || authBean.getConnectedEmployee() == null) {
+            return;
+        }
+
+        Integer connectedEmployeeId = authBean.getConnectedEmployee().getId();
+        Result<Boolean> headResult = employeeBusiness.isDepartmentHead(connectedEmployeeId);
+        if (!headResult.isSuccess() || !Boolean.TRUE.equals(headResult.getData())) {
+            return;
+        }
+
+        Result<List<EmployeeListDto>> result = employeeBusiness.getEmployeeListForViewer(
+                connectedEmployeeId, false, false);
+        if (result.isSuccess()) {
+            managedEmployees = result.getData();
+            showManagedEmployees = true;
+        } else {
+            log.warn("Managed employee list loading failed");
+            MessageUtils.addErrorMessages(result, "employees.error.load");
+        }
+    }
+
     public List<Department> getDepartments() {
         return departments;
     }
+
+    public List<EmployeeListDto> getManagedEmployees() { return managedEmployees; }
+    public boolean isShowManagedEmployees() { return showManagedEmployees; }
 }

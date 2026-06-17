@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">#{msg['jobOffers.public.pageTitle']}</ui:define>
+
+    <ui:define name="content">
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon"><i class="pi pi-briefcase"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['jobOffers.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['jobOffers.public.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['jobOffers.public.subtitle']}</p>
+                </div>
+            </div>
+            <h:link outcome="/views/job-offers"
+                    styleClass="btn btn-outline-primary"
+                    rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                <i class="pi pi-cog"></i>
+                <span>#{msg['jobOffers.public.manage']}</span>
+            </h:link>
+        </div>
+
+        <h:form id="publicJobOffersFilters" styleClass="panel mb-4 job-offers-public-filters">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-xl-4">
+                    <h:outputLabel for="keyword" styleClass="form-label" value="#{msg['jobOffers.public.keyword']}"/>
+                    <p:inputText id="keyword"
+                                 styleClass="form-control"
+                                 value="#{jobOffersPublicBean.keyword}"
+                                 placeholder="#{msg['jobOffers.public.keyword.placeholder']}"/>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-3">
+                    <h:outputLabel for="functionFilter" styleClass="form-label" value="#{msg['jobOffers.function']}"/>
+                    <h:selectOneMenu id="functionFilter"
+                                     styleClass="form-select"
+                                     value="#{jobOffersPublicBean.selectedFunctionId}">
+                        <f:selectItem itemLabel="#{msg['jobOffers.public.allFunctions']}" itemValue="#{null}"/>
+                        <f:selectItems value="#{jobOffersPublicBean.functionsFilter}"
+                                       var="offer"
+                                       itemLabel="#{offer.function.functionName}"
+                                       itemValue="#{offer.function.id}"/>
+                    </h:selectOneMenu>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-3">
+                    <h:outputLabel for="sortOrder" styleClass="form-label" value="#{msg['jobOffers.public.sort']}"/>
+                    <h:selectOneMenu id="sortOrder"
+                                     styleClass="form-select"
+                                     value="#{jobOffersPublicBean.sortOrder}">
+                        <f:selectItem itemLabel="#{msg['jobOffers.public.sort.newest']}" itemValue="NEWEST"/>
+                        <f:selectItem itemLabel="#{msg['jobOffers.public.sort.oldest']}" itemValue="OLDEST"/>
+                        <f:selectItem itemLabel="#{msg['jobOffers.public.sort.nameAsc']}" itemValue="NAME_ASC"/>
+                        <f:selectItem itemLabel="#{msg['jobOffers.public.sort.nameDesc']}" itemValue="NAME_DESC"/>
+                        <f:ajax listener="#{jobOffersPublicBean.applySort}"
+                                render=":publicOffersForm:publicOffersArea"/>
+                    </h:selectOneMenu>
+                </div>
+
+                <div class="col-12 col-xl-2">
+                    <p:commandButton styleClass="btn btn-primary w-100"
+                                     icon="pi pi-search"
+                                     value="#{msg['jobOffers.public.search']}"
+                                     action="#{jobOffersPublicBean.filterJobOffers}"
+                                     update=":publicOffersForm:publicOffersArea"/>
+                </div>
+            </div>
+        </h:form>
+
+        <h:form id="publicOffersForm">
+            <h:panelGroup id="publicOffersArea" layout="block">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <h:outputFormat value="#{msg['jobOffers.public.count']}" styleClass="text-muted fw-semibold mb-0">
+                        <f:param value="#{jobOffersPublicBean.filteredJobOffersCount}"/>
+                    </h:outputFormat>
+                </div>
+
+                <h:panelGroup layout="block" styleClass="alert alert-info"
+                              rendered="#{empty jobOffersPublicBean.filteredJobOffers}">
+                    <i class="pi pi-info-circle"></i>
+                    <span>#{msg['jobOffers.public.empty']}</span>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block" styleClass="row g-4">
+                    <ui:repeat value="#{jobOffersPublicBean.visibleJobOffers}" var="offer">
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card h-100 shadow-sm job-offer-card">
+                                <div class="card-body d-flex flex-column">
+                                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                                        <div>
+                                            <h2 class="h5 mb-2">#{offer.jobOfferName}</h2>
+                                            <p class="text-muted mb-0">
+                                                <i class="pi pi-id-card"></i>
+                                                <span>#{offer.function.functionName}</span>
+                                            </p>
+                                            <h:panelGroup layout="block"
+                                                          styleClass="text-muted mb-0"
+                                                          rendered="#{not empty offer.function.city and not empty offer.function.city.cityName}">
+                                                <i class="pi pi-map-marker"></i>
+                                                <span>#{msg['jobOffers.public.city']} : #{offer.function.city.cityName}</span>
+                                            </h:panelGroup>
+                                            <p class="text-muted mb-0">
+                                                <i class="pi pi-users"></i>
+                                                <span>
+                                                    #{empty offer.numberOfOpenPositions ? msg['jobOffers.public.positions.notSpecified'] : offer.numberOfOpenPositions}
+                                                    #{msg['jobOffers.public.positions']}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="h6 mb-2">#{msg['jobOffers.profil']}</h3>
+                                    <p class="text-muted">
+                                        #{jobOffersPublicBean.getShortDescription(offer.profil)}
+                                    </p>
+
+                                    <h3 class="h6 mb-2">#{msg['jobOffers.description']}</h3>
+                                    <p class="text-muted flex-grow-1">
+                                        #{jobOffersPublicBean.getShortDescription(offer.description)}
+                                    </p>
+
+                                    <h3 class="h6 mb-2">#{msg['jobOffers.requirements']}</h3>
+                                    <p class="text-muted">
+                                        #{jobOffersPublicBean.getShortDescription(offer.requirements)}
+                                    </p>
+
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 job-offer-card-footer">
+                                        <span class="text-muted small">
+                                            <i class="pi pi-calendar"></i>
+                                            <span>#{jobOffersPublicBean.formatDate(offer.publishStartDate)}</span>
+                                        </span>
+
+                                        <p:button outcome="/views/job-offer-detail"
+                                                  styleClass="btn btn-primary btn-sm"
+                                                  icon="pi pi-eye"
+                                                  value="#{msg['jobOffers.public.view']}">
+                                            <f:param name="id" value="#{offer.id}"/>
+                                        </p:button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </h:panelGroup>
+
+                <div class="d-flex justify-content-center mt-4">
+                    <p:commandButton styleClass="btn btn-outline-primary"
+                                     icon="pi pi-plus"
+                                     value="#{msg['jobOffers.public.showMore']}"
+                                     action="#{jobOffersPublicBean.showMoreOffers}"
+                                     rendered="#{jobOffersPublicBean.hasMoreOffers()}"
+                                     update="publicOffersArea"/>
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

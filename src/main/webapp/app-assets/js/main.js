@@ -273,3 +273,97 @@
     }
   });
 })();
+
+(function () {
+  "use strict";
+
+  var celebrationColors = ["#2563eb", "#22c55e", "#facc15", "#ef4444", "#f97316", "#7c3aed"];
+
+  window.launchApprovedVacationConfetti = function (celebrationKey) {
+    if (!celebrationKey) {
+      return;
+    }
+
+    var storageKey = "erp-rh-vacation-celebrated-v1-" + celebrationKey;
+    try {
+      if (window.localStorage.getItem(storageKey)) {
+        return;
+      }
+      window.localStorage.setItem(storageKey, "shown");
+    } catch (error) {
+      // The animation still works when browser storage is unavailable.
+    }
+
+    var canvas = document.createElement("canvas");
+    canvas.className = "vacation-celebration-canvas";
+    canvas.setAttribute("aria-hidden", "true");
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.zIndex = "99999";
+    canvas.style.pointerEvents = "none";
+    document.body.appendChild(canvas);
+
+    var context = canvas.getContext("2d");
+    var particles = [];
+    var startTime = Date.now();
+    var duration = 2600;
+
+    function resizeCelebration() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function createCelebrationParticle(originX) {
+      return {
+        x: originX,
+        y: -20 - Math.random() * 100,
+        width: 6 + Math.random() * 7,
+        height: 9 + Math.random() * 10,
+        velocityX: (Math.random() - 0.5) * 5,
+        velocityY: 2.5 + Math.random() * 4,
+        rotation: Math.random() * Math.PI,
+        rotationSpeed: (Math.random() - 0.5) * 0.25,
+        color: celebrationColors[Math.floor(Math.random() * celebrationColors.length)]
+      };
+    }
+
+    function drawCelebration() {
+      var elapsed = Date.now() - startTime;
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(function (particle) {
+        particle.x += particle.velocityX;
+        particle.y += particle.velocityY;
+        particle.velocityY += 0.035;
+        particle.rotation += particle.rotationSpeed;
+        context.save();
+        context.translate(particle.x, particle.y);
+        context.rotate(particle.rotation);
+        context.fillStyle = particle.color;
+        context.fillRect(-particle.width / 2, -particle.height / 2, particle.width, particle.height);
+        context.restore();
+      });
+
+      particles = particles.filter(function (particle) {
+        return particle.y < canvas.height + 30;
+      });
+
+      if (elapsed < duration || particles.length > 0) {
+        window.requestAnimationFrame(drawCelebration);
+      } else {
+        window.removeEventListener("resize", resizeCelebration);
+        canvas.remove();
+      }
+    }
+
+    resizeCelebration();
+    for (var i = 0; i < 150; i += 1) {
+      particles.push(createCelebrationParticle(Math.random() * canvas.width));
+    }
+    window.addEventListener("resize", resizeCelebration);
+    window.requestAnimationFrame(drawCelebration);
+  };
+})();

@@ -20,13 +20,72 @@
                     <p class="text-muted mb-0">#{msg['departments.subtitle']}</p>
                 </div>
             </div>
-            <h:link outcome="/views/department-edit"
-                    styleClass="btn btn-primary"
-                    rendered="#{authBean.hasPermission('department:create')}">
-                <i class="bi bi-plus-circle"></i>
-                <span>#{msg['departments.add']}</span>
-            </h:link>
+            <div class="d-flex gap-2">
+                <h:link outcome="/views/department-heads" styleClass="btn btn-outline-primary"
+                        rendered="#{authBean.hrOrAdmin}">
+                    <i class="pi pi-star"></i><span>Chefs</span>
+                </h:link>
+                <h:link outcome="/views/employee-departments" styleClass="btn btn-outline-primary"
+                        rendered="#{authBean.hrOrAdmin}">
+                    <i class="pi pi-users"></i><span>Affectations</span>
+                </h:link>
+                <h:link outcome="/views/department-edit" styleClass="btn btn-primary"
+                        rendered="#{authBean.hasRole('ADMIN')}">
+                    <i class="pi pi-plus-circle"></i><span>#{msg['departments.add']}</span>
+                </h:link>
+            </div>
         </div>
+
+        <h:panelGroup layout="block" rendered="#{departmentsBean.showManagedEmployees}">
+            <div class="panel mb-3">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-people" aria-hidden="true"></i>
+                            <span>Mes employes</span>
+                        </h2>
+                        <p class="text-muted mb-0">Employes actuellement affectes a votre departement.</p>
+                    </div>
+                </div>
+                <h:form id="managedEmployeesForm">
+                    <p:dataTable value="#{departmentsBean.managedEmployees}"
+                             var="employee"
+                             widgetVar="managedEmployeesTable"
+                             styleClass="table align-middle mb-0 erp-data-table"
+                             paginator="true"
+                             rows="5"
+                             emptyMessage="Aucun employe affecte a votre departement.">
+                    <f:facet name="header">
+                        <div class="d-flex justify-content-end">
+                            <span class="p-input-icon-left employee-global-search">
+                                <i class="bi bi-search"></i>
+                                <p:inputText id="managedEmployeesFilter"
+                                             styleClass="form-control"
+                                             onkeyup="PF('managedEmployeesTable').filter()"
+                                             placeholder="Rechercher..."/>
+                            </span>
+                        </div>
+                    </f:facet>
+                    <p:column headerText="Employe" sortBy="#{employee.fullName}"
+                              filterBy="#{employee.fullName}" filterMatchMode="contains" filterStyle="display:none">
+                        <strong>#{employee.fullName}</strong>
+                    </p:column>
+                    <p:column headerText="Departement" sortBy="#{employee.departmentName}"
+                              filterBy="#{employee.departmentName}" filterMatchMode="contains" filterStyle="display:none">
+                        #{employee.departmentName}
+                    </p:column>
+                    <p:column headerText="Telephone" filterBy="#{employee.phone}"
+                              filterMatchMode="contains" filterStyle="display:none">
+                        #{employee.phone}
+                    </p:column>
+                    <p:column headerText="Email" sortBy="#{employee.email}"
+                              filterBy="#{employee.email}" filterMatchMode="contains" filterStyle="display:none">
+                        #{employee.email}
+                    </p:column>
+                    </p:dataTable>
+                </h:form>
+            </div>
+        </h:panelGroup>
 
         <div class="panel">
             <div class="table-responsive">
@@ -76,29 +135,24 @@
                             #{department.email}
                         </p:column>
 
-                    <p:column headerText="#{msg['departments.status']}"
-                              sortBy="#{department.isActive}"
-                              rendered="#{authBean.hasPermission('department:delete')}">
+                        <p:column headerText="#{msg['departments.status']}" sortBy="#{department.isActive}">
                             <span class="#{department.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
                                 #{department.isActive ? msg['departments.status.active'] : msg['departments.status.inactive']}
                             </span>
                         </p:column>
 
-                    <p:column headerText="#{msg['departments.action']}"
-                              rendered="#{authBean.hasPermission('department:edit') or authBean.hasPermission('department:delete')}">
-                        <h:link outcome="/views/department-edit"
-                                styleClass="btn btn-sm btn-primary"
-                                title="#{msg['departments.edit']}"
-                                rendered="#{authBean.hasPermission('department:edit')}">
+                        <p:column headerText="#{msg['departments.action']}" rendered="#{authBean.hasRole('ADMIN')}">
+                            <h:link outcome="/views/department-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['departments.edit']}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="visually-hidden">#{msg['departments.edit']}</span>
                                 <f:param name="id" value="#{department.id}"/>
                             </h:link>
 
-                        <p:commandLink styleClass="#{department.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
-                                       title="#{department.isActive ? msg['departments.delete'] : msg['departments.activate']}"
-                                       rendered="#{authBean.hasPermission('department:delete')}"
-                                       action="#{departmentsBean.changeDepartmentActiveStatus(department.id, department.isActive)}"
+                            <p:commandLink styleClass="#{department.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                           title="#{department.isActive ? msg['departments.delete'] : msg['departments.activate']}"
+                                           action="#{departmentsBean.changeDepartmentActiveStatus(department.id, department.isActive)}"
                                            process="@this"
                                            immediate="true"
                                            update="@form :globalGrowl">

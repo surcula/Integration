@@ -11,6 +11,8 @@ import be.atc.erpprojetintegration_1.entities.EmployeeDepartment;
 import be.atc.erpprojetintegration_1.interfaces.IAddressService;
 import be.atc.erpprojetintegration_1.interfaces.IEmployeeDepartmentService;
 import be.atc.erpprojetintegration_1.interfaces.IEmployeeService;
+import be.atc.erpprojetintegration_1.interfaces.IDepartmentHeadService;
+import be.atc.erpprojetintegration_1.entities.DepartmentHead;
 import be.atc.erpprojetintegration_1.interfaces.ICitiesService;
 import be.atc.erpprojetintegration_1.mappers.EmployeeMapper;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -30,6 +32,9 @@ public class EmployeeBusiness {
 
     @Inject
     private IEmployeeService employeeService;
+
+    @Inject
+    private IDepartmentHeadService departmentHeadService;
     @Inject
     private IEmployeeDepartmentService employeeDepartment;
     @Inject
@@ -136,6 +141,29 @@ public class EmployeeBusiness {
                 .collect(Collectors.toList());
 
         return Result.ok(employees);
+    }
+
+    public Result<List<EmployeeListDto>> getEmployeeListForViewer(
+            Integer viewerEmployeeId, boolean globalAccess, boolean includeInactive) {
+        Result<List<EmployeeListDto>> employeeResult = getEmployeeList(globalAccess && includeInactive);
+        if (!employeeResult.isSuccess() || globalAccess) return employeeResult;
+
+        Result<List<DepartmentHead>> headResult = departmentHeadService
+                .getActiveByEmployeeId(viewerEmployeeId);
+        if (!headResult.isSuccess()) return Result.fail(headResult.getErrors());
+
+        List<String> managedDepartmentNames = headResult.getData().stream()
+                .map(head -> head.getDepartment().getDepartmentName())
+                .collect(Collectors.toList());
+        return Result.ok(employeeResult.getData().stream()
+                .filter(employee -> managedDepartmentNames.contains(employee.getDepartmentName()))
+                .collect(Collectors.toList()));
+    }
+
+    public Result<Boolean> isDepartmentHead(Integer employeeId) {
+        if (employeeId == null) return Result.ok(false);
+        Result<List<DepartmentHead>> result = departmentHeadService.getActiveByEmployeeId(employeeId);
+        return result.isSuccess() ? Result.ok(!result.getData().isEmpty()) : Result.fail(result.getErrors());
     }
 
     /**

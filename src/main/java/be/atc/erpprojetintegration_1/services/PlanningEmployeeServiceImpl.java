@@ -2,10 +2,7 @@ package be.atc.erpprojetintegration_1.services;
 
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.entities.Planning;
-import be.atc.erpprojetintegration_1.entities.PlanningEmployeeSwapRequest;
 import be.atc.erpprojetintegration_1.entities.PlanningsEmployee;
-import be.atc.erpprojetintegration_1.enums.PlanningSwapStatus;
-import be.atc.erpprojetintegration_1.enums.PlanningSwapProposalStatus;
 import be.atc.erpprojetintegration_1.interfaces.IPlanningEmployeeService;
 import be.atc.erpprojetintegration_1.tools.EMF;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -14,8 +11,9 @@ import org.apache.log4j.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -105,165 +103,9 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
         }
     }
 
-    @Override
-    public Result<List<PlanningEmployeeSwapRequest>> getSwapRequests(Integer employeeId, boolean allEmployees) {
-        EntityManager em = EMF.getEM();
-        try {
-            String queryName = allEmployees ? "getAllSwapRequests" : "getSwapRequestsByEmployee";
-            javax.persistence.TypedQuery<PlanningEmployeeSwapRequest> query = em.createNamedQuery(
-                    queryName, PlanningEmployeeSwapRequest.class).setParameter("pending", PlanningSwapStatus.PENDING);
-            if (!allEmployees) {
-                query.setParameter("employeeId", employeeId);
-            }
-            return Result.ok(query.getResultList());
-        } catch (Exception ex) {
-            log.error("Error while loading planning swap requests", ex);
-            return Result.fail(error("planning.swap.error.load"));
-        } finally {
-            em.close();
-        }
-    }
 
-    @Override
-    public Result<PlanningEmployeeSwapRequest> getSwapRequest(Integer requestId) {
-        EntityManager em = EMF.getEM();
-        try {
-            List<PlanningEmployeeSwapRequest> requests = em.createNamedQuery("getSwapRequestById", PlanningEmployeeSwapRequest.class)
-                    .setParameter("requestId", requestId)
-                    .setMaxResults(1)
-                    .getResultList();
-            return Result.ok(requests.isEmpty() ? null : requests.get(0));
-        } catch (Exception ex) {
-            log.error("Error while loading a planning swap request", ex);
-            return Result.fail(error("planning.swap.error.load"));
-        } finally {
-            em.close();
-        }
-    }
 
-    @Override
-    public Result<PlanningEmployeeSwapRequest> createSwapRequest(
-            Integer planningEmployeeId, Integer requestedByEmployeeId, String reason, Boolean emergencyMode) {
-        EntityManager em = EMF.getEM();
-        try {
-            em.getTransaction().begin();
-            PlanningsEmployee assignment = em.find(PlanningsEmployee.class, planningEmployeeId);
-            if (assignment == null || !Boolean.TRUE.equals(assignment.getIsActive())
-                    || !assignment.getEmployee().getId().equals(requestedByEmployeeId)) {
-                em.getTransaction().rollback();
-                return Result.fail(error("planning.swap.error.access"));
-            }
-            Long pending = em.createNamedQuery("countPendingSwapRequestsByAssignment", Long.class)
-                    .setParameter("assignmentId", planningEmployeeId)
-                    .setParameter("status", PlanningSwapStatus.PENDING)
-                    .getSingleResult();
-            if (pending > 0) {
-                em.getTransaction().rollback();
-                return Result.fail(error("planning.swap.error.pending"));
-            }
-            PlanningEmployeeSwapRequest request = new PlanningEmployeeSwapRequest();
-            request.setPlanningEmployee(assignment);
-            request.setRequestedBy(em.getReference(Employee.class, requestedByEmployeeId));
-            request.setStatus(PlanningSwapStatus.PENDING);
-            request.setReason(reason);
-            request.setRequestedAt(LocalDateTime.now());
-            request.setIsActive(true);
-            request.setEmergencyMode(Boolean.TRUE.equals(emergencyMode));
-            request.setRelaunchRequired(false);
-            em.persist(request);
-            em.getTransaction().commit();
-            return Result.ok(request);
-        } catch (Exception ex) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            log.error("Error while creating a planning swap request", ex);
-            return Result.fail(error("planning.swap.error.save"));
-        } finally {
-            em.close();
-        }
-    }
 
-    @Override
-    public Result<Void> reviewSwapRequest(Integer requestId, PlanningSwapStatus status,
-                                          Integer replacementEmployeeId, Integer reviewedByEmployeeId,
-                                          String reviewComment) {
-        EntityManager em = EMF.getEM();
-        try {
-            em.getTransaction().begin();
-            PlanningEmployeeSwapRequest request = em.find(PlanningEmployeeSwapRequest.class, requestId);
-            if (request == null || request.getStatus() != PlanningSwapStatus.PENDING) {
-                em.getTransaction().rollback();
-                return Result.fail(error("planning.swap.error.notPending"));
-            }
-            if (status == PlanningSwapStatus.APPROVED) {
-                PlanningsEmployee current = request.getPlanningEmployee();
-                if (!Boolean.TRUE.equals(current.getIsActive())) {
-                    em.getTransaction().rollback();
-                    return Result.fail(error("planning.swap.error.assignment"));
-                }
-                if (replacementEmployeeId == null || replacementEmployeeId.equals(current.getEmployee().getId())) {
-                    em.getTransaction().rollback();
-                    return Result.fail(error("planning.swap.error.replacement"));
-                }
-                current.setIsActive(false);
-                PlanningsEmployee replacement = new PlanningsEmployee();
-                replacement.setPlanning(current.getPlanning());
-                replacement.setEmployee(em.getReference(Employee.class, replacementEmployeeId));
-                replacement.setIsActive(true);
-                em.persist(replacement);
-                request.setReplacementEmployee(em.getReference(Employee.class, replacementEmployeeId));
-            }
-            request.setStatus(status);
-            request.setReviewComment(reviewComment);
-            request.setReviewedBy(em.getReference(Employee.class, reviewedByEmployeeId));
-            request.setReviewedAt(LocalDateTime.now());
-            if (status != PlanningSwapStatus.APPROVED) {
-                em.createNamedQuery("cancelPendingSwapProposalsByRequest")
-                        .setParameter("cancelled", PlanningSwapProposalStatus.CANCELLED)
-                        .setParameter("respondedAt", LocalDateTime.now())
-                        .setParameter("requestId", requestId)
-                        .setParameter("pending", PlanningSwapProposalStatus.PENDING)
-                        .executeUpdate();
-            }
-            em.getTransaction().commit();
-            return Result.ok();
-        } catch (Exception ex) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            log.error("Error while reviewing a planning swap request", ex);
-            return Result.fail(error("planning.swap.error.review"));
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
-    public Result<Void> cancelSwapRequest(Integer requestId, Integer requestedByEmployeeId) {
-        EntityManager em = EMF.getEM();
-        try {
-            em.getTransaction().begin();
-            PlanningEmployeeSwapRequest request = em.find(PlanningEmployeeSwapRequest.class, requestId);
-            if (request == null || request.getStatus() != PlanningSwapStatus.PENDING
-                    || !request.getRequestedBy().getId().equals(requestedByEmployeeId)) {
-                em.getTransaction().rollback();
-                return Result.fail(error("planning.swap.error.access"));
-            }
-            request.setStatus(PlanningSwapStatus.CANCELLED);
-            request.setReviewedAt(LocalDateTime.now());
-            em.createNamedQuery("cancelPendingSwapProposalsByRequest")
-                    .setParameter("cancelled", PlanningSwapProposalStatus.CANCELLED)
-                    .setParameter("respondedAt", LocalDateTime.now())
-                    .setParameter("requestId", requestId)
-                    .setParameter("pending", PlanningSwapProposalStatus.PENDING)
-                    .executeUpdate();
-            em.getTransaction().commit();
-            return Result.ok();
-        } catch (Exception ex) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            log.error("Error while cancelling a planning swap request", ex);
-            return Result.fail(error("planning.swap.error.cancel"));
-        } finally {
-            em.close();
-        }
-    }
 
     @Override
     public Result<Void> replaceAssignments(Planning planning, List<Integer> employeeIds) {
@@ -287,12 +129,6 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
                     continue;
                 }
                 activeAssignment.setIsActive(false);
-                em.createNamedQuery("cancelPendingSwapRequestsByAssignment")
-                        .setParameter("cancelled", PlanningSwapStatus.CANCELLED)
-                        .setParameter("reviewedAt", LocalDateTime.now())
-                        .setParameter("assignmentId", activeAssignment.getId())
-                        .setParameter("pending", PlanningSwapStatus.PENDING)
-                        .executeUpdate();
             }
 
             Planning managedPlanning = em.getReference(Planning.class, planning.getId());
@@ -363,6 +199,130 @@ public class PlanningEmployeeServiceImpl implements IPlanningEmployeeService {
             log.error("Error while detecting planning conflicts", ex);
             return Result.fail(error("planning.conflicts.error"));
 
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<List<Employee>> findInsufficientRestEmployees(
+            LocalDate date,
+            LocalTime startHour,
+            LocalTime endHour,
+            List<Integer> employeeIds,
+            Integer excludedPlanningId) {
+
+        if (date == null || employeeIds == null || employeeIds.isEmpty() || startHour == null || endHour == null) {
+            return Result.ok(new ArrayList<Employee>());
+        }
+
+        EntityManager em = EMF.getEM();
+        try {
+            LocalDate requestedEndDate = isOvernight(startHour, endHour) ? date.plusDays(1) : date;
+            List<PlanningsEmployee> candidates = em.createNamedQuery(
+                            "getCandidateServiceAssignmentsForWorkRules", PlanningsEmployee.class)
+                    .setParameter("employeeIds", employeeIds)
+                    .setParameter("cancelled", be.atc.erpprojetintegration_1.enums.PlanningStatus.CANCELLED)
+                    .setParameter("candidateStart", date.minusDays(1))
+                    .setParameter("candidateEnd", requestedEndDate.plusDays(1))
+                    .getResultList();
+
+            LocalDateTime requestedStart = date.atTime(startHour);
+            LocalDateTime requestedEnd = date.plusDays(isOvernight(startHour, endHour) ? 1 : 0).atTime(endHour);
+            Map<Integer, Employee> conflicts = new java.util.LinkedHashMap<>();
+            for (PlanningsEmployee candidate : candidates) {
+                Planning existing = candidate.getPlanning();
+                if (excludedPlanningId != null && excludedPlanningId.equals(existing.getId())) continue;
+                if (date.equals(existing.getDate())) continue;
+                if (existing.getStartHour() == null || existing.getEndHour() == null) continue;
+
+                LocalDateTime existingStart = existing.getDate().atTime(existing.getStartHour());
+                LocalDateTime existingEnd = existing.getDate()
+                        .plusDays(isOvernight(existing.getStartHour(), existing.getEndHour()) ? 1 : 0)
+                        .atTime(existing.getEndHour());
+
+                long restBefore = java.time.Duration.between(existingEnd, requestedStart).toHours();
+                long restAfter = java.time.Duration.between(requestedEnd, existingStart).toHours();
+                boolean existingBefore = !existingEnd.isAfter(requestedStart) && restBefore < 11;
+                boolean existingAfter = !requestedEnd.isAfter(existingStart) && restAfter < 11;
+                if (existingBefore || existingAfter) {
+                    conflicts.put(candidate.getEmployee().getId(), candidate.getEmployee());
+                }
+            }
+            return Result.ok(new ArrayList<>(conflicts.values()));
+        } catch (Exception ex) {
+            log.error("Error while detecting 11-hour rest violations", ex);
+            return Result.fail(error("planning.rest.error"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<List<Employee>> findExcessiveConsecutiveServiceEmployees(
+            LocalDate date,
+            List<Integer> employeeIds,
+            Integer excludedPlanningId) {
+
+        if (date == null || employeeIds == null || employeeIds.isEmpty()) {
+            return Result.ok(new ArrayList<Employee>());
+        }
+
+        EntityManager em = EMF.getEM();
+        try {
+            List<PlanningsEmployee> candidates = em.createNamedQuery(
+                            "getCandidateServiceAssignmentsForWorkRules", PlanningsEmployee.class)
+                    .setParameter("employeeIds", employeeIds)
+                    .setParameter("cancelled", be.atc.erpprojetintegration_1.enums.PlanningStatus.CANCELLED)
+                    .setParameter("candidateStart", date.minusDays(7))
+                    .setParameter("candidateEnd", date.plusDays(7))
+                    .getResultList();
+
+            Map<Integer, java.util.Set<LocalDate>> workedDaysByEmployee = new java.util.LinkedHashMap<>();
+            Map<Integer, Employee> employeeById = new java.util.LinkedHashMap<>();
+            for (Integer employeeId : employeeIds) {
+                if (employeeId == null) continue;
+                workedDaysByEmployee.put(employeeId, new java.util.TreeSet<LocalDate>());
+            }
+            for (PlanningsEmployee candidate : candidates) {
+                Planning existing = candidate.getPlanning();
+                if (excludedPlanningId != null && excludedPlanningId.equals(existing.getId())) continue;
+                Integer employeeId = candidate.getEmployee().getId();
+                java.util.Set<LocalDate> workedDays = workedDaysByEmployee.get(employeeId);
+                if (workedDays == null) continue;
+                workedDays.add(existing.getDate());
+                employeeById.put(employeeId, candidate.getEmployee());
+            }
+            for (Integer employeeId : employeeIds) {
+                if (employeeId != null) {
+                    workedDaysByEmployee.computeIfAbsent(employeeId, k -> new java.util.TreeSet<LocalDate>()).add(date);
+                }
+            }
+
+            Map<Integer, Employee> conflicts = new java.util.LinkedHashMap<>();
+            for (Map.Entry<Integer, java.util.Set<LocalDate>> entry : workedDaysByEmployee.entrySet()) {
+                int consecutive = 0;
+                LocalDate previous = null;
+                for (LocalDate workedDay : entry.getValue()) {
+                    consecutive = previous != null && workedDay.equals(previous.plusDays(1)) ? consecutive + 1 : 1;
+                    previous = workedDay;
+                    if (consecutive > 7) {
+                        Employee employee = employeeById.get(entry.getKey());
+                        if (employee != null) conflicts.put(entry.getKey(), employee);
+                        break;
+                    }
+                }
+            }
+            if (!conflicts.keySet().containsAll(employeeIds)) {
+                for (PlanningsEmployee candidate : candidates) {
+                    Integer employeeId = candidate.getEmployee().getId();
+                    if (conflicts.containsKey(employeeId)) conflicts.put(employeeId, candidate.getEmployee());
+                }
+            }
+            return Result.ok(new ArrayList<>(conflicts.values()));
+        } catch (Exception ex) {
+            log.error("Error while detecting consecutive service days", ex);
+            return Result.fail(error("planning.consecutive.error"));
         } finally {
             em.close();
         }

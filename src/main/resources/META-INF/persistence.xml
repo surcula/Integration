@@ -20,8 +20,6 @@
         <class>be.atc.erpprojetintegration_1.entities.Function</class>
         <class>be.atc.erpprojetintegration_1.entities.Planning</class>
         <class>be.atc.erpprojetintegration_1.entities.PlanningsEmployee</class>
-        <class>be.atc.erpprojetintegration_1.entities.PlanningEmployeeSwapRequest</class>
-        <class>be.atc.erpprojetintegration_1.entities.PlanningSwapProposal</class>
         <class>be.atc.erpprojetintegration_1.entities.PublicHoliday</class>
         <class>be.atc.erpprojetintegration_1.entities.Absence</class>
         <class>be.atc.erpprojetintegration_1.entities.Contract</class>

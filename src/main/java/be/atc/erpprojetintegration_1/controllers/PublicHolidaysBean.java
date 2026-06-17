@@ -44,7 +44,13 @@ public class PublicHolidaysBean implements Serializable {
     }
 
     public void edit(PublicHoliday publicHoliday) {
-        selectedPublicHoliday = publicHoliday;
+        PublicHoliday copy = new PublicHoliday();
+        copy.setId(publicHoliday.getId());
+        copy.setName(publicHoliday.getName());
+        copy.setHolidayDate(publicHoliday.getHolidayDate());
+        copy.setDescription(publicHoliday.getDescription());
+        copy.setIsActive(publicHoliday.getIsActive());
+        selectedPublicHoliday = copy;
     }
 
     public void save() {

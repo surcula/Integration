@@ -11,12 +11,8 @@ import be.atc.erpprojetintegration_1.entities.Department;
 import be.atc.erpprojetintegration_1.entities.Absence;
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.entities.Planning;
-import be.atc.erpprojetintegration_1.entities.PlanningEmployeeSwapRequest;
-import be.atc.erpprojetintegration_1.entities.PlanningSwapProposal;
 import be.atc.erpprojetintegration_1.entities.PlanningsEmployee;
 import be.atc.erpprojetintegration_1.entities.PublicHoliday;
-import be.atc.erpprojetintegration_1.enums.PlanningSwapStatus;
-import be.atc.erpprojetintegration_1.enums.PlanningSwapProposalStatus;
 import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 import be.atc.erpprojetintegration_1.tools.Result;
 import com.lowagie.text.Document;
@@ -97,14 +93,6 @@ public class PlanningBean implements Serializable {
     private boolean allDay;
     private PlanningsEmployee selectedAssignment;
     private List<PlanningsEmployee> planningAssignments;
-    private List<PlanningEmployeeSwapRequest> swapRequests;
-    private List<PlanningSwapProposal> swapProposals;
-    private List<PlanningSwapProposal> selectedSwapProposals;
-    private PlanningEmployeeSwapRequest selectedSwapRequest;
-    private String swapReason;
-    private String swapReviewComment;
-    private String[] swapReplacementEmployeeIds = new String[0];
-    private boolean swapEmergencyMode;
     private String recurrenceMode = "NONE";
     private LocalDate recurrenceEndDate;
     private LocalDate calendarInitialDate;
@@ -143,7 +131,6 @@ public class PlanningBean implements Serializable {
             employees = new ArrayList<>();
         }
         loadPlannings();
-        loadSwapRequests();
         prepareNewPlanning(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0));
     }
 
@@ -237,121 +224,7 @@ public class PlanningBean implements Serializable {
         syncHourFields();
     }
 
-    public void requestSwap() {
-        if (selectedPlanning == null) {
-            addErrorMessage("Cette action est reservee a l'employe affecte.");
-            return;
-        }
-        Result<PlanningEmployeeSwapRequest> result = planningEmployeeBusiness.requestSwap(
-                selectedPlanning.getId(), getConnectedEmployeeId(), swapReason, swapEmergencyMode);
-        if (!result.isSuccess()) {
-            addErrorMessage(swapErrorMessage(result, "Impossible d'envoyer la demande de swap."));
-            return;
-        }
-        swapReason = null;
-        swapEmergencyMode = false;
-        loadSwapRequests();
-        loadSelectedAssignment();
-        addInfoMessage("Demande de swap envoyee au chef de departement.");
-    }
-
-    public void prepareSwapRequest() {
-        swapReason = null;
-        swapEmergencyMode = false;
-    }
-
-    public void selectSwapRequest(PlanningEmployeeSwapRequest request) {
-        selectedSwapRequest = request;
-        swapReplacementEmployeeIds = new String[0];
-        swapReviewComment = request != null ? request.getReviewComment() : null;
-        Result<List<PlanningSwapProposal>> proposals = request == null
-                ? Result.ok(new ArrayList<PlanningSwapProposal>())
-                : planningEmployeeBusiness.getProposalsForRequest(request.getId());
-        selectedSwapProposals = proposals.isSuccess() ? proposals.getData() : new ArrayList<PlanningSwapProposal>();
-    }
-
-    public void proposeSwapReplacements() {
-        if (!isCanManagePlanning() || selectedSwapRequest == null) {
-            addErrorMessage("Vous n'etes pas autorise a traiter cette demande.");
-            return;
-        }
-        List<Integer> replacementIds = new ArrayList<>();
-        if (swapReplacementEmployeeIds != null) {
-            for (String employeeId : swapReplacementEmployeeIds) {
-                if (employeeId != null && !employeeId.trim().isEmpty()) {
-                    try {
-                        replacementIds.add(Integer.valueOf(employeeId));
-                    } catch (NumberFormatException ex) {
-                        log.warn("Invalid replacement employee id received: " + employeeId);
-                    }
-                }
-            }
-        }
-        if (replacementIds.isEmpty()) {
-            addErrorMessage("Selectionnez au moins un remplacant.");
-            FacesContext.getCurrentInstance().validationFailed();
-            return;
-        }
-        Result<Void> result = planningEmployeeBusiness.proposeReplacements(selectedSwapRequest.getId(),
-                replacementIds, getConnectedEmployeeId(), swapReviewComment);
-        if (!result.isSuccess()) {
-            addErrorMessage(swapErrorMessage(result, "Impossible d'envoyer les propositions."));
-            return;
-        }
-        addInfoMessage("Propositions envoyees aux remplacants.");
-        loadSwapRequests();
-        selectedSwapRequest = null;
-    }
-
-    public void acceptSwapProposal(Integer proposalId) {
-        Result<Void> result = planningEmployeeBusiness.acceptProposal(proposalId, getConnectedEmployeeId());
-        if (!result.isSuccess()) {
-            addErrorMessage(swapErrorMessage(result, "Cette proposition ne peut plus etre acceptee."));
-            return;
-        }
-        addInfoMessage("Echange accepte. Le planning a ete mis a jour.");
-        loadSwapRequests();
-        loadPlannings();
-    }
-
-    public void declineSwapProposal(Integer proposalId) {
-        Result<Void> result = planningEmployeeBusiness.declineProposal(proposalId, getConnectedEmployeeId());
-        if (!result.isSuccess()) {
-            addErrorMessage("Impossible de refuser cette proposition.");
-            return;
-        }
-        addInfoMessage("Proposition refusee.");
-        loadSwapRequests();
-    }
-
-    public void refuseSwap() {
-        if (!isCanManagePlanning() || selectedSwapRequest == null) {
-            addErrorMessage("Vous n'etes pas autorise a traiter cette demande.");
-            return;
-        }
-        Result<Void> result = planningEmployeeBusiness.refuse(selectedSwapRequest.getId(),
-                getConnectedEmployeeId(), swapReviewComment);
-        if (!result.isSuccess()) {
-            addErrorMessage("Impossible de refuser la demande de swap.");
-            return;
-        }
-        addInfoMessage("Demande de swap refusee.");
-        loadSwapRequests();
-        selectedSwapRequest = null;
-    }
-
-    public void cancelSwap(Integer requestId) {
-        Result<Void> result = planningEmployeeBusiness.cancel(requestId, getConnectedEmployeeId());
-        if (!result.isSuccess()) {
-            addErrorMessage("Impossible d'annuler la demande de swap.");
-            return;
-        }
-        addInfoMessage("Demande de swap annulee.");
-        loadSwapRequests();
-        loadSelectedAssignment();
-    }
-
-    public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
+public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
         if (!isCanManagePlanning()) {
             addErrorMessage("Vous n'etes pas autorise a modifier le planning.");
             return;
@@ -581,10 +454,6 @@ public class PlanningBean implements Serializable {
         streamPdf(pdf, "planning-mensuel-dept-" + reportMonth + "-" + reportYear + ".pdf");
     }
 
-    private byte[] buildMonthlyPdf(String title, List<Planning> plannings) throws IOException {
-        return buildMonthlyPdf(title, plannings, false);
-    }
-
     private byte[] buildMonthlyPdf(String titleText, List<Planning> plannings, boolean showDepartment) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4, 42, 42, 42, 42);
@@ -806,6 +675,16 @@ public class PlanningBean implements Serializable {
                     .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             addErrorMessage("Conflit de planning" + suffix + " pour : "
                     + result.getErrors().get("conflicts") + ".");
+            return;
+        }
+        if (result.getErrors() != null && result.getErrors().containsKey("rest")) {
+            addErrorMessage("Repos minimum de 11 h non respecte pour : "
+                    + result.getErrors().get("rest") + ".");
+            return;
+        }
+        if (result.getErrors() != null && result.getErrors().containsKey("consecutive")) {
+            addErrorMessage("Maximum 7 jours de service consecutifs depasse pour : "
+                    + result.getErrors().get("consecutive") + ".");
             return;
         }
         addErrorMessage("Impossible d'enregistrer le planning.");
@@ -1130,45 +1009,7 @@ public class PlanningBean implements Serializable {
         }
     }
 
-    private void loadSwapRequests() {
-        Result<List<PlanningEmployeeSwapRequest>> result = planningEmployeeBusiness.getSwapRequests(
-                getConnectedEmployeeId(), isCanManagePlanning());
-        swapRequests = result.isSuccess() ? result.getData() : new ArrayList<PlanningEmployeeSwapRequest>();
-        if (isDepartmentHeadManager()) {
-            swapRequests = swapRequests.stream().filter(request -> request.getPlanningEmployee() != null
-                    && request.getPlanningEmployee().getPlanning() != null
-                    && request.getPlanningEmployee().getPlanning().getDepartment() != null
-                    && managedDepartmentIds.contains(request.getPlanningEmployee().getPlanning().getDepartment().getId()))
-                    .collect(Collectors.toList());
-        }
-        Result<List<PlanningSwapProposal>> proposalResult = planningEmployeeBusiness.getProposalsForEmployee(
-                getConnectedEmployeeId());
-        swapProposals = proposalResult.isSuccess() ? proposalResult.getData() : new ArrayList<PlanningSwapProposal>();
-        if (!result.isSuccess()) {
-            log.warn("Unable to load planning swap requests");
-        }
-    }
-
-    private String swapErrorMessage(Result<?> result, String fallback) {
-        if (result.getErrors() == null) return fallback;
-        String key = result.getErrors().get("message");
-        if ("planning.swap.error.pending".equals(key)) return "Une demande est deja en attente pour cette prestation.";
-        if ("planning.swap.error.past".equals(key)) return "Une prestation passee ne peut plus faire l'objet d'un swap.";
-        if ("planning.swap.error.type".equals(key)) return "Le swap est disponible uniquement pour une prestation de service.";
-        if ("planning.swap.error.reason.required".equals(key)) return "Indiquez la raison de votre demande.";
-        if ("planning.swap.error.reason.length".equals(key)) return "La raison est limitee a 500 caracteres.";
-        if ("planning.swap.error.replacement".equals(key)) return "Selectionnez un autre employe comme remplacant.";
-        if ("planning.swap.error.alreadyAssigned".equals(key)) return "Cet employe est deja affecte a cette prestation.";
-        if ("planning.swap.error.conflict".equals(key)) return "Le remplacant possede deja un planning sur cette plage horaire.";
-        if ("planning.swap.error.absence".equals(key)) return "Le remplacant est absent sur cette plage horaire.";
-        if ("planning.swap.error.notPending".equals(key)) return "Cette demande a deja ete traitee.";
-        if ("planning.swap.error.emergency.required".equals(key)) return "A moins de 24 h, activez le mode urgence.";
-        if ("planning.swap.proposal.error.deadline".equals(key)) return "Le delai d'acceptation est depasse.";
-        if ("planning.swap.proposal.error.unavailable".equals(key)) return "Cette proposition n'est plus disponible.";
-        return fallback;
-    }
-
-    private Department findSelectedDepartment() {
+private Department findSelectedDepartment() {
         if (selectedDepartmentId == null || departments == null) {
             return null;
         }
@@ -1352,56 +1193,12 @@ public class PlanningBean implements Serializable {
     public Integer getReportDepartmentId() { return reportDepartmentId; }
     public void setReportDepartmentId(Integer reportDepartmentId) { this.reportDepartmentId = reportDepartmentId; }
 
-    public boolean isCanRequestSwap() {
-        return selectedPlanning != null && selectedAssignment != null
-                && "SERVICE".equalsIgnoreCase(selectedPlanning.getType())
-                && selectedPlanning.getDate() != null && !selectedPlanning.getDate().isBefore(LocalDate.now())
-                && getPendingSwapForSelectedPlanning() == null;
-    }
-
-    public PlanningEmployeeSwapRequest getPendingSwapForSelectedPlanning() {
-        if (selectedPlanning == null || swapRequests == null) return null;
-        for (PlanningEmployeeSwapRequest request : swapRequests) {
-            if (request.getStatus() == PlanningSwapStatus.PENDING
-                    && request.getPlanningEmployee() != null
-                    && request.getPlanningEmployee().getPlanning() != null
-                    && selectedPlanning.getId().equals(request.getPlanningEmployee().getPlanning().getId())) {
-                return request;
-            }
-        }
-        return null;
-    }
-
-    public String getSelectedHoursLabel() {
+public String getSelectedHoursLabel() {
         if (selectedAssignment == null) return "-";
         return planningEmployeeBusiness.calculateHours(selectedAssignment).toPlainString() + " h";
     }
 
-    public List<PlanningEmployeeSwapRequest> getSwapRequests() { return swapRequests; }
-    public List<PlanningSwapProposal> getSwapProposals() { return swapProposals; }
-    public List<PlanningSwapProposal> getSelectedSwapProposals() { return selectedSwapProposals; }
-    public PlanningEmployeeSwapRequest getSelectedSwapRequest() { return selectedSwapRequest; }
-    public void setSelectedSwapRequest(PlanningEmployeeSwapRequest value) { selectedSwapRequest = value; }
-    public String getSwapReason() { return swapReason; }
-    public void setSwapReason(String value) { swapReason = value; }
-    public String getSwapReviewComment() { return swapReviewComment; }
-    public void setSwapReviewComment(String value) { swapReviewComment = value; }
-    public String[] getSwapReplacementEmployeeIds() { return swapReplacementEmployeeIds; }
-    public void setSwapReplacementEmployeeIds(String[] value) {
-        swapReplacementEmployeeIds = value == null ? new String[0] : value;
-    }
-    public boolean isSwapEmergencyMode() { return swapEmergencyMode; }
-    public void setSwapEmergencyMode(boolean value) { swapEmergencyMode = value; }
-
-    public String getSwapStatusCss(PlanningSwapStatus status) {
-        return status == null ? "pending" : status.name().toLowerCase();
-    }
-
-    public String getSwapProposalStatusCss(PlanningSwapProposalStatus status) {
-        return status == null ? "pending" : status.name().toLowerCase();
-    }
-
-    public String planningStatusLabel(Planning planning) {
+public String planningStatusLabel(Planning planning) {
         return planning == null || planning.getStatus() == null
                 ? "Brouillon" : planning.getStatus().getLabel();
     }
@@ -1421,16 +1218,6 @@ public class PlanningBean implements Serializable {
     public LocalDate getRecurrenceEndDate() { return recurrenceEndDate; }
     public void setRecurrenceEndDate(LocalDate recurrenceEndDate) { this.recurrenceEndDate = recurrenceEndDate; }
     public boolean isNewPlanning() { return selectedPlanning != null && selectedPlanning.getId() == null; }
-    public boolean getNewPlanning() { return isNewPlanning(); }
     public LocalDate getCalendarInitialDate() { return calendarInitialDate; }
 
-    public String formatSwapDate(PlanningEmployeeSwapRequest request) {
-        if (request == null || request.getPlanningEmployee() == null
-                || request.getPlanningEmployee().getPlanning() == null
-                || request.getPlanningEmployee().getPlanning().getDate() == null) {
-            return "-";
-        }
-        return request.getPlanningEmployee().getPlanning().getDate()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-    }
 }

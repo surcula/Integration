@@ -3,7 +3,6 @@ package be.atc.erpprojetintegration_1.services;
 import be.atc.erpprojetintegration_1.entities.Planning;
 import be.atc.erpprojetintegration_1.interfaces.IPlanningService;
 import be.atc.erpprojetintegration_1.enums.PlanningStatus;
-import be.atc.erpprojetintegration_1.enums.PlanningSwapStatus;
 import be.atc.erpprojetintegration_1.tools.EMF;
 import be.atc.erpprojetintegration_1.tools.Result;
 import org.apache.log4j.Logger;
@@ -244,12 +243,6 @@ public class PlanningServiceImpl implements IPlanningService {
                 planning.setCancelledAt(null);
             } else if (status == PlanningStatus.CANCELLED) {
                 planning.setCancelledAt(LocalDateTime.now());
-                em.createNamedQuery("cancelPendingSwapRequestsByPlanning")
-                        .setParameter("cancelled", PlanningSwapStatus.CANCELLED)
-                        .setParameter("reviewedAt", LocalDateTime.now())
-                        .setParameter("planningId", id)
-                        .setParameter("pending", PlanningSwapStatus.PENDING)
-                        .executeUpdate();
             }
             em.getTransaction().commit();
             return Result.ok(planning);

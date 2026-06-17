@@ -2,9 +2,7 @@ package be.atc.erpprojetintegration_1.interfaces;
 
 import be.atc.erpprojetintegration_1.entities.Employee;
 import be.atc.erpprojetintegration_1.entities.Planning;
-import be.atc.erpprojetintegration_1.entities.PlanningEmployeeSwapRequest;
 import be.atc.erpprojetintegration_1.entities.PlanningsEmployee;
-import be.atc.erpprojetintegration_1.enums.PlanningSwapStatus;
 import be.atc.erpprojetintegration_1.tools.Result;
 
 import java.time.LocalDate;
@@ -24,24 +22,32 @@ public interface IPlanningEmployeeService {
      */
     Result<List<Employee>> getActiveEmployees(Integer planningId);
 
+    /**
+     * Retrieves all active assignment records for a planning entry, including employee details.
+     *
+     * @param planningId planning id
+     * @return assignment list result
+     */
     Result<List<PlanningsEmployee>> getActiveAssignments(Integer planningId);
 
+    /**
+     * Updates the note and performed flag of an assignment.
+     *
+     * @param assignmentId assignment id
+     * @param note         optional note
+     * @param performed    whether the assignment was performed
+     * @return operation result
+     */
     Result<Void> updateAssignment(Integer assignmentId, String note, Boolean performed);
 
+    /**
+     * Retrieves the active assignment for a specific employee on a planning entry.
+     *
+     * @param planningId planning id
+     * @param employeeId employee id
+     * @return assignment result, or empty data if not assigned
+     */
     Result<PlanningsEmployee> getActiveAssignment(Integer planningId, Integer employeeId);
-
-    Result<List<PlanningEmployeeSwapRequest>> getSwapRequests(Integer employeeId, boolean allEmployees);
-
-    Result<PlanningEmployeeSwapRequest> getSwapRequest(Integer requestId);
-
-    Result<PlanningEmployeeSwapRequest> createSwapRequest(
-            Integer planningEmployeeId, Integer requestedByEmployeeId, String reason, Boolean emergencyMode);
-
-    Result<Void> reviewSwapRequest(Integer requestId, PlanningSwapStatus status,
-                                   Integer replacementEmployeeId, Integer reviewedByEmployeeId,
-                                   String reviewComment);
-
-    Result<Void> cancelSwapRequest(Integer requestId, Integer requestedByEmployeeId);
 
     /**
      * Replaces all active employee assignments for a planning entry.
@@ -66,6 +72,29 @@ public interface IPlanningEmployeeService {
             LocalDate date,
             LocalTime startHour,
             LocalTime endHour,
+            List<Integer> employeeIds,
+            Integer excludedPlanningId
+    );
+
+
+    /**
+     * Finds employees who would not have 11 hours of rest between two service shifts.
+     * Split shifts on the same calendar day are allowed.
+     */
+    Result<List<Employee>> findInsufficientRestEmployees(
+            LocalDate date,
+            LocalTime startHour,
+            LocalTime endHour,
+            List<Integer> employeeIds,
+            Integer excludedPlanningId
+    );
+
+    /**
+     * Finds employees who would exceed seven consecutive service days.
+     * Multiple service shifts on the same day count as one worked day.
+     */
+    Result<List<Employee>> findExcessiveConsecutiveServiceEmployees(
+            LocalDate date,
             List<Integer> employeeIds,
             Integer excludedPlanningId
     );

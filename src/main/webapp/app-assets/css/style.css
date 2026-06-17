@@ -1934,94 +1934,11 @@ html[data-theme="dark"] {
   }
 }
 
-.planning-calendar {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  border: 1px solid var(--admin-border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.planning-day-name {
-  padding: 0.85rem 0.75rem;
-  border-right: 1px solid var(--admin-border);
-  border-bottom: 1px solid var(--admin-border);
-  background: var(--admin-surface-soft);
-  color: var(--admin-muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.planning-day-name:nth-child(7) {
-  border-right: 0;
-}
-
-.planning-day {
-  min-height: 132px;
-  padding: 0.75rem;
-  border-right: 1px solid var(--admin-border);
-  border-bottom: 1px solid var(--admin-border);
-  background: var(--admin-surface);
-}
-
-.planning-day:nth-child(7n) {
-  border-right: 0;
-}
-
-.planning-date {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin-bottom: 0.65rem;
-  border-radius: 8px;
-  background: var(--admin-surface-soft);
-  color: var(--admin-text);
-  font-weight: 800;
-}
-
-.planning-chip {
-  display: block;
-  width: 100%;
-  padding: 0.45rem 0.55rem;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.planning-chip-work,
-.planning-legend-work {
-  background: #3b82f6;
-}
-
-.planning-chip-rest,
-.planning-legend-rest {
-  background: #22c55e;
-}
-
-.planning-chip-recovery,
-.planning-legend-recovery {
-  background: #facc15;
-}
-
-.planning-chip-holiday,
-.planning-legend-holiday {
-  background: #ef4444;
-}
-
-.planning-chip-vacation,
-.planning-legend-vacation {
-  background: #f97316;
-}
-
-.planning-chip-recovery {
-  color: #422006;
-}
+.planning-legend-work { background: #3b82f6; }
+.planning-legend-rest { background: #22c55e; }
+.planning-legend-recovery { background: #facc15; }
+.planning-legend-holiday { background: #ef4444; }
+.planning-legend-vacation { background: #f97316; }
 
 .planning-legend {
   display: grid;
@@ -2135,20 +2052,6 @@ html[data-theme="dark"] {
   color: #fff;
 }
 
-@media (max-width: 991.98px) {
-  .planning-calendar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .planning-day-name {
-    display: none;
-  }
-
-  .planning-day,
-  .planning-day:nth-child(7n) {
-    border-right: 1px solid var(--admin-border);
-  }
-}
 .absence-status {
     display: inline-flex;
     align-items: center;
@@ -2319,42 +2222,6 @@ html[data-theme="dark"] {
     height: 100%;
     pointer-events: none;
 }
-.planning-swap-section {
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border-color, #e2e8f0);
-}
-
-.planning-swap-header {
-  margin-bottom: 0.75rem;
-}
-
-.planning-swap-meta,
-.planning-swap-review-summary span {
-  display: block;
-  color: #64748b;
-  font-size: 0.85rem;
-  margin-top: 0.2rem;
-}
-
-.planning-swap-status {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.75rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 4px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.planning-swap-status-pending { background: #fef3c7; color: #92400e; }
-.planning-swap-status-approved { background: #dcfce7; color: #166534; }
-.planning-swap-status-refused,
-.planning-swap-status-cancelled { background: #fee2e2; color: #991b1b; }
-.planning-swap-status-accepted { background: #dcfce7; color: #166534; }
-.planning-swap-status-declined,
-.planning-swap-status-expired { background: #fee2e2; color: #991b1b; }
 
 .planning-status {
   display: inline-flex;
@@ -2393,8 +2260,7 @@ html[data-theme="dark"] {
   border-top: 1px solid #e2e8f0;
 }
 
-.planning-assignment-summary div,
-.planning-swap-review-summary {
+.planning-assignment-summary div {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -2445,6 +2311,13 @@ html[data-theme="dark"] {
 
 .planning-hours-row {
   margin-top: 0;
+}
+
+.planning-readonly-value {
+  background: var(--admin-surface-soft);
+  color: var(--admin-muted);
+  cursor: default;
+  pointer-events: none;
 }
 
 .planning-dialog-actions .ui-button {

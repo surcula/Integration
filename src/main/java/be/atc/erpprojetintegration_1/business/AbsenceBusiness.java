@@ -44,12 +44,18 @@ public class AbsenceBusiness {
         List<Integer> managedIds = new ArrayList<>();
         for (DepartmentHead head : heads.getData()) managedIds.add(head.getDepartment().getId());
         List<Absence> accessible = new ArrayList<>();
+        Map<Integer, Integer> employeeDeptCache = new HashMap<>();
         for (Absence absence : all.getData()) {
-            Result<EmployeeDepartment> assignment = employeeDepartmentService
-                    .getActiveEmployeeDepartmentByEmployeeId(absence.getEmployee().getId());
-            if (assignment.isSuccess() && managedIds.contains(assignment.getData().getDepartment().getId())) {
-                accessible.add(absence);
+            Integer empId = absence.getEmployee().getId();
+            Integer deptId = employeeDeptCache.get(empId);
+            if (deptId == null) {
+                Result<EmployeeDepartment> assignment = employeeDepartmentService
+                        .getActiveEmployeeDepartmentByEmployeeId(empId);
+                if (!assignment.isSuccess()) continue;
+                deptId = assignment.getData().getDepartment().getId();
+                employeeDeptCache.put(empId, deptId);
             }
+            if (managedIds.contains(deptId)) accessible.add(absence);
         }
         return Result.ok(accessible);
     }
@@ -244,8 +250,7 @@ public class AbsenceBusiness {
     }
 
     private boolean overlaps(Absence absence, Planning planning) {
-        if (!blocksPlanning(absence, planning.getDate(), planning.getStartHour(), planning.getEndHour())) return false;
-        return true;
+        return blocksPlanning(absence, planning.getDate(), planning.getStartHour(), planning.getEndHour());
     }
 
     private String trim(String value) { return value == null ? null : value.trim(); }

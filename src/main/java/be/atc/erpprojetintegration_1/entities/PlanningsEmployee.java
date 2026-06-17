@@ -35,6 +35,15 @@ import java.time.Duration;
                         "AND p.status <> :cancelled " +
                         "AND e.id IN :employeeIds AND p.date BETWEEN :candidateStart AND :candidateEnd " +
                         "ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
+                name = "getCandidateServiceAssignmentsForWorkRules",
+                query = "SELECT pe FROM PlanningsEmployee pe JOIN FETCH pe.employee e " +
+                        "JOIN FETCH pe.planning p WHERE pe.isActive = true AND p.isActive = true " +
+                        "AND p.status <> :cancelled " +
+                        "AND UPPER(p.type) = 'SERVICE' " +
+                        "AND e.id IN :employeeIds AND p.date BETWEEN :candidateStart AND :candidateEnd " +
+                        "ORDER BY e.id, p.date, p.startHour"
         )
 })
 @Entity

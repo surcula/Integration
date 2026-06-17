@@ -182,12 +182,33 @@ public class PlanningBusiness {
         }
 
         if (!conflictResult.getData().isEmpty()) {
-            String employeeNames = conflictResult.getData().stream()
-                    .map(employee -> employee.getFirstName() + " " + employee.getLastName())
-                    .collect(Collectors.joining(", "));
             Map<String, String> errors = new HashMap<>();
-            errors.put("conflicts", employeeNames);
+            errors.put("conflicts", employeeNames(conflictResult.getData()));
             return Result.fail(errors);
+        }
+
+        if (isService(planning)) {
+            Result<List<Employee>> restResult = planningEmployeeService.findInsufficientRestEmployees(
+                    planning.getDate(), planning.getStartHour(), planning.getEndHour(), employeeIds, planning.getId());
+            if (!restResult.isSuccess()) {
+                return Result.fail(restResult.getErrors());
+            }
+            if (!restResult.getData().isEmpty()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("rest", employeeNames(restResult.getData()));
+                return Result.fail(errors);
+            }
+
+            Result<List<Employee>> consecutiveResult = planningEmployeeService.findExcessiveConsecutiveServiceEmployees(
+                    planning.getDate(), employeeIds, planning.getId());
+            if (!consecutiveResult.isSuccess()) {
+                return Result.fail(consecutiveResult.getErrors());
+            }
+            if (!consecutiveResult.getData().isEmpty()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("consecutive", employeeNames(consecutiveResult.getData()));
+                return Result.fail(errors);
+            }
         }
 
         Result<List<String>> absenceConflicts = absenceBusiness.findPlanningConflicts(
@@ -201,6 +222,17 @@ public class PlanningBusiness {
             return Result.fail(errors);
         }
         return Result.ok();
+    }
+
+    private boolean isService(Planning planning) {
+        return planning != null && planning.getType() != null
+                && "SERVICE".equalsIgnoreCase(planning.getType().trim());
+    }
+
+    private String employeeNames(List<Employee> employees) {
+        return employees.stream()
+                .map(employee -> employee.getFirstName() + " " + employee.getLastName())
+                .collect(Collectors.joining(", "));
     }
 
     private Planning copyForDate(Planning source, LocalDate date) {

@@ -23,8 +23,8 @@
                 </span>
                 <div>
                     <p class="eyebrow mb-1">#{msg['employees.section']}</p>
-                    <h1 class="h3 mb-1">#{employeesBean.teamView ? 'Mon équipe' : msg['employees.title']}</h1>
-                    <p class="text-muted mb-0">#{employeesBean.teamView ? 'Employés actuellement affectés à votre département.' : msg['employees.subtitle']}</p>
+                    <h1 class="h3 mb-1">#{msg['employees.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['employees.subtitle']}</p>
                 </div>
             </div>
             <h:link outcome="/views/employee-edit"
@@ -145,13 +145,6 @@
         </div>
         </h:panelGroup>
 
-        <h:panelGroup layout="block" rendered="#{not employeesBean.canViewEmployeeList}">
-            <div class="panel">
-                <div class="alert alert-danger mb-0">
-                    Cette liste est réservée aux ressources humaines, aux administrateurs et aux chefs de département.
-                </div>
-            </div>
-        </h:panelGroup>
 
     </ui:define>
 

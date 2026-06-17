@@ -36,6 +36,57 @@
             </div>
         </div>
 
+        <h:panelGroup layout="block" rendered="#{departmentsBean.showManagedEmployees}">
+            <div class="panel mb-3">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="bi bi-people" aria-hidden="true"></i>
+                            <span>Mes employes</span>
+                        </h2>
+                        <p class="text-muted mb-0">Employes actuellement affectes a votre departement.</p>
+                    </div>
+                </div>
+                <h:form id="managedEmployeesForm">
+                    <p:dataTable value="#{departmentsBean.managedEmployees}"
+                             var="employee"
+                             widgetVar="managedEmployeesTable"
+                             styleClass="table align-middle mb-0 erp-data-table"
+                             paginator="true"
+                             rows="5"
+                             emptyMessage="Aucun employe affecte a votre departement.">
+                    <f:facet name="header">
+                        <div class="d-flex justify-content-end">
+                            <span class="p-input-icon-left employee-global-search">
+                                <i class="bi bi-search"></i>
+                                <p:inputText id="managedEmployeesFilter"
+                                             styleClass="form-control"
+                                             onkeyup="PF('managedEmployeesTable').filter()"
+                                             placeholder="Rechercher..."/>
+                            </span>
+                        </div>
+                    </f:facet>
+                    <p:column headerText="Employe" sortBy="#{employee.fullName}"
+                              filterBy="#{employee.fullName}" filterMatchMode="contains" filterStyle="display:none">
+                        <strong>#{employee.fullName}</strong>
+                    </p:column>
+                    <p:column headerText="Departement" sortBy="#{employee.departmentName}"
+                              filterBy="#{employee.departmentName}" filterMatchMode="contains" filterStyle="display:none">
+                        #{employee.departmentName}
+                    </p:column>
+                    <p:column headerText="Telephone" filterBy="#{employee.phone}"
+                              filterMatchMode="contains" filterStyle="display:none">
+                        #{employee.phone}
+                    </p:column>
+                    <p:column headerText="Email" sortBy="#{employee.email}"
+                              filterBy="#{employee.email}" filterMatchMode="contains" filterStyle="display:none">
+                        #{employee.email}
+                    </p:column>
+                    </p:dataTable>
+                </h:form>
+            </div>
+        </h:panelGroup>
+
         <div class="panel">
             <div class="table-responsive">
                 <h:form id="departmentsForm">

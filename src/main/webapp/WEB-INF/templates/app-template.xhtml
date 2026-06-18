@@ -51,30 +51,22 @@
                     </a>
 
                     <span class="nav-section-title">#{msg['nav.staff']}</span>
-                    <a class="nav-link" href="#{request.contextPath}/views/employees.xhtml">
-                        <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.employees']}</span>
-                    </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/departments.xhtml">
-                        <span class="nav-icon"><i class="bi bi-hospital" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.departments']}</span>
-                    </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/functions.xhtml">
-                        <span class="nav-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.functions']}</span>
-                    </a>
                     <ui:fragment rendered="#{authBean.hasRole('HR') or authBean.hasRole('ADMIN') or authBean.hasRole('EMPLOYEE')}">
                         <a class="nav-link" href="#{request.contextPath}/views/contracts.xhtml">
                             <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
                             <span class="nav-text">#{msg['nav.contracts']}</span>
                         </a>
                     </ui:fragment>
+                    <a class="nav-link" href="#{request.contextPath}/views/departments.xhtml">
+                        <span class="nav-icon"><i class="bi bi-hospital" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.departments']}</span>
+                    </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/employees.xhtml">
+                        <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.employees']}</span>
+                    </a>
 
                     <span class="nav-section-title">#{msg['nav.timePlanning']}</span>
-                    <a class="nav-link" href="#{request.contextPath}/views/planning.xhtml">
-                        <span class="nav-icon"><i class="bi bi-calendar3" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.planning']}</span>
-                    </a>
                     <a class="nav-link" href="#{request.contextPath}/views/absences.xhtml">
                         <span class="nav-icon"><i class="bi bi-calendar-x" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.absences']}</span>
@@ -83,8 +75,16 @@
                         <span class="nav-icon"><i class="bi bi-calendar-heart" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.publicHolidays']}</span>
                     </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/planning.xhtml">
+                        <span class="nav-icon"><i class="bi bi-calendar3" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.planning']}</span>
+                    </a>
 
                     <span class="nav-section-title">#{msg['nav.skills']}</span>
+                    <a class="nav-link" href="#{request.contextPath}/views/certifications.xhtml">
+                        <span class="nav-icon"><i class="bi bi-award" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.certifications']}</span>
+                    </a>
                     <a class="nav-link" href="#{request.contextPath}/views/evaluations.xhtml">
                         <span class="nav-icon"><i class="bi bi-clipboard-check" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.evaluations']}</span>
@@ -93,32 +93,55 @@
                         <span class="nav-icon"><i class="bi bi-mortarboard" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.trainings']}</span>
                     </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/certifications.xhtml">
-                        <span class="nav-icon"><i class="bi bi-award" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.certifications']}</span>
-                    </a>
 
                     <span class="nav-section-title">#{msg['nav.recruitment']}</span>
-                    <a class="nav-link" href="#{request.contextPath}/views/job-offers-public.xhtml">
-                        <span class="nav-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.jobOffers']}</span>
-                    </a>
                     <a class="nav-link" href="#{request.contextPath}/views/applications.xhtml">
                         <span class="nav-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.applications']}</span>
                     </a>
+                    <a class="nav-link" href="#{request.contextPath}/views/job-offers-public.xhtml">
+                        <span class="nav-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
+                        <span class="nav-text">#{msg['nav.jobOffers']}</span>
+                    </a>
 
                     <span class="nav-section-title">#{msg['nav.administration']}</span>
+                    <ui:fragment rendered="#{authBean.hasPermission('address:read')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/addresses.xhtml">
+                            <span class="nav-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['addresses.title']}</span>
+                        </a>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{authBean.hasPermission('superior:read')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/superiors.xhtml">
+                            <span class="nav-icon"><i class="bi bi-person-workspace" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['superiors.title']}</span>
+                        </a>
+                    </ui:fragment>
                     <ui:fragment rendered="#{authBean.hasRole('ADMIN')}">
                         <a class="nav-link" href="#{request.contextPath}/views/company.xhtml">
                             <span class="nav-icon"><i class="bi bi-building" aria-hidden="true"></i></span>
                             <span class="nav-text">#{msg['nav.company']}</span>
                         </a>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{authBean.hasPermission('city:read')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/cities-admin.xhtml">
+                            <span class="nav-icon"><i class="bi bi-map" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['cities.title']}</span>
+                        </a>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{authBean.hasPermission('function:read') or authBean.hasPermission('function:create') or authBean.hasPermission('function:edit') or authBean.hasPermission('function:delete')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/functions.xhtml">
+                            <span class="nav-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.functions']}</span>
+                        </a>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{authBean.hasRole('ADMIN')}">
                         <a class="nav-link" href="#{request.contextPath}/views/roles.xhtml">
                             <span class="nav-icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
                             <span class="nav-text">#{msg['nav.roles']}</span>
                         </a>
                     </ui:fragment>
+
                     <a class="nav-link" href="#{request.contextPath}/views/settings.xhtml">
                         <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.settings']}</span>

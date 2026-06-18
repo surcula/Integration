@@ -39,6 +39,29 @@ public class SuperiorServiceImpl implements ISuperiorService {
     }
 
     @Override
+    public Result<List<Superior>> getActiveBySuperiorId(Integer superiorId) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching active superior assignments by superior id: " + superiorId);
+            List<Superior> superiors = em.createNamedQuery("getActiveSuperiorsBySuperiorId", Superior.class)
+                    .setParameter("superiorId", superiorId)
+                    .getResultList();
+            log.info("Active superior assignments found: " + superiors.size());
+            return Result.ok(superiors);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "superiors.error.load");
+            log.error("Error while searching active superior assignments by superior id: " + superiorId, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<Superior> getById(Integer id) {
         EntityManager em = EMF.getEM();
 

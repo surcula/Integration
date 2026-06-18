@@ -15,6 +15,8 @@ public interface IEmployeeDepartmentService {
      */
     Result<EmployeeDepartment> getActiveEmployeeDepartmentByEmployeeId(Integer id);
 
+    Result<List<EmployeeDepartment>> getActiveEmployeeDepartmentsByDepartmentId(Integer departmentId);
+
     /**
      * Retrieves employee department relations.
      *

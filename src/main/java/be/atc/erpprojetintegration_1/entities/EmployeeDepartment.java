@@ -31,6 +31,18 @@ import java.time.LocalDate;
                         "ORDER BY e.lastName, e.firstName"
         ),
         @NamedQuery(
+                name = "getActiveEmployeeDepartmentsByDepartmentId",
+                query = "SELECT ed " +
+                        "FROM EmployeeDepartment ed " +
+                        "JOIN FETCH ed.employee e " +
+                        "JOIN FETCH ed.department d " +
+                        "WHERE d.id = :departmentId " +
+                        "AND ed.isActive = true " +
+                        "AND e.isActive = true " +
+                        "AND d.isActive = true " +
+                        "ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
                 name = "getAllEmployeeDepartments",
                 query = "SELECT ed FROM EmployeeDepartment ed " +
                         "JOIN FETCH ed.employee e JOIN FETCH ed.department d " +

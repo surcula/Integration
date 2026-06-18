@@ -31,6 +31,16 @@
         <div class="panel">
             <div class="table-responsive">
                 <h:form id="functionsForm">
+                    <div class="table-search-toolbar">
+                        <span class="p-input-icon-left table-global-search">
+                            <i class="bi bi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         styleClass="form-control"
+                                         onkeyup="PF('functionsTable').filter()"
+                                         placeholder="#{msg['functions.search']}"/>
+                        </span>
+                    </div>
+
                     <p:dataTable value="#{functionsBean.functions}"
                                  var="function"
                                  widgetVar="functionsTable"
@@ -40,18 +50,6 @@
                                  rowsPerPageTemplate="10,25,50"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['functions.empty']}">
-
-                        <f:facet name="header">
-                            <div class="d-flex justify-content-end">
-                                <span class="p-input-icon-left employee-global-search">
-                                    <i class="bi bi-search"></i>
-                                    <p:inputText id="globalFilter"
-                                                 styleClass="form-control"
-                                                 onkeyup="PF('functionsTable').filter()"
-                                                 placeholder="#{msg['functions.search']}"/>
-                                </span>
-                            </div>
-                        </f:facet>
 
                         <p:column headerText="#{msg['functions.name']}"
                                   sortBy="#{function.functionName}"

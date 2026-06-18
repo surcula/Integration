@@ -77,6 +77,32 @@ public class EmployeeDepartmentServiceImpl implements IEmployeeDepartmentService
     }
 
     @Override
+    public Result<List<EmployeeDepartment>> getActiveEmployeeDepartmentsByDepartmentId(Integer departmentId) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching active employee departments by department id: " + departmentId);
+            List<EmployeeDepartment> employeeDepartments = em
+                    .createNamedQuery("getActiveEmployeeDepartmentsByDepartmentId", EmployeeDepartment.class)
+                    .setParameter("departmentId", departmentId)
+                    .getResultList();
+
+            log.info("Active employee departments found for department id " + departmentId + ": " + employeeDepartments.size());
+            return Result.ok(employeeDepartments);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", ex.getMessage());
+
+            log.error("Error while searching active employee departments by department id: " + departmentId, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<List<EmployeeDepartment>> getAll() {
         EntityManager em = EMF.getEM();
         try {

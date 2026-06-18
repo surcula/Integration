@@ -1825,12 +1825,22 @@ html[data-theme="dark"] {
   color: var(--admin-text);
 }
 
-.employee-global-search {
+.table-search-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.employee-global-search,
+.table-global-search {
   position: relative;
   width: min(100%, 320px);
 }
 
-.employee-global-search .bi-search {
+.employee-global-search .bi-search,
+.table-global-search .bi-search {
   position: absolute;
   top: 50%;
   left: 0.85rem;
@@ -1839,12 +1849,24 @@ html[data-theme="dark"] {
   transform: translateY(-50%);
 }
 
-.employee-global-search .form-control {
+.employee-global-search .form-control,
+.table-global-search .form-control {
   padding-left: 2.35rem;
 }
 
 .job-offers-search .form-control {
   padding-left: 0.75rem;
+}
+
+@media (max-width: 767px) {
+  .table-search-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .table-search-toolbar .table-global-search {
+    width: 100%;
+  }
 }
 
 .job-offers-management-panel {

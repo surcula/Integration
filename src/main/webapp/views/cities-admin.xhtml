@@ -31,8 +31,24 @@
         <div class="panel">
             <div class="table-responsive">
                 <h:form id="citiesForm">
+                    <div class="table-search-toolbar">
+                        <span class="p-input-icon-left table-global-search">
+                            <i class="bi bi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         value="#{citiesBean.searchTerm}"
+                                         styleClass="form-control"
+                                         placeholder="#{msg['cities.search']}">
+                                <p:ajax event="keyup"
+                                        delay="250"
+                                        process="@this"
+                                        update="citiesAdminTable"/>
+                            </p:inputText>
+                        </span>
+                    </div>
+
                     <p:dataTable value="#{citiesBean.cities}"
                                  var="city"
+                                 id="citiesAdminTable"
                                  widgetVar="citiesAdminTable"
                                  styleClass="table align-middle mb-0 erp-data-table"
                                  paginator="true"
@@ -41,31 +57,13 @@
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['cities.empty']}">
 
-                        <f:facet name="header">
-                            <div class="d-flex justify-content-end">
-                                <span class="p-input-icon-left employee-global-search">
-                                    <i class="bi bi-search"></i>
-                                    <p:inputText id="globalFilter"
-                                                 styleClass="form-control"
-                                                 onkeyup="PF('citiesAdminTable').filter()"
-                                                 placeholder="#{msg['cities.search']}"/>
-                                </span>
-                            </div>
-                        </f:facet>
-
                         <p:column headerText="#{msg['cities.name']}"
-                                  sortBy="#{city.cityName}"
-                                  filterBy="#{city.cityName}"
-                                  filterMatchMode="contains"
-                                  filterStyle="display:none">
+                                  sortBy="#{city.cityName}">
                             <strong>#{city.cityName}</strong>
                         </p:column>
 
                         <p:column headerText="#{msg['cities.zipCode']}"
-                                  sortBy="#{city.zipCode}"
-                                  filterBy="#{city.zipCode}"
-                                  filterMatchMode="contains"
-                                  filterStyle="display:none">
+                                  sortBy="#{city.zipCode}">
                             #{city.zipCode}
                         </p:column>
 

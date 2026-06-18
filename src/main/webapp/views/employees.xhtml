@@ -38,6 +38,16 @@
         <div class="panel">
             <div class="table-responsive">
                 <h:form id="employeesForm">
+                    <div class="table-search-toolbar">
+                        <span class="p-input-icon-left table-global-search">
+                            <i class="bi bi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         styleClass="form-control"
+                                         onkeyup="PF('employeesTable').filter()"
+                                         placeholder="#{msg['employees.search']}"/>
+                        </span>
+                    </div>
+
                     <p:dataTable value="#{employeesBean.employees}"
                                  var="employee"
                                  widgetVar="employeesTable"
@@ -47,18 +57,6 @@
                                  rowsPerPageTemplate="10,25,50"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['employees.empty']}">
-
-                        <f:facet name="header">
-                            <div class="d-flex justify-content-end">
-                                <span class="p-input-icon-left employee-global-search">
-                                    <i class="bi bi-search"></i>
-                                    <p:inputText id="globalFilter"
-                                                 styleClass="form-control"
-                                                 onkeyup="PF('employeesTable').filter()"
-                                                 placeholder="#{msg['employees.search']}"/>
-                                </span>
-                            </div>
-                        </f:facet>
 
                         <p:column headerText="#{msg['employees.fullName']}"
                                   sortBy="#{employee.fullName}"

@@ -35,6 +35,16 @@
         <div class="panel">
             <div class="table-responsive">
                 <h:form id="rolesForm">
+                    <div class="table-search-toolbar">
+                        <span class="p-input-icon-left table-global-search">
+                            <i class="bi bi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         styleClass="form-control"
+                                         onkeyup="PF('rolesTable').filter()"
+                                         placeholder="#{msg['roles.search']}"/>
+                        </span>
+                    </div>
+
                     <p:dataTable value="#{rolesBean.roles}"
                                  var="role"
                                  widgetVar="rolesTable"
@@ -44,18 +54,6 @@
                                  rowsPerPageTemplate="10,25,50"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['roles.empty']}">
-
-                        <f:facet name="header">
-                            <div class="d-flex justify-content-end">
-                                <span class="p-input-icon-left employee-global-search">
-                                    <i class="bi bi-search"></i>
-                                    <p:inputText id="globalFilter"
-                                                 styleClass="form-control"
-                                                 onkeyup="PF('rolesTable').filter()"
-                                                 placeholder="#{msg['roles.search']}"/>
-                                </span>
-                            </div>
-                        </f:facet>
 
                         <p:column headerText="#{msg['roles.name']}"
                                   sortBy="#{role.roleName}"

@@ -68,6 +68,18 @@ public class SuperiorsBean implements Serializable {
         loadSuperiors();
     }
 
+    public void changeDepartmentHeadActiveStatus(Integer departmentHeadId, boolean active) {
+        Result<Void> result = superiorBusiness.setDepartmentHeadActive(departmentHeadId, !active);
+
+        if (!result.isSuccess()) {
+            MessageUtils.addErrorMessages(result, active ? "superiors.delete.error" : "superiors.activate.error");
+            return;
+        }
+
+        MessageUtils.addInfoMessage(active ? "superiors.delete.success" : "superiors.activate.success");
+        loadSuperiors();
+    }
+
     /**
      * Clears the department filter and reloads the displayed list.
      */

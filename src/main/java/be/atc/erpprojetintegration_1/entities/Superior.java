@@ -13,6 +13,16 @@ import java.time.LocalDate;
                         "LEFT JOIN FETCH ed.department d " +
                         "JOIN FETCH s.superior sup " +
                         "ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
+                name = "getActiveSuperiorsBySuperiorId",
+                query = "SELECT DISTINCT s FROM Superior s " +
+                        "JOIN FETCH s.employee e " +
+                        "JOIN FETCH s.superior sup " +
+                        "WHERE sup.id = :superiorId " +
+                        "AND s.isActive = true " +
+                        "AND e.isActive = true " +
+                        "ORDER BY e.lastName, e.firstName"
         )
 })
 @Entity

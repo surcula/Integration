@@ -22,7 +22,7 @@
             </div>
             <h:link outcome="/views/superior-edit"
                     styleClass="btn btn-primary"
-                    rendered="#{authBean.hasRole('ADMIN')}">
+                    rendered="#{authBean.hasPermission('superior:create')}">
                 <i class="bi bi-plus-circle"></i>
                 <span>#{msg['superiors.add']}</span>
             </h:link>
@@ -55,6 +55,16 @@
                                          update="departmentFilter superiorsTable"/>
                     </div>
 
+                    <div class="table-search-toolbar">
+                        <span class="p-input-icon-left table-global-search">
+                            <i class="bi bi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         styleClass="form-control"
+                                         onkeyup="PF('superiorsTable').filter()"
+                                         placeholder="#{msg['superiors.search']}"/>
+                        </span>
+                    </div>
+
                     <p:dataTable id="superiorsTable"
                                  value="#{superiorsBean.filteredSuperiors}"
                                  var="superior"
@@ -65,18 +75,6 @@
                                  rowsPerPageTemplate="10,25,50"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['superiors.empty']}">
-
-                        <f:facet name="header">
-                            <div class="d-flex justify-content-end">
-                                <span class="p-input-icon-left employee-global-search">
-                                    <i class="bi bi-search"></i>
-                                    <p:inputText id="globalFilter"
-                                                 styleClass="form-control"
-                                                 onkeyup="PF('superiorsTable').filter()"
-                                                 placeholder="#{msg['superiors.search']}"/>
-                                </span>
-                            </div>
-                        </f:facet>
 
                         <p:column headerText="#{msg['superiors.superior']}"
                                   sortBy="#{superior.superiorFullName}"
@@ -99,26 +97,37 @@
                             #{superior.managedEmployeesCount}
                         </p:column>
 
+                        <p:column headerText="#{msg['superiors.status']}"
+                                  sortBy="#{superior.isActive}">
+                            <span class="#{superior.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{superior.isActive ? msg['superiors.status.active'] : msg['superiors.status.inactive']}
+                            </span>
+                        </p:column>
+
                         <p:column headerText="#{msg['superiors.action']}">
                             <div class="d-flex gap-2">
                                 <h:link outcome="/views/superior-edit"
                                         styleClass="btn btn-sm btn-primary"
-                                        title="#{msg['superiors.edit']}">
+                                        title="#{msg['superiors.edit']}"
+                                        rendered="#{superior.isActive and authBean.hasPermission('superior:edit')}">
                                     <i class="bi bi-pencil"></i>
                                     <span class="visually-hidden">#{msg['superiors.edit']}</span>
                                     <f:param name="id" value="#{superior.superiorEmployeeId}"/>
                                     <f:param name="departmentId" value="#{superior.departmentId}"/>
                                 </h:link>
 
-                                <p:commandLink styleClass="btn btn-sm btn-outline-danger"
-                                               title="#{msg['superiors.departmentHead.delete']}"
-                                               action="#{superiorsBean.removeDepartmentHead(superior.departmentHeadId)}"
+                                <p:commandLink styleClass="#{superior.isActive ? 'btn btn-sm btn-outline-danger' : 'btn btn-sm btn-primary'}"
+                                               title="#{superior.isActive ? msg['superiors.departmentHead.delete'] : msg['superiors.departmentHead.activate']}"
+                                               action="#{superiorsBean.changeDepartmentHeadActiveStatus(superior.departmentHeadId, superior.isActive)}"
+                                               rendered="#{not empty superior.departmentHeadId and authBean.hasPermission('superior:delete')}"
                                                process="@this"
                                                update="@form :globalGrowl">
-                                    <i class="bi bi-trash"></i>
-                                    <span class="visually-hidden">#{msg['superiors.departmentHead.delete']}</span>
+                                    <i class="#{superior.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
+                                    <span class="visually-hidden">
+                                        #{superior.isActive ? msg['superiors.departmentHead.delete'] : msg['superiors.departmentHead.activate']}
+                                    </span>
                                     <p:confirm header="#{msg['confirm.title']}"
-                                               message="#{msg['superiors.departmentHead.delete.confirm']}"
+                                               message="#{superior.isActive ? msg['superiors.departmentHead.delete.confirm'] : msg['superiors.departmentHead.activate.confirm']}"
                                                icon="pi pi-exclamation-triangle"/>
                                 </p:commandLink>
                             </div>

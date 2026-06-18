@@ -17,6 +17,8 @@ public interface ISuperiorService {
      */
     Result<List<Superior>> getAll();
 
+    Result<List<Superior>> getActiveBySuperiorId(Integer superiorId);
+
     /**
      * Retrieves a superior assignment by id.
      *

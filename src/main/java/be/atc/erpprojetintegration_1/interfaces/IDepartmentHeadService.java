@@ -18,6 +18,7 @@ public interface IDepartmentHeadService {
     Result<List<DepartmentHead>> getActiveByEmployeeId(Integer employeeId);
     Result<DepartmentHead> create(DepartmentHead departmentHead);
     Result<DepartmentHead> assign(DepartmentHead departmentHead);
+    Result<Void> setActive(Integer id, boolean active);
     Result<Void> deactivate(Integer id);
     Result<Void> deactivate(Integer id, LocalDate endDate);
 }

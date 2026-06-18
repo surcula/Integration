@@ -28,6 +28,9 @@ public class SuperiorEditBean implements Serializable {
     @Inject
     private SuperiorBusiness superiorBusiness;
 
+    @Inject
+    private AuthBean authBean;
+
     private Integer superiorId;
     private Integer departmentId;
     private SuperiorEditDto superior;
@@ -43,7 +46,13 @@ public class SuperiorEditBean implements Serializable {
     /**
      * Loads the superior assignment form and employee choices.
      */
-    public void loadSuperior() {
+    public String loadSuperior() {
+        if (!hasFormAccess()) {
+            MessageUtils.addWarningMessage("common.accessDenied");
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+            return "/hub?faces-redirect=true";
+        }
+
         loadEmployees();
         loadDepartments();
 
@@ -54,7 +63,7 @@ public class SuperiorEditBean implements Serializable {
             assignedEmployees = new ArrayList<>();
             availableEmployees = new ArrayList<>();
             employeePickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
-            return;
+            return null;
         }
 
         superior = new SuperiorEditDto();
@@ -64,6 +73,7 @@ public class SuperiorEditBean implements Serializable {
         selectedSuperior = findEmployee(superiorId);
         refreshTeam();
         log.info("Superior team edit page loaded for employee id: " + superiorId);
+        return null;
     }
 
     /**
@@ -72,6 +82,11 @@ public class SuperiorEditBean implements Serializable {
      * @return JSF navigation outcome
      */
     public String save() {
+        if (!hasFormAccess()) {
+            MessageUtils.addErrorMessage("common.accessDenied");
+            return null;
+        }
+
         syncSelectedSuperior();
         syncSelectedSuperiorDepartment();
 
@@ -104,6 +119,11 @@ public class SuperiorEditBean implements Serializable {
      * @param relationId assignment relation id
      */
     public void removeEmployee(Integer relationId) {
+        if (!authBean.hasPermission("superior:edit")) {
+            MessageUtils.addErrorMessage("common.accessDenied");
+            return;
+        }
+
         Result<Void> result = superiorBusiness.removeEmployeeFromSuperior(relationId);
 
         if (!result.isSuccess()) {
@@ -117,6 +137,12 @@ public class SuperiorEditBean implements Serializable {
 
     public boolean isCreateMode() {
         return superiorId == null;
+    }
+
+    private boolean hasFormAccess() {
+        return isCreateMode()
+                ? authBean.hasPermission("superior:create")
+                : authBean.hasPermission("superior:edit");
     }
 
     private void loadEmployees() {

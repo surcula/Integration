@@ -13,6 +13,8 @@ import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Named
 @ViewScoped
@@ -24,6 +26,7 @@ public class AddressesBean implements Serializable {
     private AddressBusiness addressBusiness;
 
     private List<Address> addresses;
+    private String searchTerm;
 
     @PostConstruct
     public void init() {
@@ -56,6 +59,34 @@ public class AddressesBean implements Serializable {
     }
 
     public List<Address> getAddresses() {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return addresses;
+        }
+
+        String normalizedSearch = searchTerm.trim().toLowerCase(Locale.ROOT);
+
+        return addresses.stream()
+                .filter(address -> contains(address.getStreetName(), normalizedSearch)
+                        || contains(address.getStreetNumber(), normalizedSearch)
+                        || contains(address.getBoxNumber(), normalizedSearch)
+                        || contains(address.getCity() != null ? address.getCity().getCityName() : null, normalizedSearch)
+                        || contains(address.getCity() != null ? String.valueOf(address.getCity().getZipCode()) : null, normalizedSearch))
+                .collect(Collectors.toList());
+    }
+
+    private boolean contains(String value, String search) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(search);
+    }
+
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
+    }
+
+    public List<Address> getAllAddresses() {
         return addresses;
     }
 }

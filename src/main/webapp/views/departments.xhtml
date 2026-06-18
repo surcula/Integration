@@ -48,6 +48,16 @@
                     </div>
                 </div>
                 <h:form id="managedEmployeesForm">
+                    <div class="table-search-toolbar">
+                        <span class="p-input-icon-left table-global-search">
+                            <i class="bi bi-search"></i>
+                            <p:inputText id="managedEmployeesFilter"
+                                         styleClass="form-control"
+                                         onkeyup="PF('managedEmployeesTable').filter()"
+                                         placeholder="Rechercher..."/>
+                        </span>
+                    </div>
+
                     <p:dataTable value="#{departmentsBean.managedEmployees}"
                              var="employee"
                              widgetVar="managedEmployeesTable"
@@ -55,17 +65,6 @@
                              paginator="true"
                              rows="5"
                              emptyMessage="Aucun employe affecte a votre departement.">
-                    <f:facet name="header">
-                        <div class="d-flex justify-content-end">
-                            <span class="p-input-icon-left employee-global-search">
-                                <i class="bi bi-search"></i>
-                                <p:inputText id="managedEmployeesFilter"
-                                             styleClass="form-control"
-                                             onkeyup="PF('managedEmployeesTable').filter()"
-                                             placeholder="Rechercher..."/>
-                            </span>
-                        </div>
-                    </f:facet>
                     <p:column headerText="Employe" sortBy="#{employee.fullName}"
                               filterBy="#{employee.fullName}" filterMatchMode="contains" filterStyle="display:none">
                         <strong>#{employee.fullName}</strong>
@@ -90,6 +89,16 @@
         <div class="panel">
             <div class="table-responsive">
                 <h:form id="departmentsForm">
+                    <div class="table-search-toolbar">
+                        <span class="p-input-icon-left table-global-search">
+                            <i class="bi bi-search"></i>
+                            <p:inputText id="globalFilter"
+                                         styleClass="form-control"
+                                         onkeyup="PF('departmentsTable').filter()"
+                                         placeholder="#{msg['departments.search']}"/>
+                        </span>
+                    </div>
+
                     <p:dataTable value="#{departmentsBean.departments}"
                                  var="department"
                                  widgetVar="departmentsTable"
@@ -99,18 +108,6 @@
                                  rowsPerPageTemplate="10,25,50"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['departments.empty']}">
-
-                        <f:facet name="header">
-                            <div class="d-flex justify-content-end">
-                                <span class="p-input-icon-left employee-global-search">
-                                    <i class="bi bi-search"></i>
-                                    <p:inputText id="globalFilter"
-                                                 styleClass="form-control"
-                                                 onkeyup="PF('departmentsTable').filter()"
-                                                 placeholder="#{msg['departments.search']}"/>
-                                </span>
-                            </div>
-                        </f:facet>
 
                         <p:column headerText="#{msg['departments.name']}"
                                   sortBy="#{department.departmentName}"

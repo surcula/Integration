@@ -13,6 +13,8 @@ import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Named
 @ViewScoped
@@ -24,6 +26,7 @@ public class CitiesBean implements Serializable {
     private CityBusiness cityBusiness;
 
     private List<City> cities;
+    private String searchTerm;
 
     @PostConstruct
     public void init() {
@@ -56,6 +59,31 @@ public class CitiesBean implements Serializable {
     }
 
     public List<City> getCities() {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return cities;
+        }
+
+        String normalizedSearch = searchTerm.trim().toLowerCase(Locale.ROOT);
+
+        return cities.stream()
+                .filter(city -> contains(city.getCityName(), normalizedSearch)
+                        || contains(String.valueOf(city.getZipCode()), normalizedSearch))
+                .collect(Collectors.toList());
+    }
+
+    private boolean contains(String value, String search) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(search);
+    }
+
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
+    }
+
+    public List<City> getAllCities() {
         return cities;
     }
 }

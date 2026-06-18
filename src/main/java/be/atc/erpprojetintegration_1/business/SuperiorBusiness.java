@@ -9,6 +9,7 @@ import be.atc.erpprojetintegration_1.entities.EmployeeDepartment;
 import be.atc.erpprojetintegration_1.entities.Superior;
 import be.atc.erpprojetintegration_1.interfaces.IDepartmentHeadService;
 import be.atc.erpprojetintegration_1.interfaces.IDepartmentService;
+import be.atc.erpprojetintegration_1.interfaces.IEmployeeDepartmentService;
 import be.atc.erpprojetintegration_1.interfaces.IEmployeeService;
 import be.atc.erpprojetintegration_1.interfaces.ISuperiorService;
 import be.atc.erpprojetintegration_1.tools.Result;
@@ -18,9 +19,11 @@ import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -38,29 +41,35 @@ public class SuperiorBusiness {
     @Inject
     private IDepartmentService departmentService;
 
+    @Inject
+    private IEmployeeDepartmentService employeeDepartmentService;
+
     /**
      * Retrieves all superior assignments for the administration list.
      *
      * @return superior assignment list result
      */
     public Result<List<SuperiorListDto>> getAllSuperiors() {
-        Result<List<DepartmentHead>> departmentHeadsResult = departmentHeadService.getAllActive();
+        Result<List<DepartmentHead>> departmentHeadsResult = departmentHeadService.getAll();
 
         if (!departmentHeadsResult.isSuccess()) {
             return Result.fail(departmentHeadsResult.getErrors());
         }
 
         Result<List<Superior>> superiorAssignmentsResult = superiorService.getAll();
+        List<Superior> superiorAssignments = superiorAssignmentsResult.isSuccess()
+                ? superiorAssignmentsResult.getData()
+                : new ArrayList<>();
+        Result<List<EmployeeDepartment>> employeeDepartmentsResult = employeeDepartmentService.getEmployeeList();
+        List<EmployeeDepartment> employeeDepartments = employeeDepartmentsResult.isSuccess()
+                ? employeeDepartmentsResult.getData()
+                : new ArrayList<>();
 
-        if (!superiorAssignmentsResult.isSuccess()) {
-            return Result.fail(superiorAssignmentsResult.getErrors());
-        }
-
-        List<SuperiorListDto> superiors = departmentHeadsResult.getData()
-                .stream()
-                .filter(departmentHead -> departmentHead.getSuperior() != null)
-                .map(departmentHead -> toDepartmentHeadListDto(departmentHead, superiorAssignmentsResult.getData()))
-                .collect(Collectors.toList());
+        List<SuperiorListDto> superiors = buildSuperiorList(
+                departmentHeadsResult.getData(),
+                superiorAssignments,
+                employeeDepartments
+        );
 
         return Result.ok(superiors);
     }
@@ -87,10 +96,17 @@ public class SuperiorBusiness {
             return Result.ok(new ArrayList<>());
         }
 
-        Result<List<Superior>> result = superiorService.getAll();
+        Result<List<Superior>> result = superiorService.getActiveBySuperiorId(superiorEmployeeId);
 
         if (!result.isSuccess()) {
             return Result.fail(result.getErrors());
+        }
+
+        Result<List<EmployeeDepartment>> employeeDepartmentsResult = departmentId == null
+                ? employeeDepartmentService.getEmployeeList()
+                : employeeDepartmentService.getActiveEmployeeDepartmentsByDepartmentId(departmentId);
+        if (!employeeDepartmentsResult.isSuccess()) {
+            return Result.fail(employeeDepartmentsResult.getErrors());
         }
 
         List<SuperiorListDto> employees = result.getData()
@@ -98,8 +114,8 @@ public class SuperiorBusiness {
                 .filter(superior -> Boolean.TRUE.equals(superior.getIsActive()))
                 .filter(superior -> superior.getSuperior() != null)
                 .filter(superior -> superiorEmployeeId.equals(superior.getSuperior().getId()))
-                .filter(superior -> departmentId == null || departmentId.equals(getActiveDepartmentId(superior.getEmployee())))
-                .map(this::toListDto)
+                .filter(superior -> departmentId == null || departmentId.equals(getActiveDepartmentId(superior.getEmployee(), employeeDepartmentsResult.getData())))
+                .map(superior -> toListDto(superior, employeeDepartmentsResult.getData()))
                 .collect(Collectors.toList());
 
         return Result.ok(employees);
@@ -138,12 +154,21 @@ public class SuperiorBusiness {
             return Result.fail(employeesResult.getErrors());
         }
 
+        Result<List<EmployeeDepartment>> employeeDepartmentsResult = selectedDepartmentId == null
+                ? employeeDepartmentService.getEmployeeList()
+                : employeeDepartmentService.getActiveEmployeeDepartmentsByDepartmentId(selectedDepartmentId);
+        if (!employeeDepartmentsResult.isSuccess()) {
+            return Result.fail(employeeDepartmentsResult.getErrors());
+        }
+
         if (superiorEmployeeId == null) {
             return Result.ok(new ArrayList<>());
         }
 
         Employee superiorEmployee = findEmployee(employeesResult.getData(), superiorEmployeeId);
-        Integer departmentId = selectedDepartmentId != null ? selectedDepartmentId : getActiveDepartmentId(superiorEmployee);
+        Integer departmentId = selectedDepartmentId != null
+                ? selectedDepartmentId
+                : getActiveDepartmentId(superiorEmployee, employeeDepartmentsResult.getData());
 
         if (departmentId == null) {
             return Result.ok(new ArrayList<>());
@@ -162,7 +187,7 @@ public class SuperiorBusiness {
         List<Employee> availableEmployees = employeesResult.getData()
                 .stream()
                 .filter(employee -> !superiorEmployeeId.equals(employee.getId()))
-                .filter(employee -> departmentId.equals(getActiveDepartmentId(employee)))
+                .filter(employee -> departmentId.equals(getActiveDepartmentId(employee, employeeDepartmentsResult.getData())))
                 .filter(employee -> !assignedEmployeeIds.contains(employee.getId()))
                 .collect(Collectors.toList());
 
@@ -228,6 +253,17 @@ public class SuperiorBusiness {
 
         if (existingResult.isSuccess()) {
             return Result.ok();
+        }
+
+        Result<List<DepartmentHead>> departmentHeadsResult = departmentHeadService.getAll();
+        if (!departmentHeadsResult.isSuccess()) {
+            return Result.fail(departmentHeadsResult.getErrors());
+        }
+
+        for (DepartmentHead existingDepartmentHead : departmentHeadsResult.getData()) {
+            if (isSameDepartmentHead(existingDepartmentHead, superiorEmployeeId, departmentId)) {
+                return departmentHeadService.setActive(existingDepartmentHead.getId(), true);
+            }
         }
 
         Result<Department> departmentResult = departmentService.getById(departmentId);
@@ -412,6 +448,16 @@ public class SuperiorBusiness {
         return departmentHeadService.deactivate(departmentHeadId);
     }
 
+    public Result<Void> setDepartmentHeadActive(Integer departmentHeadId, boolean active) {
+        if (departmentHeadId == null) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("id", "superiors.departmentHead.id.required");
+            return Result.fail(errors);
+        }
+
+        return departmentHeadService.setActive(departmentHeadId, active);
+    }
+
     private Result<Void> validateSuperior(SuperiorEditDto dto) {
         Map<String, String> errors = new HashMap<>();
 
@@ -505,6 +551,24 @@ public class SuperiorBusiness {
     }
 
     private Integer getActiveDepartmentId(Employee employee) {
+        return getActiveDepartmentId(employee, null);
+    }
+
+    private Integer getActiveDepartmentId(Employee employee, List<EmployeeDepartment> employeeDepartments) {
+        if (employee != null && employeeDepartments != null) {
+            for (EmployeeDepartment employeeDepartment : employeeDepartments) {
+                if (employeeDepartment.getEmployee() != null
+                        && employee.getId() != null
+                        && employee.getId().equals(employeeDepartment.getEmployee().getId())
+                        && Boolean.TRUE.equals(employeeDepartment.getIsActive())
+                        && employeeDepartment.getDepartment() != null
+                        && Boolean.TRUE.equals(employeeDepartment.getDepartment().getIsActive())) {
+                    return employeeDepartment.getDepartment().getId();
+                }
+            }
+            return null;
+        }
+
         if (employee == null || employee.getEmployeeDepartments() == null) {
             return null;
         }
@@ -556,13 +620,18 @@ public class SuperiorBusiness {
     }
 
     private SuperiorListDto toListDto(Superior superior) {
+        return toListDto(superior, null);
+    }
+
+    private SuperiorListDto toListDto(Superior superior, List<EmployeeDepartment> employeeDepartments) {
         SuperiorListDto dto = new SuperiorListDto();
         dto.setId(superior.getEmployee() != null ? superior.getEmployee().getId() : null);
         dto.setRelationId(superior.getId());
         dto.setSuperiorEmployeeId(superior.getSuperior() != null ? superior.getSuperior().getId() : null);
         dto.setEmployeeFullName(getEmployeeFullName(superior.getEmployee()));
         dto.setSuperiorFullName(getEmployeeFullName(superior.getSuperior()));
-        dto.setDepartmentName(getActiveDepartmentName(superior.getEmployee()));
+        dto.setDepartmentId(getActiveDepartmentId(superior.getEmployee(), employeeDepartments));
+        dto.setDepartmentName(getActiveDepartmentName(superior.getEmployee(), employeeDepartments));
         dto.setStartDate(formatDate(superior.getStartDate()));
         dto.setEndDate(formatDate(superior.getEndDate()));
         dto.setIsActive(superior.getIsActive());
@@ -570,6 +639,10 @@ public class SuperiorBusiness {
     }
 
     private SuperiorListDto toDepartmentHeadListDto(DepartmentHead departmentHead, List<Superior> superiorAssignments) {
+        return toDepartmentHeadListDto(departmentHead, superiorAssignments, null);
+    }
+
+    private SuperiorListDto toDepartmentHeadListDto(DepartmentHead departmentHead, List<Superior> superiorAssignments, List<EmployeeDepartment> employeeDepartments) {
         SuperiorListDto dto = new SuperiorListDto();
         Integer superiorEmployeeId = departmentHead.getSuperior() != null ? departmentHead.getSuperior().getId() : null;
         Integer departmentId = departmentHead.getDepartment() != null ? departmentHead.getDepartment().getId() : null;
@@ -583,17 +656,96 @@ public class SuperiorBusiness {
         dto.setStartDate(formatDate(departmentHead.getStartDate()));
         dto.setEndDate(formatDate(departmentHead.getEndDate()));
         dto.setIsActive(departmentHead.getIsActive());
-        dto.setManagedEmployeesCount(countManagedEmployees(superiorEmployeeId, departmentId, superiorAssignments));
+        dto.setManagedEmployeesCount(countManagedEmployees(superiorEmployeeId, departmentId, superiorAssignments, employeeDepartments));
         return dto;
     }
 
+    private boolean isSameDepartmentHead(DepartmentHead departmentHead, Integer superiorEmployeeId, Integer departmentId) {
+        return departmentHead != null
+                && departmentHead.getSuperior() != null
+                && departmentHead.getDepartment() != null
+                && superiorEmployeeId.equals(departmentHead.getSuperior().getId())
+                && departmentId.equals(departmentHead.getDepartment().getId());
+    }
+
+    private List<SuperiorListDto> buildSuperiorList(List<DepartmentHead> departmentHeads, List<Superior> superiorAssignments) {
+        return buildSuperiorList(departmentHeads, superiorAssignments, null);
+    }
+
+    private List<SuperiorListDto> buildSuperiorList(List<DepartmentHead> departmentHeads, List<Superior> superiorAssignments, List<EmployeeDepartment> employeeDepartments) {
+        List<SuperiorListDto> superiors = new ArrayList<>();
+        Set<String> displayedKeys = new HashSet<>();
+
+        if (departmentHeads != null) {
+            departmentHeads.stream()
+                    .filter(departmentHead -> departmentHead.getSuperior() != null)
+                    .forEach(departmentHead -> {
+                        SuperiorListDto dto = toDepartmentHeadListDto(departmentHead, superiorAssignments, employeeDepartments);
+                        superiors.add(dto);
+                        displayedKeys.add(buildSuperiorDepartmentKey(dto.getSuperiorEmployeeId(), dto.getDepartmentId()));
+                    });
+        }
+
+        if (superiorAssignments != null) {
+            superiorAssignments.stream()
+                    .filter(superior -> Boolean.TRUE.equals(superior.getIsActive()))
+                    .filter(superior -> superior.getSuperior() != null)
+                    .forEach(superior -> {
+                        Integer superiorEmployeeId = superior.getSuperior().getId();
+                        Integer departmentId = getActiveDepartmentId(superior.getEmployee(), employeeDepartments);
+                        String key = buildSuperiorDepartmentKey(superiorEmployeeId, departmentId);
+
+                        if (departmentId != null && displayedKeys.add(key)) {
+                            superiors.add(toLegacyDepartmentHeadListDto(superior, departmentId, superiorAssignments, employeeDepartments));
+                        }
+                    });
+        }
+
+        superiors.sort((left, right) -> {
+            int superiorCompare = compareNullableStrings(left.getSuperiorFullName(), right.getSuperiorFullName());
+            return superiorCompare != 0
+                    ? superiorCompare
+                    : compareNullableStrings(left.getDepartmentName(), right.getDepartmentName());
+        });
+
+        return superiors;
+    }
+
+    private SuperiorListDto toLegacyDepartmentHeadListDto(Superior superior, Integer departmentId, List<Superior> superiorAssignments, List<EmployeeDepartment> employeeDepartments) {
+        SuperiorListDto dto = new SuperiorListDto();
+        Integer superiorEmployeeId = superior.getSuperior() != null ? superior.getSuperior().getId() : null;
+
+        dto.setId(superiorEmployeeId);
+        dto.setDepartmentId(departmentId);
+        dto.setSuperiorEmployeeId(superiorEmployeeId);
+        dto.setSuperiorFullName(getEmployeeFullName(superior.getSuperior()));
+        dto.setDepartmentName(getActiveDepartmentName(superior.getEmployee(), employeeDepartments));
+        dto.setIsActive(true);
+        dto.setManagedEmployeesCount(countManagedEmployees(superiorEmployeeId, departmentId, superiorAssignments, employeeDepartments));
+        return dto;
+    }
+
+    private String buildSuperiorDepartmentKey(Integer superiorEmployeeId, Integer departmentId) {
+        return String.valueOf(superiorEmployeeId) + ":" + String.valueOf(departmentId);
+    }
+
+    private int compareNullableStrings(String left, String right) {
+        String safeLeft = left != null ? left : "";
+        String safeRight = right != null ? right : "";
+        return safeLeft.compareToIgnoreCase(safeRight);
+    }
+
     private Integer countManagedEmployees(Integer superiorEmployeeId, Integer departmentId, List<Superior> superiorAssignments) {
+        return countManagedEmployees(superiorEmployeeId, departmentId, superiorAssignments, null);
+    }
+
+    private Integer countManagedEmployees(Integer superiorEmployeeId, Integer departmentId, List<Superior> superiorAssignments, List<EmployeeDepartment> employeeDepartments) {
         if (superiorEmployeeId == null || departmentId == null || superiorAssignments == null) {
             return 0;
         }
 
         return (int) superiorAssignments.stream()
-                .filter(assignment -> isActiveAssignmentForSuperiorAndDepartment(assignment, superiorEmployeeId, departmentId))
+                .filter(assignment -> isActiveAssignmentForSuperiorAndDepartment(assignment, superiorEmployeeId, departmentId, employeeDepartments))
                 .count();
     }
 
@@ -610,11 +762,15 @@ public class SuperiorBusiness {
     }
 
     private boolean isActiveAssignmentForSuperiorAndDepartment(Superior assignment, Integer superiorEmployeeId, Integer departmentId) {
+        return isActiveAssignmentForSuperiorAndDepartment(assignment, superiorEmployeeId, departmentId, null);
+    }
+
+    private boolean isActiveAssignmentForSuperiorAndDepartment(Superior assignment, Integer superiorEmployeeId, Integer departmentId, List<EmployeeDepartment> employeeDepartments) {
         return assignment != null
                 && Boolean.TRUE.equals(assignment.getIsActive())
                 && assignment.getSuperior() != null
                 && superiorEmployeeId.equals(assignment.getSuperior().getId())
-                && departmentId.equals(getActiveDepartmentId(assignment.getEmployee()));
+                && departmentId.equals(getActiveDepartmentId(assignment.getEmployee(), employeeDepartments));
     }
 
     private String getEmployeeFullName(Employee employee) {
@@ -628,6 +784,24 @@ public class SuperiorBusiness {
     }
 
     private String getActiveDepartmentName(Employee employee) {
+        return getActiveDepartmentName(employee, null);
+    }
+
+    private String getActiveDepartmentName(Employee employee, List<EmployeeDepartment> employeeDepartments) {
+        if (employee != null && employeeDepartments != null) {
+            for (EmployeeDepartment employeeDepartment : employeeDepartments) {
+                if (employeeDepartment.getEmployee() != null
+                        && employee.getId() != null
+                        && employee.getId().equals(employeeDepartment.getEmployee().getId())
+                        && Boolean.TRUE.equals(employeeDepartment.getIsActive())
+                        && employeeDepartment.getDepartment() != null
+                        && Boolean.TRUE.equals(employeeDepartment.getDepartment().getIsActive())) {
+                    return employeeDepartment.getDepartment().getDepartmentName();
+                }
+            }
+            return "";
+        }
+
         if (employee == null || employee.getEmployeeDepartments() == null) {
             return "";
         }

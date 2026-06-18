@@ -61,9 +61,6 @@ public class EmployeeRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         ConnectedEmployeeDto employee = (ConnectedEmployeeDto) principals.getPrimaryPrincipal();
 
-        System.out.println("SHIRO LOGIN - employee id = " + employee.getId());
-        System.out.println("SHIRO LOGIN - role id = " + employee.getRoleId());
-        System.out.println("SHIRO LOGIN - role name = " + employee.getRoleName());
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
 
         if (employee == null) {
@@ -81,23 +78,12 @@ public class EmployeeRealm extends AuthorizingRealm {
         Result<List<String>> permissionsResult =
                 getAuthorizationService().getAuthorizationNamesByRoleId(employee.getRoleId());
 
-        System.out.println("SHIRO AUTHZ - role id = " + employee.getRoleId());
-
-        if (permissionsResult == null) {
-            System.out.println("SHIRO AUTHZ - permissionsResult is null");
-        } else {
-            System.out.println("SHIRO AUTHZ - success = " + permissionsResult.isSuccess());
-            System.out.println("SHIRO AUTHZ - permissions = " + permissionsResult.getData());
-            System.out.println("SHIRO AUTHZ - errors = " + permissionsResult.getErrors());
-        }
         if (permissionsResult != null
                 && permissionsResult.isSuccess()
                 && permissionsResult.getData() != null) {
             authorizationInfo.addStringPermissions(permissionsResult.getData());
         }
-        System.out.println("SHIRO LOGIN - employee id = " + employee.getId());
-        System.out.println("SHIRO LOGIN - role id = " + employee.getRoleId());
-        System.out.println("SHIRO LOGIN - role name = " + employee.getRoleName());
+
         return authorizationInfo;
     }
 

@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,19 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
     private static final Logger log = Logger.getLogger(DepartmentHeadServiceImpl.class);
 
     @Override
+    public Result<List<DepartmentHead>> getAllActive() {
+        EntityManager em = EMF.getEM();
+        try {
+            return Result.ok(em.createNamedQuery("getAllActiveDepartmentHeads", DepartmentHead.class).getResultList());
+        } catch (Exception ex) {
+            log.error("Error while searching active department heads", ex);
+            return Result.fail(error("message", "superiors.error.load"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<List<DepartmentHead>> getAll() {
         EntityManager em = EMF.getEM();
         try {
@@ -27,7 +41,9 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
         } catch (Exception ex) {
             log.error("Error while loading department heads", ex);
             return Result.fail(error("message", "Impossible de charger les chefs de departement."));
-        } finally { em.close(); }
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -40,7 +56,28 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
         } catch (Exception ex) {
             log.error("Error while loading department head", ex);
             return Result.fail(error("message", "Impossible de charger le chef de departement."));
-        } finally { em.close(); }
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<DepartmentHead> getActiveBySuperiorAndDepartment(Integer superiorId, Integer departmentId) {
+        EntityManager em = EMF.getEM();
+        try {
+            DepartmentHead departmentHead = em.createNamedQuery("getActiveDepartmentHeadBySuperiorAndDepartment", DepartmentHead.class)
+                    .setParameter("superiorId", superiorId)
+                    .setParameter("departmentId", departmentId)
+                    .getSingleResult();
+            return Result.ok(departmentHead);
+        } catch (NoResultException ex) {
+            return Result.fail(error("notFound", "superiors.departmentHead.notFound"));
+        } catch (Exception ex) {
+            log.error("Error while searching active department head", ex);
+            return Result.fail(error("message", "superiors.error.load"));
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -53,7 +90,9 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
         } catch (Exception ex) {
             log.error("Error while loading active department head", ex);
             return Result.fail(error("message", "Impossible de charger le chef actif."));
-        } finally { em.close(); }
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -65,7 +104,28 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
         } catch (Exception ex) {
             log.error("Error while loading department heads for employee", ex);
             return Result.fail(error("message", "Impossible de charger les departements geres."));
-        } finally { em.close(); }
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<DepartmentHead> create(DepartmentHead departmentHead) {
+        EntityManager em = EMF.getEM();
+        try {
+            em.getTransaction().begin();
+            departmentHead.setDepartment(em.getReference(Department.class, departmentHead.getDepartment().getId()));
+            departmentHead.setSuperior(em.getReference(Employee.class, departmentHead.getSuperior().getId()));
+            em.persist(departmentHead);
+            em.getTransaction().commit();
+            return Result.ok(departmentHead);
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            log.error("Error while creating department head", ex);
+            return Result.fail(error("message", "superiors.departmentHead.save.error"));
+        } finally {
+            em.close();
+        }
     }
 
     @Override
@@ -88,7 +148,14 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             log.error("Error while assigning department head", ex);
             return Result.fail(error("message", "Impossible d'enregistrer le chef de departement."));
-        } finally { em.close(); }
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<Void> deactivate(Integer id) {
+        return deactivate(id, LocalDate.now());
     }
 
     @Override
@@ -109,7 +176,9 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             log.error("Error while deactivating department head", ex);
             return Result.fail(error("message", "Impossible de terminer le mandat."));
-        } finally { em.close(); }
+        } finally {
+            em.close();
+        }
     }
 
     private Map<String, String> error(String key, String value) {

@@ -1,0 +1,17 @@
+ALTER TABLE absences
+    ADD COLUMN absence_type VARCHAR(40) NOT NULL DEFAULT 'OTHER' AFTER name,
+    MODIFY COLUMN end_date DATE NOT NULL,
+    ADD COLUMN start_hour TIME NULL AFTER end_date,
+    ADD COLUMN end_hour TIME NULL AFTER start_hour,
+    ADD COLUMN all_day TINYINT(1) NOT NULL DEFAULT 1 AFTER end_hour,
+    ADD COLUMN comment TEXT NULL AFTER reason,
+    ADD COLUMN document_name VARCHAR(255) NULL AFTER comment,
+    ADD COLUMN document_path VARCHAR(500) NULL AFTER document_name,
+    ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'PENDING' AFTER document_path,
+    ADD COLUMN reviewer_id INT NULL AFTER status,
+    ADD COLUMN review_comment TEXT NULL AFTER reviewer_id,
+    ADD COLUMN reviewed_at DATETIME NULL AFTER review_comment,
+    ADD COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER reviewed_at,
+    ADD CONSTRAINT fk_absences_reviewer_id FOREIGN KEY (reviewer_id) REFERENCES employees(id),
+    ADD INDEX idx_absences_employee_period (employee_id, start_date, end_date),
+    ADD INDEX idx_absences_status (status);

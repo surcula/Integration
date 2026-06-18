@@ -5,6 +5,25 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @NamedQueries({
+        @NamedQuery(
+                name = "getAllActiveDepartmentHeads",
+                query = "SELECT dh FROM DepartmentHead dh " +
+                        "JOIN FETCH dh.department d " +
+                        "JOIN FETCH dh.superior s " +
+                        "WHERE dh.isActive = true " +
+                        "AND d.isActive = true " +
+                        "AND s.isActive = true " +
+                        "ORDER BY s.lastName, s.firstName"
+        ),
+        @NamedQuery(
+                name = "getActiveDepartmentHeadBySuperiorAndDepartment",
+                query = "SELECT dh FROM DepartmentHead dh " +
+                        "JOIN FETCH dh.department d " +
+                        "JOIN FETCH dh.superior s " +
+                        "WHERE dh.isActive = true " +
+                        "AND s.id = :superiorId " +
+                        "AND d.id = :departmentId"
+        ),
         @NamedQuery(name = "getAllDepartmentHeads",
                 query = "SELECT dh FROM DepartmentHead dh JOIN FETCH dh.department JOIN FETCH dh.superior " +
                         "ORDER BY dh.department.departmentName, dh.isActive DESC, dh.startDate DESC"),

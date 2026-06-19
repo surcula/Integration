@@ -14,7 +14,7 @@
                 <div>
                     <p class="eyebrow mb-1">#{msg['nav.timePlanning']}</p>
                     <h1 class="h3 mb-1">#{msg['nav.planning']}</h1>
-                    <p class="text-muted mb-0">Vue hebdomadaire et mensuelle du planning des equipes.</p>
+                    <p class="text-muted mb-0">#{msg['planning.subtitle']}</p>
                 </div>
             </div>
         </div>
@@ -26,24 +26,24 @@
                         <div>
                             <h2 class="h5 mb-1 section-title">
                                 <i class="bi bi-calendar-week" aria-hidden="true"></i>
-                                <span>Calendrier</span>
+                                <span>#{msg['planning.calendar.title']}</span>
                             </h2>
                             <p class="text-muted mb-0">
-                                <h:outputText value="Clique sur un creneau pour ajouter une affectation."
-                                              rendered="#{planningBean.canManagePlanning}"/>
-                                <h:outputText value="Consultez vos affectations dans le calendrier."
-                                              rendered="#{not planningBean.canManagePlanning}"/>
+                                <h:outputText value="#{msg['planning.calendar.editHelp']}"
+                                              rendered="#{planningBean.canEditPlanning}"/>
+                                <h:outputText value="#{msg['planning.calendar.readHelp']}"
+                                              rendered="#{not planningBean.canEditPlanning}"/>
                             </p>
                         </div>
                         <h:panelGroup layout="block"
                                       styleClass="planning-department-filter"
-                                      rendered="#{planningBean.canManagePlanning}">
-                            <p:outputLabel for="departmentFilter" value="Departement"/>
+                                      rendered="#{planningBean.canEditPlanning}">
+                            <p:outputLabel for="departmentFilter" value="#{msg['common.department']}"/>
                             <p:selectOneMenu id="departmentFilter"
                                              value="#{planningBean.planningDepartmentFilterId}"
                                              disabled="#{not planningBean.canChoosePlanningDepartment}"
                                              styleClass="planning-filter-select">
-                                <f:selectItem itemLabel="Tous les departements"
+                                <f:selectItem itemLabel="#{msg['common.allDepartments']}"
                                               itemValue="#{null}"
                                               rendered="#{planningBean.globalPlanningAccess}"
                                               noSelectionOption="true"/>
@@ -66,14 +66,14 @@
                                 initialDate="#{planningBean.calendarInitialDate}"
                                 locale="#{planningBean.locale}"
                                 timeZone="Europe/Brussels"
-                                draggable="#{planningBean.canManagePlanning}"
-                                resizable="#{planningBean.canManagePlanning}"
+                                draggable="#{planningBean.canEditPlanning}"
+                                resizable="#{planningBean.canEditPlanning}"
                                 tooltip="true"
                                 minTime="#{planningBean.minTime}"
                                 maxTime="#{planningBean.maxTime}"
                                 slotDuration="#{planningBean.slotDuration}">
                         <p:ajax event="dateSelect"
-                                disabled="#{not planningBean.canManagePlanning}"
+                                disabled="#{not planningBean.canEditPlanning}"
                                 listener="#{planningBean.onDateSelect}"
                                 update="planningDialog"
                                 oncomplete="PF('planningDialogWidget').show();"/>
@@ -98,22 +98,22 @@
                               contentStyle="overflow-y:auto">
                         <f:facet name="header">
                             <div class="planning-dialog-header">
-                                <span>Element du planning</span>
+                                <span>#{msg['planning.dialog.title']}</span>
                                 <div style="display:flex;gap:0.4rem;align-items:center;">
                                     <p:commandButton id="publishPlanningHeader"
                                                      icon="pi pi-send"
-                                                     title="Publier le planning"
+                                                     title="#{msg['planning.publish']}"
                                                      styleClass="ui-button-success ui-button-rounded ui-button-icon-only planning-header-btn"
-                                                     rendered="#{planningBean.canManagePlanning and planningBean.selectedPlanningDraft}"
+                                                     rendered="#{planningBean.canEditPlanning and planningBean.selectedPlanningDraft}"
                                                      action="#{planningBean.publishPlanning}"
                                                      process="planningDialog"
                                                      update="planningForm:planningSchedule planningDialog globalGrowl"
                                                      oncomplete="if (!args.validationFailed) PF('planningDialogWidget').hide();"/>
                                     <p:commandButton id="pdfPlanningHeader"
                                                      icon="pi pi-file-pdf"
-                                                     title="Telecharger le rapport PDF"
+                                                     title="#{msg['planning.report.downloadPdf']}"
                                                      styleClass="ui-button-secondary ui-button-rounded ui-button-icon-only planning-header-btn"
-                                                     rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}"
+                                                     rendered="#{planningBean.canEditPlanning and not empty planningBean.selectedPlanning.id}"
                                                      action="#{planningBean.generateReport}"
                                                      process="@this"
                                                      ajax="false"/>
@@ -122,25 +122,25 @@
                         </f:facet>
                         <div class="row g-3">
                             <div class="col-12">
-                                <p:outputLabel for="note" value="Titre"/>
+                                <p:outputLabel for="note" value="#{msg['common.title']}"/>
                                 <p:inputText id="note"
                                              value="#{planningBean.selectedPlanning.note}"
-                                             disabled="#{not planningBean.canManagePlanning}"
+                                             disabled="#{not planningBean.canEditPlanning}"
                                              styleClass="form-control"
                                              maxlength="255"/>
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <p:outputLabel for="type" value="Type"/>
+                                <p:outputLabel for="type" value="#{msg['common.type']}"/>
                                 <p:selectOneMenu id="type"
                                                  value="#{planningBean.selectedPlanning.type}"
-                                                 disabled="#{not planningBean.canManagePlanning}"
+                                                 disabled="#{not planningBean.canEditPlanning}"
                                                  styleClass="w-100">
-                                    <f:selectItem itemLabel="Service" itemValue="SERVICE"/>
-                                    <f:selectItem itemLabel="Repos" itemValue="REPOS"/>
-                                    <f:selectItem itemLabel="Recuperation" itemValue="RECUPERATION"/>
-                                    <f:selectItem itemLabel="Jour ferie" itemValue="FERIE"/>
-                                    <f:selectItem itemLabel="Vacances" itemValue="VACANCES"/>
+                                    <f:selectItem itemLabel="#{msg['planning.type.service']}" itemValue="SERVICE"/>
+                                    <f:selectItem itemLabel="#{msg['planning.type.rest']}" itemValue="REPOS"/>
+                                    <f:selectItem itemLabel="#{msg['planning.type.recovery']}" itemValue="RECUPERATION"/>
+                                    <f:selectItem itemLabel="#{msg['planning.type.holiday']}" itemValue="FERIE"/>
+                                    <f:selectItem itemLabel="#{msg['planning.type.vacation']}" itemValue="VACANCES"/>
                                     <p:ajax event="change"
                                             process="@this"
                                             listener="#{planningBean.onTypeChange}"
@@ -150,7 +150,7 @@
 
                             <h:panelGroup layout="block" styleClass="col-12 col-md-6"
                                           rendered="#{not empty planningBean.selectedPlanning.id}">
-                                <p:outputLabel value="Statut"/>
+                                <p:outputLabel value="#{msg['common.status']}"/>
                                 <div>
                                     <span class="planning-status planning-status-#{planningBean.planningStatusCss(planningBean.selectedPlanning)}">
                                         #{planningBean.planningStatusLabel(planningBean.selectedPlanning)}
@@ -164,22 +164,22 @@
                                               rendered="#{planningBean.typeSupportsAllDay}">
                                     <p:selectBooleanCheckbox id="allDay"
                                                              value="#{planningBean.allDay}"
-                                                             disabled="#{not planningBean.canManagePlanning}">
+                                                             disabled="#{not planningBean.canEditPlanning}">
                                         <p:ajax event="change"
                                                 process="@this"
                                                 update="hoursPanel"/>
                                     </p:selectBooleanCheckbox>
-                                    <p:outputLabel for="allDay" value="Toute la journee"/>
+                                    <p:outputLabel for="allDay" value="#{msg['common.allDay']}"/>
                                 </h:panelGroup>
                             </h:panelGroup>
 
                             <h:panelGroup layout="block"
                                           styleClass="col-12"
-                                          rendered="#{planningBean.canManagePlanning}">
-                                <p:outputLabel for="employees" value="Employes affectes"/>
+                                          rendered="#{planningBean.canEditPlanning}">
+                                <p:outputLabel for="employees" value="#{msg['planning.employees.assigned']}"/>
                                 <p:selectCheckboxMenu id="employees"
                                                       value="#{planningBean.selectedEmployeeIds}"
-                                                      label="Selectionner les employes"
+                                                      label="#{msg['planning.employees.select']}"
                                                       filter="true"
                                                       filterMatchMode="contains"
                                                       multiple="true"
@@ -195,13 +195,13 @@
 
                             <h:panelGroup layout="block"
                                           styleClass="col-12 col-md-6"
-                                          rendered="#{planningBean.canManagePlanning}">
-                                <p:outputLabel for="department" value="Service"/>
+                                          rendered="#{planningBean.canEditPlanning}">
+                                <p:outputLabel for="department" value="#{msg['planning.service']}"/>
                                 <p:selectOneMenu id="department"
                                                  value="#{planningBean.selectedDepartmentId}"
                                                  disabled="#{not planningBean.canChoosePlanningDepartment}"
                                                  styleClass="w-100">
-                                    <f:selectItem itemLabel="Aucun service" itemValue="#{null}"
+                                    <f:selectItem itemLabel="#{msg['planning.service.none']}" itemValue="#{null}"
                                                   rendered="#{planningBean.globalPlanningAccess}"/>
                                     <f:selectItems value="#{planningBean.departments}"
                                                    var="department"
@@ -212,38 +212,38 @@
 
                             <h:panelGroup layout="block"
                                           styleClass="col-12 col-md-6"
-                                          rendered="#{not planningBean.canManagePlanning}">
-                                <p:outputLabel value="Service"/>
+                                          rendered="#{not planningBean.canEditPlanning}">
+                                <p:outputLabel value="#{msg['planning.service']}"/>
                                 <h:outputText styleClass="form-control planning-readonly-value"
-                                              value="#{empty planningBean.selectedPlanning.department ? 'Aucun service' : planningBean.selectedPlanning.department.departmentName}"/>
+                                              value="#{empty planningBean.selectedPlanning.department ? msg['planning.service.none'] : planningBean.selectedPlanning.department.departmentName}"/>
                             </h:panelGroup>
 
                             <div class="col-12 col-md-4">
-                                <p:outputLabel for="date" value="Date"/>
+                                <p:outputLabel for="date" value="#{msg['common.date']}"/>
                                 <p:datePicker id="date"
                                               value="#{planningBean.selectedPlanning.date}"
-                                              disabled="#{not planningBean.canManagePlanning}"
+                                              disabled="#{not planningBean.canEditPlanning}"
                                               pattern="dd/MM/yyyy"
                                               showIcon="true"
                                               styleClass="w-100"/>
                             </div>
 
                             <h:panelGroup id="recurrencePanel" layout="block" styleClass="contents"
-                                          rendered="#{planningBean.canManagePlanning and planningBean.newPlanning}">
+                                          rendered="#{planningBean.canEditPlanning and planningBean.newPlanning}">
                                 <div class="col-12 col-md-4">
-                                    <p:outputLabel for="recurrenceMode" value="Recurrence"/>
+                                    <p:outputLabel for="recurrenceMode" value="#{msg['planning.recurrence']}"/>
                                     <p:selectOneMenu id="recurrenceMode"
                                                      value="#{planningBean.recurrenceMode}"
                                                      styleClass="w-100">
-                                        <f:selectItem itemLabel="Aucune" itemValue="NONE"/>
-                                        <f:selectItem itemLabel="Tous les jours" itemValue="DAILY"/>
-                                        <f:selectItem itemLabel="Toutes les semaines" itemValue="WEEKLY"/>
+                                        <f:selectItem itemLabel="#{msg['planning.recurrence.none']}" itemValue="NONE"/>
+                                        <f:selectItem itemLabel="#{msg['planning.recurrence.daily']}" itemValue="DAILY"/>
+                                        <f:selectItem itemLabel="#{msg['planning.recurrence.weekly']}" itemValue="WEEKLY"/>
                                         <p:ajax event="change" process="@this" update="recurrenceEndContainer"/>
                                     </p:selectOneMenu>
                                 </div>
                                 <h:panelGroup id="recurrenceEndContainer" layout="block" styleClass="col-12 col-md-4">
                                     <h:panelGroup rendered="#{planningBean.recurrenceMode ne 'NONE'}">
-                                        <p:outputLabel for="recurrenceEnd" value="Repeter jusqu'au"/>
+                                        <p:outputLabel for="recurrenceEnd" value="#{msg['planning.recurrence.until']}"/>
                                         <p:datePicker id="recurrenceEnd"
                                                       value="#{planningBean.recurrenceEndDate}"
                                                       pattern="dd/MM/yyyy" showIcon="true"
@@ -255,19 +255,19 @@
                             <h:panelGroup id="hoursPanel" layout="block" styleClass="col-12">
                                 <div class="row g-3 planning-hours-row">
                                     <div class="col-12 col-md-6">
-                                        <p:outputLabel for="startHour" value="Debut"/>
+                                        <p:outputLabel for="startHour" value="#{msg['common.start']}"/>
                                         <p:inputMask id="startHour"
                                                      value="#{planningBean.startHourValue}"
-                                                     disabled="#{not planningBean.canManagePlanning or planningBean.allDay}"
+                                                     disabled="#{not planningBean.canEditPlanning or planningBean.allDay}"
                                                      mask="99:99"
                                                      styleClass="form-control"/>
                                     </div>
 
                                     <div class="col-12 col-md-6">
-                                        <p:outputLabel for="endHour" value="Fin"/>
+                                        <p:outputLabel for="endHour" value="#{msg['common.end']}"/>
                                         <p:inputMask id="endHour"
                                                      value="#{planningBean.endHourValue}"
-                                                     disabled="#{not planningBean.canManagePlanning or planningBean.allDay}"
+                                                     disabled="#{not planningBean.canEditPlanning or planningBean.allDay}"
                                                      mask="99:99"
                                                      styleClass="form-control"/>
                                     </div>
@@ -275,36 +275,36 @@
                             </h:panelGroup>
 
                             <div class="col-12">
-                                <p:outputLabel for="description" value="Description"/>
+                                <p:outputLabel for="description" value="#{msg['common.description']}"/>
                                 <p:inputTextarea id="description"
                                                  value="#{planningBean.selectedPlanning.description}"
-                                                 disabled="#{not planningBean.canManagePlanning}"
+                                                 disabled="#{not planningBean.canEditPlanning}"
                                                  rows="4"
                                                  autoResize="false"
                                                  styleClass="form-control"/>
                             </div>
 
                             <h:panelGroup id="assignmentTrackingPanel" layout="block" styleClass="col-12"
-                                          rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id and not empty planningBean.planningAssignments}">
-                                <p:outputLabel value="Suivi des affectations"/>
+                                          rendered="#{planningBean.canEditPlanning and not empty planningBean.selectedPlanning.id and not empty planningBean.planningAssignments}">
+                                <p:outputLabel value="#{msg['planning.assignments.tracking']}"/>
                                 <div style="max-height:180px;overflow-y:auto;border:1px solid #dee2e6;border-radius:4px;" class="mt-1">
                                 <p:dataTable value="#{planningBean.planningAssignments}" var="assign"
                                              styleClass="w-100">
-                                    <p:column headerText="Employe" style="width:35%">
+                                    <p:column headerText="#{msg['common.employee']}" style="width:35%">
                                         <h:outputText value="#{assign.employee.firstName} #{assign.employee.lastName}"/>
                                     </p:column>
-                                    <p:column headerText="Note" style="width:40%">
+                                    <p:column headerText="#{msg['common.note']}" style="width:40%">
                                         <p:inputText value="#{assign.note}" maxlength="500"
                                                      styleClass="form-control form-control-sm"
-                                                     placeholder="Remarque..."/>
+                                                     placeholder="#{msg['planning.assignment.note.placeholder']}"/>
                                     </p:column>
-                                    <p:column headerText="Effectuee" style="width:15%;text-align:center">
+                                    <p:column headerText="#{msg['planning.assignment.performed']}" style="width:15%;text-align:center">
                                         <p:selectBooleanCheckbox value="#{assign.performed}"/>
                                     </p:column>
                                     <p:column style="width:10%;text-align:center">
                                         <p:commandButton icon="pi pi-check"
                                                          styleClass="ui-button-success ui-button-sm ui-button-rounded ui-button-icon-only"
-                                                         title="Sauvegarder"
+                                                         title="#{msg['common.save']}"
                                                          action="#{planningBean.saveAssignment(assign)}"
                                                          process="planningForm:assignmentTrackingPanel"
                                                          update="planningForm:assignmentTrackingPanel globalGrowl"
@@ -315,9 +315,9 @@
                             </h:panelGroup>
 
                             <h:panelGroup layout="block" styleClass="col-12 planning-assignment-summary"
-                                          rendered="#{not planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}">
+                                          rendered="#{not planningBean.canEditPlanning and not empty planningBean.selectedPlanning.id}">
                                 <div>
-                                    <span class="text-muted">Duree de la prestation</span>
+                                    <span class="text-muted">#{msg['planning.duration']}</span>
                                     <strong>#{planningBean.selectedHoursLabel}</strong>
                                 </div>
                             </h:panelGroup>
@@ -326,28 +326,28 @@
                         <f:facet name="footer">
                             <div class="planning-dialog-actions">
                                 <div class="planning-dialog-actions-start">
-                                    <p:commandButton value="Annuler"
+                                    <p:commandButton value="#{msg['common.cancel']}"
                                                      icon="bi bi-x-circle"
                                                      styleClass="btn btn-outline-danger"
-                                                     rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}"
+                                                     rendered="#{planningBean.canEditPlanning and not empty planningBean.selectedPlanning.id}"
                                                      action="#{planningBean.cancelPlanning}"
                                                      process="@this"
                                                      update="planningForm:planningSchedule planningDialog globalGrowl"
                                                      oncomplete="PF('planningDialogWidget').hide();"/>
                                 </div>
                                 <div class="planning-dialog-actions-end">
-                                    <p:commandButton value="Dupliquer"
+                                    <p:commandButton value="#{msg['common.duplicate']}"
                                                      icon="bi bi-copy"
                                                      styleClass="btn btn-outline-primary"
-                                                     rendered="#{planningBean.canManagePlanning and not empty planningBean.selectedPlanning.id}"
+                                                     rendered="#{planningBean.canEditPlanning and not empty planningBean.selectedPlanning.id}"
                                                      action="#{planningBean.duplicatePlanning}"
                                                      process="@this"
                                                      update="planningForm:planningSchedule planningDialog globalGrowl"
                                                      oncomplete="if (!args.validationFailed) PF('planningDialogWidget').hide();"/>
-                                    <p:commandButton value="Enregistrer"
+                                    <p:commandButton value="#{msg['common.save']}"
                                                      icon="bi bi-check2"
                                                      styleClass="btn btn-primary"
-                                                     rendered="#{planningBean.canManagePlanning}"
+                                                     rendered="#{planningBean.canEditPlanning}"
                                                      action="#{planningBean.savePlanning}"
                                                      process="planningDialog"
                                                      update="planningForm:planningSchedule planningDialog globalGrowl"
@@ -366,9 +366,9 @@
                         <div>
                             <h2 class="h5 mb-1 section-title">
                                 <i class="bi bi-palette" aria-hidden="true"></i>
-                                <span>Legende</span>
+                                <span>#{msg['planning.legend.title']}</span>
                             </h2>
-                            <p class="text-muted mb-0">Code couleur du planning.</p>
+                            <p class="text-muted mb-0">#{msg['planning.legend.subtitle']}</p>
                         </div>
                     </div>
 
@@ -376,99 +376,99 @@
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-work"></span>
                             <div>
-                                <strong>Service</strong>
-                                <span>Jour de travail affecte a un service.</span>
+                                <strong>#{msg['planning.type.service']}</strong>
+                                <span>#{msg['planning.legend.service']}</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-rest"></span>
                             <div>
-                                <strong>Repos</strong>
-                                <span>Jour non travaille.</span>
+                                <strong>#{msg['planning.type.rest']}</strong>
+                                <span>#{msg['planning.legend.rest']}</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-recovery"></span>
                             <div>
-                                <strong>Recup</strong>
-                                <span>Recuperation d'heures.</span>
+                                <strong>#{msg['planning.type.recovery.short']}</strong>
+                                <span>#{msg['planning.legend.recovery']}</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-holiday"></span>
                             <div>
-                                <strong>Jour ferie</strong>
-                                <span>Jour ferie officiel.</span>
+                                <strong>#{msg['planning.type.holiday']}</strong>
+                                <span>#{msg['planning.legend.holiday']}</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-vacation"></span>
                             <div>
-                                <strong>Vacances</strong>
-                                <span>Conge planifie.</span>
+                                <strong>#{msg['planning.type.vacation']}</strong>
+                                <span>#{msg['planning.legend.vacation']}</span>
                             </div>
                         </div>
                         <div class="planning-legend-item">
                             <span class="planning-legend-color planning-legend-absence"></span>
                             <div>
-                                <strong>Absence</strong>
-                                <span>Absence approuvee par la RH.</span>
+                                <strong>#{msg['planning.type.absence']}</strong>
+                                <span>#{msg['planning.legend.absence']}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <h:form id="reportForm" rendered="#{planningBean.canManagePlanning}"
+                <h:form id="reportForm" rendered="#{planningBean.canEditPlanning}"
                         styleClass="panel mt-3">
                     <div class="panel-header">
                         <div>
                             <h2 class="h5 mb-1 section-title">
                                 <i class="bi bi-file-earmark-bar-graph" aria-hidden="true"></i>
-                                <span>Rapports mensuels</span>
+                                <span>#{msg['planning.report.title']}</span>
                             </h2>
-                            <p class="text-muted mb-0">Generer un PDF pour un mois donne.</p>
+                            <p class="text-muted mb-0">#{msg['planning.report.subtitle']}</p>
                         </div>
                     </div>
 
                     <div class="row g-2 p-2">
                         <div class="col-6">
-                            <p:outputLabel for="reportMonth" value="Mois"/>
+                            <p:outputLabel for="reportMonth" value="#{msg['common.month']}"/>
                             <p:selectOneMenu id="reportMonth" value="#{planningBean.reportMonth}"
                                              styleClass="w-100">
-                                <f:selectItem itemLabel="Janvier"   itemValue="1"/>
-                                <f:selectItem itemLabel="Fevrier"   itemValue="2"/>
-                                <f:selectItem itemLabel="Mars"      itemValue="3"/>
-                                <f:selectItem itemLabel="Avril"     itemValue="4"/>
-                                <f:selectItem itemLabel="Mai"       itemValue="5"/>
-                                <f:selectItem itemLabel="Juin"      itemValue="6"/>
-                                <f:selectItem itemLabel="Juillet"   itemValue="7"/>
-                                <f:selectItem itemLabel="Aout"      itemValue="8"/>
-                                <f:selectItem itemLabel="Septembre" itemValue="9"/>
-                                <f:selectItem itemLabel="Octobre"   itemValue="10"/>
-                                <f:selectItem itemLabel="Novembre"  itemValue="11"/>
-                                <f:selectItem itemLabel="Decembre"  itemValue="12"/>
+                                <f:selectItem itemLabel="#{msg['month.january']}"   itemValue="1"/>
+                                <f:selectItem itemLabel="#{msg['month.february']}"   itemValue="2"/>
+                                <f:selectItem itemLabel="#{msg['month.march']}"      itemValue="3"/>
+                                <f:selectItem itemLabel="#{msg['month.april']}"     itemValue="4"/>
+                                <f:selectItem itemLabel="#{msg['month.may']}"       itemValue="5"/>
+                                <f:selectItem itemLabel="#{msg['month.june']}"      itemValue="6"/>
+                                <f:selectItem itemLabel="#{msg['month.july']}"   itemValue="7"/>
+                                <f:selectItem itemLabel="#{msg['month.august']}"      itemValue="8"/>
+                                <f:selectItem itemLabel="#{msg['month.september']}" itemValue="9"/>
+                                <f:selectItem itemLabel="#{msg['month.october']}"   itemValue="10"/>
+                                <f:selectItem itemLabel="#{msg['month.november']}"  itemValue="11"/>
+                                <f:selectItem itemLabel="#{msg['month.december']}"  itemValue="12"/>
                             </p:selectOneMenu>
                         </div>
                         <div class="col-6">
-                            <p:outputLabel for="reportYear" value="Annee"/>
+                            <p:outputLabel for="reportYear" value="#{msg['common.year']}"/>
                             <p:inputText id="reportYear" value="#{planningBean.reportYear}"
                                          styleClass="form-control" maxlength="4"/>
                         </div>
 
                         <div class="col-12 mt-1">
-                            <p:outputLabel for="reportEmployee" value="Par employe"/>
+                            <p:outputLabel for="reportEmployee" value="#{msg['planning.report.byEmployee']}"/>
                             <div style="display:flex;gap:0.4rem;">
                                 <p:selectOneMenu id="reportEmployee"
                                                  value="#{planningBean.reportEmployeeId}"
                                                  filter="true" filterMatchMode="contains"
                                                  styleClass="flex-grow-1">
-                                    <f:selectItem itemLabel="Selectionner..." itemValue="#{null}"
+                                    <f:selectItem itemLabel="#{msg['common.select']}" itemValue="#{null}"
                                                   noSelectionOption="true"/>
                                     <f:selectItems value="#{planningBean.employees}" var="emp"
                                                    itemLabel="#{emp.fullName}"
                                                    itemValue="#{emp.id}"/>
                                 </p:selectOneMenu>
                                 <p:commandButton icon="bi bi-file-earmark-pdf"
-                                                 title="Rapport par employe"
+                                                 title="#{msg['planning.report.byEmployee']}"
                                                  styleClass="ui-button-secondary"
                                                  action="#{planningBean.generateMonthlyReportByEmployee}"
                                                  process="reportForm"
@@ -477,19 +477,19 @@
                         </div>
 
                         <div class="col-12 mt-1">
-                            <p:outputLabel for="reportDepartment" value="Par departement"/>
+                            <p:outputLabel for="reportDepartment" value="#{msg['planning.report.byDepartment']}"/>
                             <div style="display:flex;gap:0.4rem;">
                                 <p:selectOneMenu id="reportDepartment"
                                                  value="#{planningBean.reportDepartmentId}"
                                                  styleClass="flex-grow-1">
-                                    <f:selectItem itemLabel="Selectionner..." itemValue="#{null}"
+                                    <f:selectItem itemLabel="#{msg['common.select']}" itemValue="#{null}"
                                                   noSelectionOption="true"/>
                                     <f:selectItems value="#{planningBean.departments}" var="dept"
                                                    itemLabel="#{dept.departmentName}"
                                                    itemValue="#{dept.id}"/>
                                 </p:selectOneMenu>
                                 <p:commandButton icon="bi bi-file-earmark-pdf"
-                                                 title="Rapport par departement"
+                                                 title="#{msg['planning.report.byDepartment']}"
                                                  styleClass="ui-button-secondary"
                                                  action="#{planningBean.generateMonthlyReportByDepartment}"
                                                  process="reportForm"

@@ -14,7 +14,7 @@
                 <div>
                     <p class="eyebrow mb-1">#{msg['nav.timePlanning']}</p>
                     <h1 class="h3 mb-1">#{msg['nav.publicHolidays']}</h1>
-                    <p class="text-muted mb-0">Gestion des jours feries affiches dans tous les plannings.</p>
+                    <p class="text-muted mb-0">#{msg['publicHolidays.subtitle']}</p>
                 </div>
             </div>
             <h:panelGroup layout="block"
@@ -22,20 +22,20 @@
                           rendered="#{authBean.hrOrAdmin}">
                 <h:form id="holidayGenerationForm" styleClass="d-flex align-items-end gap-2 flex-wrap">
                     <div>
-                        <p:outputLabel for="generationYear" value="Annee"/>
+                        <p:outputLabel for="generationYear" value="#{msg['common.year']}"/>
                         <p:spinner id="generationYear"
                                    value="#{publicHolidaysBean.generationYear}"
                                    min="1900"
                                    max="2200"
                                    styleClass="public-holiday-year"/>
                     </div>
-                    <p:commandButton value="Generer"
+                    <p:commandButton value="#{msg['publicHolidays.generate']}"
                                      icon="bi bi-calendar-plus"
                                      styleClass="btn btn-outline-primary"
                                      action="#{publicHolidaysBean.generateYear}"
                                      process="@form"
                                      update=":holidayForm:holidaysTable :globalGrowl"/>
-                    <p:commandButton value="Ajouter"
+                    <p:commandButton value="#{msg['publicHolidays.add']}"
                                      icon="bi bi-plus-circle"
                                      styleClass="btn btn-primary"
                                      process="@this"
@@ -55,33 +55,54 @@
                              styleClass="table align-middle mb-0 erp-data-table"
                              paginator="true"
                              rows="10"
-                             emptyMessage="Aucun jour ferie enregistre.">
-                    <p:column headerText="Date" sortBy="#{holiday.holidayDate}">
+                             emptyMessage="#{msg['publicHolidays.empty']}">
+                    <f:facet name="header">
+                        <div class="table-toolbar">
+                            <span class="section-title">#{msg['nav.publicHolidays']}</span>
+                            <span class="ui-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <p:inputText id="globalFilter"
+                                             onkeyup="PF('publicHolidaysTable').filter()"
+                                             placeholder="#{msg['common.search']}"/>
+                            </span>
+                        </div>
+                    </f:facet>
+
+                    <p:column headerText="#{msg['common.date']}" sortBy="#{holiday.holidayDate}"
+                              filterBy="#{holiday.holidayDate}" filterMatchMode="contains"
+                              filterStyle="display:none">
                         <h:outputText value="#{holiday.holidayDate}">
                             <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
                         </h:outputText>
                     </p:column>
-                    <p:column headerText="Nom" sortBy="#{holiday.name}" filterBy="#{holiday.name}" filterMatchMode="contains">
+                    <p:column headerText="#{msg['common.name']}" sortBy="#{holiday.name}"
+                              filterBy="#{holiday.name}" filterMatchMode="contains"
+                              filterStyle="display:none">
                         <strong>#{holiday.name}</strong>
                     </p:column>
-                    <p:column headerText="Description">
+                    <p:column headerText="#{msg['common.description']}"
+                              filterBy="#{holiday.description}" filterMatchMode="contains"
+                              filterStyle="display:none">
                         #{holiday.description}
                     </p:column>
-                    <p:column headerText="Statut" sortBy="#{holiday.isActive}">
+                    <p:column headerText="#{msg['common.status']}" sortBy="#{holiday.isActive}"
+                              filterBy="#{holiday.isActive ? msg['common.active'] : msg['common.inactive']}"
+                              filterMatchMode="contains"
+                              filterStyle="display:none">
                         <span class="#{holiday.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
-                            #{holiday.isActive ? 'Actif' : 'Inactif'}
+                            #{holiday.isActive ? msg['common.active'] : msg['common.inactive']}
                         </span>
                     </p:column>
-                    <p:column headerText="Actions" rendered="#{authBean.hrOrAdmin}">
+                    <p:column headerText="#{msg['common.actions']}" rendered="#{authBean.hrOrAdmin}">
                         <p:commandButton icon="bi bi-pencil"
-                                         title="Modifier"
+                                         title="#{msg['common.edit']}"
                                          styleClass="btn btn-sm btn-primary"
                                          process="@this"
                                          update=":holidayForm:holidayDialog"
                                          actionListener="#{publicHolidaysBean.edit(holiday)}"
                                          oncomplete="PF('holidayDialogWidget').show();"/>
                         <p:commandButton icon="#{holiday.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"
-                                         title="#{holiday.isActive ? 'Desactiver' : 'Activer'}"
+                                         title="#{holiday.isActive ? msg['common.deactivate'] : msg['common.activate']}"
                                          styleClass="#{holiday.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
                                          process="@this"
                                          update="@form :globalGrowl"
@@ -91,13 +112,13 @@
 
                 <p:dialog id="holidayDialog"
                           widgetVar="holidayDialogWidget"
-                          header="Jour ferie"
+                          header="#{msg['publicHolidays.dialog.title']}"
                           modal="true"
                           responsive="true"
                           width="480">
                     <div class="row g-3">
                         <div class="col-12">
-                            <p:outputLabel for="holidayName" value="Nom"/>
+                            <p:outputLabel for="holidayName" value="#{msg['common.name']}"/>
                             <p:inputText id="holidayName"
                                          value="#{publicHolidaysBean.selectedPublicHoliday.name}"
                                          maxlength="150"
@@ -105,7 +126,7 @@
                                          styleClass="form-control"/>
                         </div>
                         <div class="col-12">
-                            <p:outputLabel for="holidayDate" value="Date"/>
+                            <p:outputLabel for="holidayDate" value="#{msg['common.date']}"/>
                             <p:datePicker id="holidayDate"
                                           value="#{publicHolidaysBean.selectedPublicHoliday.holidayDate}"
                                           pattern="dd/MM/yyyy"
@@ -114,7 +135,7 @@
                                           styleClass="w-100"/>
                         </div>
                         <div class="col-12">
-                            <p:outputLabel for="holidayDescription" value="Description"/>
+                            <p:outputLabel for="holidayDescription" value="#{msg['common.description']}"/>
                             <p:inputTextarea id="holidayDescription"
                                              value="#{publicHolidaysBean.selectedPublicHoliday.description}"
                                              rows="4"
@@ -123,7 +144,7 @@
                         </div>
                     </div>
                     <f:facet name="footer">
-                        <p:commandButton value="Enregistrer"
+                        <p:commandButton value="#{msg['common.save']}"
                                          icon="bi bi-check2"
                                          styleClass="btn btn-primary"
                                          action="#{publicHolidaysBean.save}"

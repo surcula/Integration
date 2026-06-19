@@ -2354,6 +2354,14 @@ html[data-theme="dark"] {
     margin-bottom: 20px;
 }
 
+.absence-summary-link,
+.absence-summary-link:hover,
+.absence-summary-link:focus {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
 .absence-summary-item {
     display: flex;
     align-items: center;
@@ -2363,6 +2371,20 @@ html[data-theme="dark"] {
     border: 1px solid var(--border-color, #dbe3ed);
     border-radius: 6px;
     background: var(--surface-card, #ffffff);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.absence-summary-link:hover .absence-summary-item,
+.absence-summary-link:focus .absence-summary-item {
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow-lg);
+}
+
+.absence-summary-selected {
+    border-width: 2px;
+    transform: translateY(-1px);
+    box-shadow: var(--admin-shadow-lg);
 }
 
 .absence-summary-item strong,
@@ -2405,6 +2427,21 @@ html[data-theme="dark"] {
 .absence-summary-pending .absence-summary-icon { color: #a16207; background: #fef3c7; }
 .absence-summary-approved .absence-summary-icon { color: #15803d; background: #dcfce7; }
 .absence-summary-refused .absence-summary-icon { color: #b91c1c; background: #fee2e2; }
+
+.absence-summary-pending.absence-summary-selected {
+    border-color: #f59e0b;
+    background: #fff7e6;
+}
+
+.absence-summary-approved.absence-summary-selected {
+    border-color: #16a34a;
+    background: #ecfdf3;
+}
+
+.absence-summary-refused.absence-summary-selected {
+    border-color: #dc2626;
+    background: #fff1f2;
+}
 
 .absence-document-existing {
     display: flex;

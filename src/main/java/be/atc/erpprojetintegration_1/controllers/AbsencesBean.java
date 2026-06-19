@@ -36,6 +36,8 @@ public class AbsencesBean implements Serializable {
     @Inject private AuthBean authBean;
 
     private List<Absence> absences;
+    private List<Absence> filteredAbsences;
+    private List<AbsenceStatus> selectedStatuses = new ArrayList<>();
     private List<EmployeeListDto> employees;
     private Absence selectedAbsence;
     private Integer selectedEmployeeId;
@@ -55,6 +57,7 @@ public class AbsencesBean implements Serializable {
     public void load() {
         Result<List<Absence>> result = absenceBusiness.getAccessible(connectedId(), authBean.isHrOrAdmin());
         absences = result.isSuccess() ? result.getData() : new ArrayList<Absence>();
+        filterAbsences();
         employees = new ArrayList<>();
         if (authBean.isHrOrAdmin()) {
             Result<List<EmployeeListDto>> employeeResult = employeeBusiness.getEmployeeList(false);
@@ -175,6 +178,36 @@ public class AbsencesBean implements Serializable {
     public long getApprovedCount() { return countByStatus(AbsenceStatus.APPROVED); }
     public long getRefusedCount() { return countByStatus(AbsenceStatus.REFUSED); }
 
+    public void filterAbsences() {
+        if (absences == null) {
+            filteredAbsences = new ArrayList<>();
+            return;
+        }
+        filteredAbsences = absences.stream()
+                .filter(absence -> selectedStatuses.isEmpty() || selectedStatuses.contains(absence.getStatus()))
+                .collect(Collectors.toList());
+    }
+
+    public void toggleStatusFilter(AbsenceStatus status) {
+        if (selectedStatuses.contains(status)) {
+            selectedStatuses.remove(status);
+        } else {
+            selectedStatuses.add(status);
+        }
+        filterAbsences();
+    }
+
+    public void clearStatusFilter() {
+        selectedStatuses.clear();
+        filterAbsences();
+    }
+
+    public boolean isAllStatusesSelected() { return selectedStatuses.isEmpty(); }
+    public boolean isStatusSelected(AbsenceStatus status) { return selectedStatuses.contains(status); }
+    public AbsenceStatus getPendingStatus() { return AbsenceStatus.PENDING; }
+    public AbsenceStatus getApprovedStatus() { return AbsenceStatus.APPROVED; }
+    public AbsenceStatus getRefusedStatus() { return AbsenceStatus.REFUSED; }
+
     private long countByStatus(AbsenceStatus status) {
         if (absences == null) {
             return 0;
@@ -221,7 +254,7 @@ public class AbsencesBean implements Serializable {
                 .sorted()
                 .collect(Collectors.toList());
     }
-    public List<Absence> getAbsences() { return absences; }
+    public List<Absence> getAbsences() { return filteredAbsences == null ? new ArrayList<Absence>() : filteredAbsences; }
     public List<EmployeeListDto> getEmployees() { return employees; }
     public Absence getSelectedAbsence() { return selectedAbsence; }
     public void setSelectedAbsence(Absence selectedAbsence) { this.selectedAbsence = selectedAbsence; }

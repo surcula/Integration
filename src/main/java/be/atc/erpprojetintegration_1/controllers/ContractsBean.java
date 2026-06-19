@@ -50,10 +50,10 @@ public class ContractsBean implements Serializable {
             return;
         }
         Result<List<Contract>> result = contractBusiness.getAccessible(
-                connectedId(), isCanManage(), isEmployee());
+                connectedId(), isCanEditContracts(), isEmployee());
         contracts = result.isSuccess() ? result.getData() : new ArrayList<Contract>();
         employees = new ArrayList<>();
-        if (isCanManage()) {
+        if (isCanEditContracts()) {
             Result<List<EmployeeListDto>> employeeResult = employeeBusiness.getEmployeeList(false);
             if (employeeResult.isSuccess()) employees = employeeResult.getData();
         }
@@ -69,7 +69,7 @@ public class ContractsBean implements Serializable {
     }
 
     public void create() {
-        Result<Contract> result = contractBusiness.create(selectedContract, selectedEmployeeId, isCanManage());
+        Result<Contract> result = contractBusiness.create(selectedContract, selectedEmployeeId, isCanEditContracts());
         if (!result.isSuccess()) {
             fail(result);
             return;
@@ -85,7 +85,7 @@ public class ContractsBean implements Serializable {
     }
 
     public void close() {
-        Result<Void> result = contractBusiness.close(selectedContract.getId(), closeDate, isCanManage());
+        Result<Void> result = contractBusiness.close(selectedContract.getId(), closeDate, isCanEditContracts());
         if (!result.isSuccess()) {
             fail(result);
             return;
@@ -101,7 +101,7 @@ public class ContractsBean implements Serializable {
 
     public void renew() {
         Result<Void> result = contractBusiness.renew(
-                selectedContract.getId(), renewalEndDate, isCanManage());
+                selectedContract.getId(), renewalEndDate, isCanEditContracts());
         if (!result.isSuccess()) {
             fail(result);
             return;
@@ -117,7 +117,7 @@ public class ContractsBean implements Serializable {
 
     public void updateSalary() {
         Result<Void> result = contractBusiness.updateSalary(
-                selectedContract.getId(), newSalary, isCanManage());
+                selectedContract.getId(), newSalary, isCanEditContracts());
         if (!result.isSuccess()) {
             fail(result);
             return;
@@ -145,7 +145,7 @@ public class ContractsBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, text, null));
     }
 
-    public boolean isCanManage() {
+    public boolean isCanEditContracts() {
         return authBean.hasRole("HR") || authBean.hasRole("ADMIN");
     }
 
@@ -154,11 +154,11 @@ public class ContractsBean implements Serializable {
     }
 
     public boolean isCanAccess() {
-        return isCanManage() || isEmployee();
+        return isCanEditContracts() || isEmployee();
     }
 
     public boolean canClose(Contract contract) {
-        return isCanManage() && contract != null && contract.getStatus() == ContractStatus.ACTIVE;
+        return isCanEditContracts() && contract != null && contract.getStatus() == ContractStatus.ACTIVE;
     }
 
     public boolean canRenew(Contract contract) {

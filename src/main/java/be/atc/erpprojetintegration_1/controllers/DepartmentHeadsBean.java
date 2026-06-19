@@ -40,7 +40,7 @@ public class DepartmentHeadsBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        if (!isCanManage()) return;
+        if (!isCanEditDepartmentHeads()) return;
         load();
     }
 
@@ -76,7 +76,7 @@ public class DepartmentHeadsBean implements Serializable {
     }
 
     public void assign() {
-        if (!isCanManage()) { error("Vous n'etes pas autorise a modifier les chefs de departement."); return; }
+        if (!isCanEditDepartmentHeads()) { error("Vous n'etes pas autorise a modifier les chefs de departement."); return; }
         Result<DepartmentHead> result = departmentHeadBusiness.assign(departmentId, employeeId, startDate);
         if (!result.isSuccess()) { error(firstError(result)); return; }
         load();
@@ -84,7 +84,7 @@ public class DepartmentHeadsBean implements Serializable {
     }
 
     public void deactivate() {
-        if (!isCanManage()) { error("Vous n'etes pas autorise a modifier les chefs de departement."); return; }
+        if (!isCanEditDepartmentHeads()) { error("Vous n'etes pas autorise a modifier les chefs de departement."); return; }
         Result<Void> result = departmentHeadBusiness.deactivate(selectedHeadId, endDate);
         if (!result.isSuccess()) { error(firstError(result)); return; }
         load();
@@ -121,7 +121,7 @@ public class DepartmentHeadsBean implements Serializable {
     private void info(String message) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succes", message)); }
     private void error(String message) { FacesContext.getCurrentInstance().validationFailed(); FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message)); }
 
-    public boolean isCanManage() { return authBean != null && authBean.isHrOrAdmin(); }
+    public boolean isCanEditDepartmentHeads() { return authBean != null && authBean.isHrOrAdmin(); }
     public List<DepartmentHeadRowDto> getRows() { return rows; }
     public List<Employee> getEligibleEmployees() { return eligibleEmployees; }
     public List<DepartmentHead> getSelectedHistory() { return selectedHistory; }

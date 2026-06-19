@@ -18,30 +18,30 @@ import java.util.Map;
 public class ContractBusiness {
     @Inject private IContractService contractService;
 
-    public Result<List<Contract>> getAccessible(Integer employeeId, boolean canManage, boolean employee) {
-        if (canManage) return contractService.getAll();
+    public Result<List<Contract>> getAccessible(Integer employeeId, boolean canEditContracts, boolean employee) {
+        if (canEditContracts) return contractService.getAll();
         if (employee && employeeId != null) return contractService.getByEmployee(employeeId);
         return Result.fail(error("access", "Acces refuse."));
     }
 
-    public Result<Contract> getActive(Integer employeeId, Integer connectedEmployeeId, boolean canManage) {
-        if (!canManage && (connectedEmployeeId == null || !connectedEmployeeId.equals(employeeId))) {
+    public Result<Contract> getActive(Integer employeeId, Integer connectedEmployeeId, boolean canEditContracts) {
+        if (!canEditContracts && (connectedEmployeeId == null || !connectedEmployeeId.equals(employeeId))) {
             return Result.fail(error("access", "Acces refuse."));
         }
         if (employeeId == null) return Result.fail(error("employee", "L'employe est obligatoire."));
         return contractService.getActive(employeeId);
     }
 
-    public Result<List<Contract>> getByEmployee(Integer employeeId, Integer connectedEmployeeId, boolean canManage) {
-        if (!canManage && (connectedEmployeeId == null || !connectedEmployeeId.equals(employeeId))) {
+    public Result<List<Contract>> getByEmployee(Integer employeeId, Integer connectedEmployeeId, boolean canEditContracts) {
+        if (!canEditContracts && (connectedEmployeeId == null || !connectedEmployeeId.equals(employeeId))) {
             return Result.fail(error("access", "Acces refuse."));
         }
         if (employeeId == null) return Result.fail(error("employee", "L'employe est obligatoire."));
         return contractService.getByEmployee(employeeId);
     }
 
-    public Result<Contract> create(Contract contract, Integer employeeId, boolean canManage) {
-        if (!canManage) return Result.fail(error("access", "Seule la RH peut creer un contrat."));
+    public Result<Contract> create(Contract contract, Integer employeeId, boolean canEditContracts) {
+        if (!canEditContracts) return Result.fail(error("access", "Seule la RH peut creer un contrat."));
         Result<Void> validation = validateContract(contract, employeeId);
         if (!validation.isSuccess()) return Result.fail(validation.getErrors());
         contract.setStatus(ContractStatus.ACTIVE);
@@ -50,8 +50,8 @@ public class ContractBusiness {
         return contractService.create(contract, employeeId);
     }
 
-    public Result<Void> close(Integer contractId, LocalDate endDate, boolean canManage) {
-        if (!canManage) return Result.fail(error("access", "Seule la RH peut cloturer un contrat."));
+    public Result<Void> close(Integer contractId, LocalDate endDate, boolean canEditContracts) {
+        if (!canEditContracts) return Result.fail(error("access", "Seule la RH peut cloturer un contrat."));
         Map<String, String> errors = new HashMap<>();
         if (contractId == null) errors.put("contract", "Le contrat est obligatoire.");
         if (endDate == null) errors.put("endDate", "La date de fin est obligatoire.");
@@ -68,8 +68,8 @@ public class ContractBusiness {
         return contractService.close(contractId, endDate);
     }
 
-    public Result<Void> renew(Integer contractId, LocalDate newEndDate, boolean canManage) {
-        if (!canManage) return Result.fail(error("access", "Seule la RH peut renouveler un contrat."));
+    public Result<Void> renew(Integer contractId, LocalDate newEndDate, boolean canEditContracts) {
+        if (!canEditContracts) return Result.fail(error("access", "Seule la RH peut renouveler un contrat."));
         if (contractId == null) return Result.fail(error("contract", "Le contrat est obligatoire."));
         if (newEndDate == null) return Result.fail(error("endDate", "La nouvelle date de fin est obligatoire."));
 
@@ -91,8 +91,8 @@ public class ContractBusiness {
         return contractService.renew(contractId, newEndDate);
     }
 
-    public Result<Void> updateSalary(Integer contractId, BigDecimal newSalary, boolean canManage) {
-        if (!canManage) return Result.fail(error("access", "Seule la RH peut modifier le salaire."));
+    public Result<Void> updateSalary(Integer contractId, BigDecimal newSalary, boolean canEditContracts) {
+        if (!canEditContracts) return Result.fail(error("access", "Seule la RH peut modifier le salaire."));
         if (contractId == null) return Result.fail(error("contract", "Le contrat est obligatoire."));
         if (newSalary == null || newSalary.compareTo(BigDecimal.ZERO) <= 0) {
             return Result.fail(error("salary", "Le salaire brut doit etre positif."));

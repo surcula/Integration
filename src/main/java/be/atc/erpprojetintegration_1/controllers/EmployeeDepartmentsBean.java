@@ -44,7 +44,7 @@ public class EmployeeDepartmentsBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        if (!isCanManage()) return;
+        if (!isCanEditAssignments()) return;
         startDate = LocalDate.now();
         load();
     }
@@ -115,7 +115,7 @@ public class EmployeeDepartmentsBean implements Serializable {
     }
 
     public void assign() {
-        if (!isCanManage()) { error("Vous n'etes pas autorise a modifier les affectations."); return; }
+        if (!isCanEditAssignments()) { error("Vous n'etes pas autorise a modifier les affectations."); return; }
         Result<EmployeeDepartment> result = employeeDepartmentBusiness.assign(employeeId, departmentId, startDate);
         if (!result.isSuccess()) {
             error(firstError(result));
@@ -126,7 +126,7 @@ public class EmployeeDepartmentsBean implements Serializable {
     }
 
     public void deactivate() {
-        if (!isCanManage()) { error("Vous n'etes pas autorise a modifier les affectations."); return; }
+        if (!isCanEditAssignments()) { error("Vous n'etes pas autorise a modifier les affectations."); return; }
         Result<Void> result = employeeDepartmentBusiness.deactivate(selectedAssignmentId, endDate);
         if (!result.isSuccess()) {
             error(firstError(result));
@@ -160,7 +160,7 @@ public class EmployeeDepartmentsBean implements Serializable {
     private void info(String message) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succes", message)); }
     private void error(String message) { FacesContext.getCurrentInstance().validationFailed(); FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message)); }
 
-    public boolean isCanManage() { return authBean != null && authBean.isHrOrAdmin(); }
+    public boolean isCanEditAssignments() { return authBean != null && authBean.isHrOrAdmin(); }
 
     public List<EmployeeDepartmentRowDto> getAssignmentRows() { return assignmentRows; }
     public List<Employee> getEmployees() { return employees; }

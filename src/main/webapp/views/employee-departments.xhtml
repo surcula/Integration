@@ -4,14 +4,14 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-    <ui:define name="title">Affectations aux departements | ERP RH</ui:define>
+    <ui:define name="title">#{msg['employeeDepartments.pageTitle']}</ui:define>
     <ui:define name="content">
-        <h:panelGroup layout="block" rendered="#{employeeDepartmentsBean.canManage}">
+        <h:panelGroup layout="block" rendered="#{employeeDepartmentsBean.canEditAssignments}">
         <div class="page-heading">
             <div class="page-heading-copy">
                 <span class="page-icon"><i class="pi pi-sitemap"></i></span>
-                <div><p class="eyebrow mb-1">Personnel</p><h1 class="h3 mb-1">Affectations aux departements</h1>
-                    <p class="text-muted mb-0">Affectations actives, transferts et historique des employes.</p></div>
+                <div><p class="eyebrow mb-1">#{msg['nav.staff']}</p><h1 class="h3 mb-1">#{msg['employeeDepartments.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['employeeDepartments.subtitle']}</p></div>
             </div>
         </div>
         <h:form id="employeeDepartmentForm">
@@ -19,52 +19,52 @@
                 <div class="assignment-toolbar">
                     <span class="p-input-icon-left assignment-search">
                         <i class="pi pi-search"></i>
-                        <p:inputText value="#{employeeDepartmentsBean.searchTerm}" placeholder="Rechercher un employé">
+                        <p:inputText value="#{employeeDepartmentsBean.searchTerm}" placeholder="#{msg['employeeDepartments.search']}">
                             <p:ajax event="keyup" delay="300" listener="#{employeeDepartmentsBean.applyFilters}"
                                     process="@this" update="assignmentsTable"/>
                         </p:inputText>
                     </span>
                     <p:selectOneMenu value="#{employeeDepartmentsBean.filterDepartmentId}" styleClass="assignment-filter">
-                        <f:selectItem itemLabel="Tous les départements" itemValue="#{null}"/>
+                        <f:selectItem itemLabel="#{msg['common.allDepartments']}" itemValue="#{null}"/>
                         <f:selectItems value="#{employeeDepartmentsBean.departments}" var="department"
                                        itemLabel="#{department.departmentName}" itemValue="#{department.id}"/>
                         <p:ajax listener="#{employeeDepartmentsBean.applyFilters}" process="@this" update="assignmentsTable"/>
                     </p:selectOneMenu>
                     <p:selectOneMenu value="#{employeeDepartmentsBean.filterStatus}" styleClass="assignment-filter">
-                        <f:selectItem itemLabel="Tous les statuts" itemValue="ALL"/>
-                        <f:selectItem itemLabel="Actives" itemValue="ACTIVE"/>
-                        <f:selectItem itemLabel="Terminées" itemValue="ENDED"/>
+                        <f:selectItem itemLabel="#{msg['common.allStatuses']}" itemValue="ALL"/>
+                        <f:selectItem itemLabel="#{msg['employeeDepartments.status.activePlural']}" itemValue="ACTIVE"/>
+                        <f:selectItem itemLabel="#{msg['employeeDepartments.status.endedPlural']}" itemValue="ENDED"/>
                         <p:ajax listener="#{employeeDepartmentsBean.applyFilters}" process="@this" update="assignmentsTable"/>
                     </p:selectOneMenu>
-                    <p:commandButton value="Nouvelle affectation" icon="pi pi-plus" styleClass="btn btn-primary assignment-create-button"
+                    <p:commandButton value="#{msg['employeeDepartments.new']}" icon="pi pi-plus" styleClass="btn btn-primary assignment-create-button"
                                      actionListener="#{employeeDepartmentsBean.prepareCreate}" process="@this"
                                      update="assignmentDialog" oncomplete="PF('assignmentDialogWidget').show();"/>
                 </div>
                 <p:dataTable id="assignmentsTable" value="#{employeeDepartmentsBean.assignmentRows}" var="row"
                              paginator="true" rows="10"
                              rowsPerPageTemplate="10,25,50" paginatorPosition="bottom"
-                             emptyMessage="Aucune affectation trouvee." styleClass="erp-data-table">
-                    <p:column headerText="Employé" sortBy="#{row.assignment.employee.lastName}">
+                             emptyMessage="#{msg['employeeDepartments.empty']}" styleClass="erp-data-table">
+                    <p:column headerText="#{msg['common.employee']}" sortBy="#{row.assignment.employee.lastName}">
                         <strong>#{row.assignment.employee.firstName} #{row.assignment.employee.lastName}</strong><div class="text-muted">#{row.assignment.employee.email}</div>
                     </p:column>
-                    <p:column headerText="Département" sortBy="#{row.assignment.department.departmentName}">
+                    <p:column headerText="#{msg['common.department']}" sortBy="#{row.assignment.department.departmentName}">
                         #{row.assignment.department.departmentName}
                     </p:column>
-                    <p:column headerText="Début" sortBy="#{row.assignment.startDate}" styleClass="text-center"><h:outputText value="#{row.assignment.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
-                    <p:column headerText="Fin" sortBy="#{row.assignment.endDate}">
+                    <p:column headerText="#{msg['common.start']}" sortBy="#{row.assignment.startDate}" styleClass="text-center"><h:outputText value="#{row.assignment.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
+                    <p:column headerText="#{msg['common.end']}" sortBy="#{row.assignment.endDate}">
                         <h:outputText value="#{row.assignment.endDate}" rendered="#{not empty row.assignment.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText>
-                        <h:outputText value="En cours" styleClass="text-muted" rendered="#{empty row.assignment.endDate}"/>
+                        <h:outputText value="#{msg['common.inProgress']}" styleClass="text-muted" rendered="#{empty row.assignment.endDate}"/>
                     </p:column>
-                    <p:column headerText="Statut" sortBy="#{row.assignment.isActive}">
-                        <span class="#{row.assignment.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">#{row.assignment.isActive ? 'Active' : 'Terminée'}</span>
+                    <p:column headerText="#{msg['common.status']}" sortBy="#{row.assignment.isActive}">
+                        <span class="#{row.assignment.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">#{row.assignment.isActive ? msg['employeeDepartments.status.active'] : msg['employeeDepartments.status.ended']}</span>
                     </p:column>
-                    <p:column headerText="Actions" styleClass="text-center assignment-actions">
-                        <p:commandButton icon="pi pi-eye" title="Voir le détail"
+                    <p:column headerText="#{msg['common.actions']}" styleClass="text-center assignment-actions">
+                        <p:commandButton icon="pi pi-eye" title="#{msg['common.viewDetails']}"
                                          styleClass="ui-button-info ui-button-rounded ui-button-icon-only"
                                          actionListener="#{employeeDepartmentsBean.prepareView(row.assignment)}" process="@this"
                                          update=":employeeDepartmentForm:assignmentDetailDialog"
                                          oncomplete="PF('assignmentDetailDialogWidget').show();"/>
-                        <p:commandButton icon="pi pi-history" title="Voir l'historique (#{row.historyCount})"
+                        <p:commandButton icon="pi pi-history" title="#{msg['common.viewHistory']} (#{row.historyCount})"
                                          styleClass="ui-button-secondary ui-button-rounded ui-button-icon-only" rendered="#{row.hasHistory}"
                                          actionListener="#{employeeDepartmentsBean.prepareHistory(row.assignment)}" process="@this"
                                          update=":employeeDepartmentForm:assignmentHistoryDialog"
@@ -76,61 +76,61 @@
                     </p:column>
                 </p:dataTable>
             </div>
-            <p:dialog id="assignmentHistoryDialog" widgetVar="assignmentHistoryDialogWidget" header="Historique des affectations"
+            <p:dialog id="assignmentHistoryDialog" widgetVar="assignmentHistoryDialogWidget" header="#{msg['employeeDepartments.history.title']}"
                       modal="true" responsive="true" width="680">
                 <p class="text-muted" rendered="#{not empty employeeDepartmentsBean.selectedAssignment}">
                     #{employeeDepartmentsBean.selectedAssignment.employee.firstName} #{employeeDepartmentsBean.selectedAssignment.employee.lastName}
                 </p>
-                <p:dataTable value="#{employeeDepartmentsBean.selectedHistory}" var="history" emptyMessage="Aucun historique.">
-                    <p:column headerText="Département">#{history.department.departmentName}</p:column>
-                    <p:column headerText="Début"><h:outputText value="#{history.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
-                    <p:column headerText="Fin"><h:outputText value="#{history.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
-                    <p:column headerText="Statut"><span class="#{history.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">#{history.isActive ? 'Active' : 'Terminée'}</span></p:column>
+                <p:dataTable value="#{employeeDepartmentsBean.selectedHistory}" var="history" emptyMessage="#{msg['common.noHistory']}">
+                    <p:column headerText="#{msg['common.department']}">#{history.department.departmentName}</p:column>
+                    <p:column headerText="#{msg['common.start']}"><h:outputText value="#{history.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
+                    <p:column headerText="#{msg['common.end']}"><h:outputText value="#{history.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
+                    <p:column headerText="#{msg['common.status']}"><span class="#{history.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">#{history.isActive ? msg['employeeDepartments.status.active'] : msg['employeeDepartments.status.ended']}</span></p:column>
                 </p:dataTable>
-                <f:facet name="footer"><p:commandButton value="Fermer" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('assignmentHistoryDialogWidget').hide();"/></f:facet>
+                <f:facet name="footer"><p:commandButton value="#{msg['common.close']}" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('assignmentHistoryDialogWidget').hide();"/></f:facet>
             </p:dialog>
-            <p:dialog id="assignmentDetailDialog" widgetVar="assignmentDetailDialogWidget" header="Détail de l'affectation"
+            <p:dialog id="assignmentDetailDialog" widgetVar="assignmentDetailDialogWidget" header="#{msg['employeeDepartments.detail.title']}"
                       modal="true" responsive="true" width="460">
                 <h:panelGroup layout="block" rendered="#{not empty employeeDepartmentsBean.selectedAssignment}" styleClass="assignment-detail-grid">
-                    <div><span>Employé</span><strong>#{employeeDepartmentsBean.selectedAssignment.employee.firstName} #{employeeDepartmentsBean.selectedAssignment.employee.lastName}</strong></div>
-                    <div><span>E-mail</span><strong>#{employeeDepartmentsBean.selectedAssignment.employee.email}</strong></div>
-                    <div><span>Département</span><strong>#{employeeDepartmentsBean.selectedAssignment.department.departmentName}</strong></div>
-                    <div><span>Date de début</span><strong><h:outputText value="#{employeeDepartmentsBean.selectedAssignment.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></strong></div>
-                    <div><span>Date de fin</span><strong><h:outputText value="#{employeeDepartmentsBean.selectedAssignment.endDate}" rendered="#{not empty employeeDepartmentsBean.selectedAssignment.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText><h:outputText value="En cours" rendered="#{empty employeeDepartmentsBean.selectedAssignment.endDate}"/></strong></div>
-                    <div><span>Statut</span><strong>#{employeeDepartmentsBean.selectedAssignment.isActive ? 'Active' : 'Terminée'}</strong></div>
+                    <div><span>#{msg['common.employee']}</span><strong>#{employeeDepartmentsBean.selectedAssignment.employee.firstName} #{employeeDepartmentsBean.selectedAssignment.employee.lastName}</strong></div>
+                    <div><span>#{msg['common.email']}</span><strong>#{employeeDepartmentsBean.selectedAssignment.employee.email}</strong></div>
+                    <div><span>#{msg['common.department']}</span><strong>#{employeeDepartmentsBean.selectedAssignment.department.departmentName}</strong></div>
+                    <div><span>#{msg['common.startDate']}</span><strong><h:outputText value="#{employeeDepartmentsBean.selectedAssignment.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></strong></div>
+                    <div><span>#{msg['common.endDate']}</span><strong><h:outputText value="#{employeeDepartmentsBean.selectedAssignment.endDate}" rendered="#{not empty employeeDepartmentsBean.selectedAssignment.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText><h:outputText value="#{msg['common.inProgress']}" rendered="#{empty employeeDepartmentsBean.selectedAssignment.endDate}"/></strong></div>
+                    <div><span>#{msg['common.status']}</span><strong>#{employeeDepartmentsBean.selectedAssignment.isActive ? msg['employeeDepartments.status.active'] : msg['employeeDepartments.status.ended']}</strong></div>
                 </h:panelGroup>
-                <f:facet name="footer"><p:commandButton value="Fermer" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('assignmentDetailDialogWidget').hide();"/></f:facet>
+                <f:facet name="footer"><p:commandButton value="#{msg['common.close']}" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('assignmentDetailDialogWidget').hide();"/></f:facet>
             </p:dialog>
-            <p:dialog id="assignmentDialog" widgetVar="assignmentDialogWidget" header="Affecter / transférer" modal="true" responsive="true" width="500">
+            <p:dialog id="assignmentDialog" widgetVar="assignmentDialogWidget" header="#{msg['employeeDepartments.dialog.title']}" modal="true" responsive="true" width="500">
                 <div class="row g-3">
-                    <div class="col-12"><p:outputLabel for="employee" value="Employe"/>
+                    <div class="col-12"><p:outputLabel for="employee" value="#{msg['common.employee']}"/>
                         <p:selectOneMenu id="employee" value="#{employeeDepartmentsBean.employeeId}" filter="true" filterMatchMode="contains" styleClass="w-100">
-                            <f:selectItem itemLabel="Selectionner un employe" itemValue="#{null}"/>
+                            <f:selectItem itemLabel="#{msg['common.selectEmployee']}" itemValue="#{null}"/>
                             <f:selectItems value="#{employeeDepartmentsBean.employees}" var="employee" itemLabel="#{employee.firstName} #{employee.lastName} - #{employee.email}" itemValue="#{employee.id}"/>
                         </p:selectOneMenu></div>
-                    <div class="col-12 col-md-7"><p:outputLabel for="department" value="Departement"/>
+                    <div class="col-12 col-md-7"><p:outputLabel for="department" value="#{msg['common.department']}"/>
                         <p:selectOneMenu id="department" value="#{employeeDepartmentsBean.departmentId}" styleClass="w-100">
-                            <f:selectItem itemLabel="Selectionner un departement" itemValue="#{null}"/>
+                            <f:selectItem itemLabel="#{msg['common.selectDepartment']}" itemValue="#{null}"/>
                             <f:selectItems value="#{employeeDepartmentsBean.departments}" var="department" itemLabel="#{department.departmentName}" itemValue="#{department.id}"/>
                         </p:selectOneMenu></div>
-                    <div class="col-12 col-md-5"><p:outputLabel for="startDate" value="Date de debut"/>
+                    <div class="col-12 col-md-5"><p:outputLabel for="startDate" value="#{msg['common.startDate']}"/>
                         <p:datePicker id="startDate" value="#{employeeDepartmentsBean.startDate}" pattern="dd/MM/yyyy" showIcon="true" styleClass="w-100"/></div>
                 </div>
-                <div class="assignment-transfer-note"><i class="pi pi-info-circle"></i><span>Une affectation active sera cloturee automatiquement lors d'un transfert.</span></div>
+                <div class="assignment-transfer-note"><i class="pi pi-info-circle"></i><span>#{msg['employeeDepartments.transfer.note']}</span></div>
                 <f:facet name="footer">
-                    <p:commandButton value="Annuler" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('assignmentDialogWidget').hide();"/>
-                    <p:commandButton value="Affecter" icon="pi pi-check" styleClass="ui-button-success" action="#{employeeDepartmentsBean.assign}"
+                    <p:commandButton value="#{msg['common.cancel']}" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('assignmentDialogWidget').hide();"/>
+                    <p:commandButton value="#{msg['employeeDepartments.assign']}" icon="pi pi-check" styleClass="ui-button-success" action="#{employeeDepartmentsBean.assign}"
                                      process=":employeeDepartmentForm:assignmentDialog"
                                      update=":employeeDepartmentForm:assignmentsTable :employeeDepartmentForm:assignmentDialog :globalGrowl"
                                      oncomplete="if (!args.validationFailed) PF('assignmentDialogWidget').hide();"/>
                 </f:facet>
             </p:dialog>
             <p:dialog id="endAssignmentDialog" widgetVar="endAssignmentDialogWidget" header="Terminer l'affectation" modal="true" responsive="true" width="420">
-                <p>Indiquez la date de fin de cette affectation.</p><p:outputLabel for="endDate" value="Date de fin"/>
+                <p>#{msg['employeeDepartments.end.help']}</p><p:outputLabel for="endDate" value="#{msg['common.endDate']}"/>
                 <p:datePicker id="endDate" value="#{employeeDepartmentsBean.endDate}" pattern="dd/MM/yyyy" showIcon="true" styleClass="w-100"/>
                 <f:facet name="footer">
-                    <p:commandButton value="Retour" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('endAssignmentDialogWidget').hide();"/>
-                    <p:commandButton value="Terminer" icon="pi pi-stop-circle" styleClass="ui-button-danger" action="#{employeeDepartmentsBean.deactivate}"
+                    <p:commandButton value="#{msg['common.back']}" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('endAssignmentDialogWidget').hide();"/>
+                    <p:commandButton value="#{msg['common.endAction']}" icon="pi pi-stop-circle" styleClass="ui-button-danger" action="#{employeeDepartmentsBean.deactivate}"
                                      process=":employeeDepartmentForm:endAssignmentDialog"
                                      update=":employeeDepartmentForm:assignmentsTable :employeeDepartmentForm:endAssignmentDialog :globalGrowl"
                                      oncomplete="if (!args.validationFailed) PF('endAssignmentDialogWidget').hide();"/>
@@ -138,8 +138,8 @@
             </p:dialog>
         </h:form>
         </h:panelGroup>
-        <h:panelGroup layout="block" rendered="#{not employeeDepartmentsBean.canManage}">
-            <div class="panel"><div class="alert alert-danger mb-0">Acces reserve aux ressources humaines et aux administrateurs.</div></div>
+        <h:panelGroup layout="block" rendered="#{not employeeDepartmentsBean.canEditAssignments}">
+            <div class="panel"><div class="alert alert-danger mb-0">#{msg['common.hrAdminOnly']}</div></div>
         </h:panelGroup>
     </ui:define>
 </ui:composition>

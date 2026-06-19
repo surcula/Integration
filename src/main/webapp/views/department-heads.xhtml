@@ -4,20 +4,20 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-    <ui:define name="title">Chefs de département | ERP RH</ui:define>
+    <ui:define name="title">#{msg['departmentHeads.pageTitle']}</ui:define>
     <ui:define name="content">
-        <h:panelGroup layout="block" rendered="#{departmentHeadsBean.canManage}">
+        <h:panelGroup layout="block" rendered="#{departmentHeadsBean.canEditDepartmentHeads}">
             <div class="page-heading">
                 <div class="page-heading-copy">
                     <span class="page-icon"><i class="pi pi-star"></i></span>
                     <div>
-                        <p class="eyebrow mb-1">Personnel</p>
-                        <h1 class="h3 mb-1">Chefs de département</h1>
-                        <p class="text-muted mb-0">Responsables actuels et historique des mandats.</p>
+                        <p class="eyebrow mb-1">#{msg['nav.staff']}</p>
+                        <h1 class="h3 mb-1">#{msg['departmentHeads.title']}</h1>
+                        <p class="text-muted mb-0">#{msg['departmentHeads.subtitle']}</p>
                     </div>
                 </div>
                 <h:link outcome="/views/departments" styleClass="btn btn-outline-primary">
-                    <i class="pi pi-arrow-left"></i><span>Départements</span>
+                    <i class="pi pi-arrow-left"></i><span>#{msg['nav.departments']}</span>
                 </h:link>
             </div>
 
@@ -26,63 +26,63 @@
                     <p:dataTable id="headsTable" value="#{departmentHeadsBean.rows}" var="row"
                                  widgetVar="departmentHeadsTable" paginator="true" rows="10"
                                  rowsPerPageTemplate="10,25,50" paginatorPosition="bottom"
-                                 emptyMessage="Aucun département actif." styleClass="erp-data-table">
+                                 emptyMessage="#{msg['departmentHeads.empty']}" styleClass="erp-data-table">
                         <f:facet name="header">
                             <div class="d-flex justify-content-end">
                                 <span class="p-input-icon-left assignment-search department-head-search">
                                     <i class="pi pi-search"></i>
                                     <p:inputText id="globalFilter" onkeyup="PF('departmentHeadsTable').filter()"
-                                                 placeholder="Rechercher..."/>
+                                                 placeholder="#{msg['common.search']}"/>
                                 </span>
                             </div>
                         </f:facet>
-                        <p:column headerText="Département" sortBy="#{row.department.departmentName}"
+                        <p:column headerText="#{msg['common.department']}" sortBy="#{row.department.departmentName}"
                                   filterBy="#{row.department.departmentName}" filterMatchMode="contains" filterStyle="display:none">
                             <strong>#{row.department.departmentName}</strong>
                         </p:column>
-                        <p:column headerText="Chef actuel"
-                                  filterBy="#{row.hasCurrentHead ? row.currentHead.superior.firstName.concat(' ').concat(row.currentHead.superior.lastName) : 'Non attribué'}"
+                        <p:column headerText="#{msg['departmentHeads.currentHead']}"
+                                  filterBy="#{row.hasCurrentHead ? row.currentHead.superior.firstName.concat(' ').concat(row.currentHead.superior.lastName) : msg['departmentHeads.unassigned']}"
                                   filterMatchMode="contains" filterStyle="display:none">
                             <h:panelGroup rendered="#{row.hasCurrentHead}">
                                 <strong>#{row.currentHead.superior.firstName} #{row.currentHead.superior.lastName}</strong>
                                 <div class="text-muted">#{row.currentHead.superior.email}</div>
                             </h:panelGroup>
-                            <h:outputText value="Non attribué" styleClass="text-muted"
+                            <h:outputText value="#{msg['departmentHeads.unassigned']}" styleClass="text-muted"
                                           rendered="#{not row.hasCurrentHead}"/>
                         </p:column>
-                        <p:column headerText="Depuis" sortBy="#{row.currentHead.startDate}">
+                        <p:column headerText="#{msg['departmentHeads.since']}" sortBy="#{row.currentHead.startDate}">
                             <h:outputText value="#{row.currentHead.startDate}" rendered="#{row.hasCurrentHead}">
                                 <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
                             </h:outputText>
                             <h:outputText value="-" styleClass="text-muted"
                                           rendered="#{not row.hasCurrentHead}"/>
                         </p:column>
-                        <p:column headerText="Statut">
-                            <h:outputText value="Actif" styleClass="status-badge status-badge-active"
+                        <p:column headerText="#{msg['common.status']}">
+                            <h:outputText value="#{msg['common.active']}" styleClass="status-badge status-badge-active"
                                           rendered="#{row.hasCurrentHead}"/>
-                            <h:outputText value="Vacant" styleClass="status-badge status-badge-inactive"
+                            <h:outputText value="#{msg['departmentHeads.vacant']}" styleClass="status-badge status-badge-inactive"
                                           rendered="#{not row.hasCurrentHead}"/>
                         </p:column>
-                        <p:column headerText="Actions" styleClass="text-center assignment-actions">
-                            <p:commandButton icon="pi pi-eye" title="Voir le détail"
+                        <p:column headerText="#{msg['common.actions']}" styleClass="text-center assignment-actions">
+                            <p:commandButton icon="pi pi-eye" title="#{msg['common.viewDetails']}"
                                              styleClass="ui-button-info ui-button-rounded ui-button-icon-only"
                                              rendered="#{row.hasCurrentHead}"
                                              actionListener="#{departmentHeadsBean.prepareView(row.currentHead)}" process="@this"
                                              update=":departmentHeadsForm:headDetailDialog"
                                              oncomplete="PF('headDetailDialogWidget').show();"/>
-                            <p:commandButton icon="pi pi-history" title="Voir l'historique (#{row.historyCount})"
+                            <p:commandButton icon="pi pi-history" title="#{msg['common.viewHistory']} (#{row.historyCount})"
                                              styleClass="ui-button-secondary ui-button-rounded ui-button-icon-only"
                                              rendered="#{row.hasHistory}"
                                              actionListener="#{departmentHeadsBean.prepareHistory(row.department)}" process="@this"
                                              update=":departmentHeadsForm:headHistoryDialog"
                                              oncomplete="PF('headHistoryDialogWidget').show();"/>
                             <p:commandButton icon="#{row.hasCurrentHead ? 'pi pi-sync' : 'pi pi-user-plus'}"
-                                             title="#{row.hasCurrentHead ? 'Remplacer le chef' : 'Nommer un chef'}"
+                                             title="#{row.hasCurrentHead ? msg['departmentHeads.replace'] : msg['departmentHeads.assign']}"
                                              styleClass="ui-button-success ui-button-rounded ui-button-icon-only"
                                              actionListener="#{departmentHeadsBean.prepareAssign(row.department)}" process="@this"
                                              update=":departmentHeadsForm:headDialog"
                                              oncomplete="PF('headDialogWidget').show();"/>
-                            <p:commandButton icon="pi pi-calendar-times" title="Terminer le mandat"
+                            <p:commandButton icon="pi pi-calendar-times" title="#{msg['departmentHeads.endMandate']}"
                                              styleClass="ui-button-danger ui-button-rounded ui-button-icon-only"
                                              rendered="#{row.hasCurrentHead}"
                                              actionListener="#{departmentHeadsBean.prepareDeactivate(row.currentHead.id)}" process="@this"
@@ -92,37 +92,37 @@
                     </p:dataTable>
                 </div>
 
-                <p:dialog id="headDialog" widgetVar="headDialogWidget" header="Nommer un chef de département"
+                <p:dialog id="headDialog" widgetVar="headDialogWidget" header="#{msg['departmentHeads.assign.title']}"
                           modal="true" responsive="true" width="500">
                     <div class="mb-3">
-                        <span class="text-muted">Département</span>
+                        <span class="text-muted">#{msg['common.department']}</span>
                         <strong class="d-block">#{departmentHeadsBean.selectedDepartment.departmentName}</strong>
                     </div>
                     <div class="row g-3">
                         <div class="col-12">
-                            <p:outputLabel for="headEmployee" value="Chef"/>
+                            <p:outputLabel for="headEmployee" value="#{msg['departmentHeads.head']}"/>
                             <p:selectOneMenu id="headEmployee" value="#{departmentHeadsBean.employeeId}"
                                              filter="true" filterMatchMode="contains" styleClass="w-100">
-                                <f:selectItem itemLabel="Sélectionner un employé" itemValue="#{null}"/>
+                                <f:selectItem itemLabel="#{msg['common.selectEmployee']}" itemValue="#{null}"/>
                                 <f:selectItems value="#{departmentHeadsBean.eligibleEmployees}" var="employee"
                                                itemLabel="#{employee.firstName} #{employee.lastName} - #{employee.email}"
                                                itemValue="#{employee.id}"/>
                             </p:selectOneMenu>
                             <h:panelGroup layout="block" styleClass="text-muted small"
                                           rendered="#{empty departmentHeadsBean.eligibleEmployees}">
-                                Aucun employé n'est actuellement affecté à ce département.
+                                #{msg['departmentHeads.noEligibleEmployees']}
                             </h:panelGroup>
                         </div>
                         <div class="col-12">
-                            <p:outputLabel for="headStartDate" value="Début du mandat"/>
+                            <p:outputLabel for="headStartDate" value="#{msg['departmentHeads.mandateStart']}"/>
                             <p:datePicker id="headStartDate" value="#{departmentHeadsBean.startDate}"
                                           pattern="dd/MM/yyyy" showIcon="true" styleClass="w-100"/>
                         </div>
                     </div>
                     <f:facet name="footer">
-                        <p:commandButton value="Annuler" icon="pi pi-times" type="button"
+                        <p:commandButton value="#{msg['common.cancel']}" icon="pi pi-times" type="button"
                                          styleClass="ui-button-secondary" onclick="PF('headDialogWidget').hide();"/>
-                        <p:commandButton value="Enregistrer" icon="pi pi-check" styleClass="ui-button-success"
+                        <p:commandButton value="#{msg['common.save']}" icon="pi pi-check" styleClass="ui-button-success"
                                          action="#{departmentHeadsBean.assign}" process=":departmentHeadsForm:headDialog"
                                          update=":departmentHeadsForm:headsTable :departmentHeadsForm:headDialog :globalGrowl"
                                          disabled="#{empty departmentHeadsBean.eligibleEmployees}"
@@ -130,38 +130,38 @@
                     </f:facet>
                 </p:dialog>
 
-                <p:dialog id="headDetailDialog" widgetVar="headDetailDialogWidget" header="Détail du mandat"
+                <p:dialog id="headDetailDialog" widgetVar="headDetailDialogWidget" header="#{msg['departmentHeads.detail.title']}"
                           modal="true" responsive="true" width="460">
                     <h:panelGroup layout="block" rendered="#{not empty departmentHeadsBean.selectedHead}" styleClass="assignment-detail-grid">
-                        <div><span>Département</span><strong>#{departmentHeadsBean.selectedHead.department.departmentName}</strong></div>
-                        <div><span>Chef</span><strong>#{departmentHeadsBean.selectedHead.superior.firstName} #{departmentHeadsBean.selectedHead.superior.lastName}</strong></div>
-                        <div><span>E-mail</span><strong>#{departmentHeadsBean.selectedHead.superior.email}</strong></div>
-                        <div><span>Début</span><strong><h:outputText value="#{departmentHeadsBean.selectedHead.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></strong></div>
-                        <div><span>Statut</span><strong>Actif</strong></div>
+                        <div><span>#{msg['common.department']}</span><strong>#{departmentHeadsBean.selectedHead.department.departmentName}</strong></div>
+                        <div><span>#{msg['departmentHeads.head']}</span><strong>#{departmentHeadsBean.selectedHead.superior.firstName} #{departmentHeadsBean.selectedHead.superior.lastName}</strong></div>
+                        <div><span>#{msg['common.email']}</span><strong>#{departmentHeadsBean.selectedHead.superior.email}</strong></div>
+                        <div><span>#{msg['common.start']}</span><strong><h:outputText value="#{departmentHeadsBean.selectedHead.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></strong></div>
+                        <div><span>#{msg['common.status']}</span><strong>#{msg['common.active']}</strong></div>
                     </h:panelGroup>
-                    <f:facet name="footer"><p:commandButton value="Fermer" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('headDetailDialogWidget').hide();"/></f:facet>
+                    <f:facet name="footer"><p:commandButton value="#{msg['common.close']}" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('headDetailDialogWidget').hide();"/></f:facet>
                 </p:dialog>
 
-                <p:dialog id="headHistoryDialog" widgetVar="headHistoryDialogWidget" header="Historique des chefs"
+                <p:dialog id="headHistoryDialog" widgetVar="headHistoryDialogWidget" header="#{msg['departmentHeads.history.title']}"
                           modal="true" responsive="true" width="680">
-                    <p:dataTable value="#{departmentHeadsBean.selectedHistory}" var="history" emptyMessage="Aucun historique.">
-                        <p:column headerText="Chef"><strong>#{history.superior.firstName} #{history.superior.lastName}</strong><div class="text-muted">#{history.superior.email}</div></p:column>
-                        <p:column headerText="Début"><h:outputText value="#{history.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
-                        <p:column headerText="Fin"><h:outputText value="#{history.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
-                        <p:column headerText="Statut"><span class="status-badge status-badge-inactive">Terminé</span></p:column>
+                    <p:dataTable value="#{departmentHeadsBean.selectedHistory}" var="history" emptyMessage="#{msg['common.noHistory']}">
+                        <p:column headerText="#{msg['departmentHeads.head']}"><strong>#{history.superior.firstName} #{history.superior.lastName}</strong><div class="text-muted">#{history.superior.email}</div></p:column>
+                        <p:column headerText="#{msg['common.start']}"><h:outputText value="#{history.startDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
+                        <p:column headerText="#{msg['common.end']}"><h:outputText value="#{history.endDate}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p:column>
+                        <p:column headerText="#{msg['common.status']}"><span class="status-badge status-badge-inactive">#{msg['common.ended']}</span></p:column>
                     </p:dataTable>
-                    <f:facet name="footer"><p:commandButton value="Fermer" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('headHistoryDialogWidget').hide();"/></f:facet>
+                    <f:facet name="footer"><p:commandButton value="#{msg['common.close']}" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('headHistoryDialogWidget').hide();"/></f:facet>
                 </p:dialog>
 
-                <p:dialog id="endHeadDialog" widgetVar="endHeadDialogWidget" header="Terminer le mandat"
+                <p:dialog id="endHeadDialog" widgetVar="endHeadDialogWidget" header="#{msg['departmentHeads.endMandate']}"
                           modal="true" responsive="true" width="420">
-                    <p>Indiquez la date de fin du mandat.</p>
-                    <p:outputLabel for="headEndDate" value="Date de fin"/>
+                    <p>#{msg['departmentHeads.end.help']}</p>
+                    <p:outputLabel for="headEndDate" value="#{msg['common.endDate']}"/>
                     <p:datePicker id="headEndDate" value="#{departmentHeadsBean.endDate}"
                                   pattern="dd/MM/yyyy" showIcon="true" styleClass="w-100"/>
                     <f:facet name="footer">
-                        <p:commandButton value="Retour" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('endHeadDialogWidget').hide();"/>
-                        <p:commandButton value="Terminer" icon="pi pi-stop-circle" styleClass="ui-button-danger"
+                        <p:commandButton value="#{msg['common.back']}" icon="pi pi-times" type="button" styleClass="ui-button-secondary" onclick="PF('endHeadDialogWidget').hide();"/>
+                        <p:commandButton value="#{msg['common.endAction']}" icon="pi pi-stop-circle" styleClass="ui-button-danger"
                                          action="#{departmentHeadsBean.deactivate}" process=":departmentHeadsForm:endHeadDialog"
                                          update=":departmentHeadsForm:headsTable :departmentHeadsForm:endHeadDialog :globalGrowl"
                                          oncomplete="if (!args.validationFailed) PF('endHeadDialogWidget').hide();"/>
@@ -169,8 +169,8 @@
                 </p:dialog>
             </h:form>
         </h:panelGroup>
-        <h:panelGroup layout="block" rendered="#{not departmentHeadsBean.canManage}">
-            <div class="panel"><div class="alert alert-danger mb-0">Accès réservé aux ressources humaines et aux administrateurs.</div></div>
+        <h:panelGroup layout="block" rendered="#{not departmentHeadsBean.canEditDepartmentHeads}">
+            <div class="panel"><div class="alert alert-danger mb-0">#{msg['common.hrAdminOnly']}</div></div>
         </h:panelGroup>
     </ui:define>
 </ui:composition>

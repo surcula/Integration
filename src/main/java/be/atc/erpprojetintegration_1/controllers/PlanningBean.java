@@ -118,7 +118,7 @@ public class PlanningBean implements Serializable {
             Result<List<Integer>> accessResult = planningBusiness.getManagedDepartmentIds(getConnectedEmployeeId());
             managedDepartmentIds = accessResult.isSuccess() ? accessResult.getData() : new ArrayList<Integer>();
         }
-        if (isCanManagePlanning()) {
+        if (isCanEditPlanning()) {
             loadDepartments();
             loadEmployees();
             if (!globalPlanningAccess && !managedDepartmentIds.isEmpty()) {
@@ -137,7 +137,7 @@ public class PlanningBean implements Serializable {
     public void loadPlannings() {
         eventModel = new DefaultScheduleModel();
 
-        Result<List<Planning>> result = isCanManagePlanning()
+        Result<List<Planning>> result = isCanEditPlanning()
                 ? planningBusiness.getAccessibleActive(getConnectedEmployeeId(), globalPlanningAccess)
                 : planningBusiness.getActiveByEmployee(getConnectedEmployeeId());
         if (!result.isSuccess()) {
@@ -156,7 +156,7 @@ public class PlanningBean implements Serializable {
     }
 
     private void loadApprovedAbsences() {
-        Result<List<Absence>> result = isCanManagePlanning()
+        Result<List<Absence>> result = isCanEditPlanning()
                 ? absenceBusiness.getAllActive()
                 : absenceBusiness.getActiveByEmployee(getConnectedEmployeeId());
         if (!result.isSuccess()) {
@@ -198,7 +198,7 @@ public class PlanningBean implements Serializable {
     }
 
     public void onDateSelect(SelectEvent<LocalDateTime> selectEvent) {
-        if (!isCanManagePlanning()) {
+        if (!isCanEditPlanning()) {
             return;
         }
         calendarInitialDate = selectEvent.getObject().toLocalDate();
@@ -225,7 +225,7 @@ public class PlanningBean implements Serializable {
     }
 
 public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
-        if (!isCanManagePlanning()) {
+        if (!isCanEditPlanning()) {
             addErrorMessage("Vous n'etes pas autorise a modifier le planning.");
             return;
         }
@@ -241,7 +241,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void onEventResize(ScheduleEntryResizeEvent resizeEvent) {
-        if (!isCanManagePlanning()) {
+        if (!isCanEditPlanning()) {
             addErrorMessage("Vous n'etes pas autorise a modifier le planning.");
             return;
         }
@@ -257,7 +257,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void savePlanning() {
-        if (!isCanManagePlanning()) {
+        if (!isCanEditPlanning()) {
             addErrorMessage("Vous n'etes pas autorise a modifier le planning.");
             return;
         }
@@ -265,7 +265,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void duplicatePlanning() {
-        if (!isCanManagePlanning() || selectedPlanning == null || selectedPlanning.getId() == null) {
+        if (!isCanEditPlanning() || selectedPlanning == null || selectedPlanning.getId() == null) {
             addErrorMessage("Selectionnez un evenement a dupliquer.");
             return;
         }
@@ -308,7 +308,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void deletePlanning() {
-        if (!isCanManagePlanning()) {
+        if (!isCanEditPlanning()) {
             addErrorMessage("Vous n'etes pas autorise a supprimer cet element.");
             return;
         }
@@ -330,7 +330,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void publishPlanning() {
-        if (!isCanManagePlanning() || selectedPlanning == null) {
+        if (!isCanEditPlanning() || selectedPlanning == null) {
             addErrorMessage("Selectionnez un planning a publier.");
             return;
         }
@@ -392,7 +392,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void cancelPlanning() {
-        if (!isCanManagePlanning() || selectedPlanning == null || selectedPlanning.getId() == null) {
+        if (!isCanEditPlanning() || selectedPlanning == null || selectedPlanning.getId() == null) {
             addErrorMessage("Selectionnez un planning a annuler.");
             return;
         }
@@ -409,7 +409,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void generateMonthlyReportByEmployee() throws IOException {
-        if (!isCanManagePlanning()) return;
+        if (!isCanEditPlanning()) return;
         if (reportEmployeeId == null) {
             addErrorMessage("Selectionnez un employe pour le rapport.");
             return;
@@ -432,7 +432,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void generateMonthlyReportByDepartment() throws IOException {
-        if (!isCanManagePlanning()) return;
+        if (!isCanEditPlanning()) return;
         if (reportDepartmentId == null) {
             addErrorMessage("Selectionnez un departement pour le rapport.");
             return;
@@ -517,7 +517,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     public void generateReport() throws IOException {
-        if (!isCanManagePlanning() || selectedPlanning == null || selectedPlanning.getId() == null) {
+        if (!isCanEditPlanning() || selectedPlanning == null || selectedPlanning.getId() == null) {
             addErrorMessage("Selectionnez un planning pour generer le rapport.");
             return;
         }
@@ -829,7 +829,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
     }
 
     private Planning loadPlanning(Integer planningId) {
-        Result<Planning> result = isCanManagePlanning()
+        Result<Planning> result = isCanEditPlanning()
                 ? planningBusiness.getByIdForManager(planningId, getConnectedEmployeeId(), globalPlanningAccess)
                 : planningBusiness.getByIdForEmployee(planningId, getConnectedEmployeeId());
         if (!result.isSuccess()) {
@@ -978,7 +978,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
             log.warn("Unable to load employee assignments for planning id: " + planningId);
         }
 
-        if (isCanManagePlanning() && planningId != null) {
+        if (isCanEditPlanning() && planningId != null) {
             Result<List<PlanningsEmployee>> assignmentsResult = planningEmployeeBusiness.getActiveAssignments(planningId);
             planningAssignments = assignmentsResult.isSuccess() ? assignmentsResult.getData() : new ArrayList<PlanningsEmployee>();
         } else {
@@ -999,7 +999,7 @@ public void onEventMove(ScheduleEntryMoveEvent moveEvent) {
 
     private void loadSelectedAssignment() {
         selectedAssignment = null;
-        if (selectedPlanning == null || selectedPlanning.getId() == null || isCanManagePlanning()) {
+        if (selectedPlanning == null || selectedPlanning.getId() == null || isCanEditPlanning()) {
             return;
         }
         Result<PlanningsEmployee> result = planningEmployeeBusiness.getAssignment(
@@ -1166,7 +1166,7 @@ private Department findSelectedDepartment() {
         return slotDuration;
     }
 
-    public boolean isCanManagePlanning() {
+    public boolean isCanEditPlanning() {
         return globalPlanningAccess || !managedDepartmentIds.isEmpty();
     }
 

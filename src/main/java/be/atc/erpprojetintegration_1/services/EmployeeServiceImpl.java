@@ -7,6 +7,7 @@ import be.atc.erpprojetintegration_1.tools.Result;
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,11 +262,44 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 return Result.fail(errors);
             }
 
+            LocalDate endDate = LocalDate.now();
+
             employee.setIsActive(false);
             em.merge(employee);
+
+            int closedDepartmentAssignments = em.createQuery(
+                            "UPDATE EmployeeDepartment ed " +
+                                    "SET ed.isActive = false, ed.endDate = :endDate " +
+                                    "WHERE ed.employee.id = :employeeId " +
+                                    "AND ed.isActive = true")
+                    .setParameter("endDate", endDate)
+                    .setParameter("employeeId", id)
+                    .executeUpdate();
+
+            int closedSuperiorAssignments = em.createQuery(
+                            "UPDATE Superior s " +
+                                    "SET s.isActive = false, s.endDate = :endDate " +
+                                    "WHERE (s.employee.id = :employeeId OR s.superior.id = :employeeId) " +
+                                    "AND s.isActive = true")
+                    .setParameter("endDate", endDate)
+                    .setParameter("employeeId", id)
+                    .executeUpdate();
+
+            int closedDepartmentHeads = em.createQuery(
+                            "UPDATE DepartmentHead dh " +
+                                    "SET dh.isActive = false, dh.endDate = :endDate " +
+                                    "WHERE dh.superior.id = :employeeId " +
+                                    "AND dh.isActive = true")
+                    .setParameter("endDate", endDate)
+                    .setParameter("employeeId", id)
+                    .executeUpdate();
+
             em.getTransaction().commit();
 
-            log.info("Employee deactivated with id: " + id);
+            log.info("Employee deactivated with id: " + id
+                    + ". Closed department assignments: " + closedDepartmentAssignments
+                    + ", superior assignments: " + closedSuperiorAssignments
+                    + ", department head assignments: " + closedDepartmentHeads);
             return Result.ok();
 
         } catch (Exception ex) {

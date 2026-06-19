@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<f:metadata>
+    <f:viewParam name="id" value="#{evaluationEditBean.evaluationId}"/>
+    <f:viewAction action="#{evaluationEditBean.loadEvaluation}" onPostback="false"/>
+</f:metadata>
+
+<ui:composition template="/WEB-INF/templates/app-template.xhtml">
+    <ui:define name="title">
+        #{evaluationEditBean.createMode ? msg['evaluations.create.pageTitle'] : msg['evaluations.edit.pageTitle']}
+    </ui:define>
+
+    <ui:define name="content">
+        <link rel="stylesheet"
+              href="#{request.contextPath}/app-assets/css/style.css?v=evaluations-20260618-final"/>
+
+        <h:outputScript target="body">
+            PrimeFaces.locales['fr'] = {
+                closeText: 'Fermer',
+                prevText: 'Pr\u00E9c\u00E9dent',
+                nextText: 'Suivant',
+                monthNames: ['janvier', 'f\u00E9vrier', 'mars', 'avril', 'mai', 'juin', 'juillet', 'ao\u00FBt', 'septembre', 'octobre', 'novembre', 'd\u00E9cembre'],
+                monthNamesShort: ['janvier', 'f\u00E9vrier', 'mars', 'avril', 'mai', 'juin', 'juillet', 'ao\u00FBt', 'septembre', 'octobre', 'novembre', 'd\u00E9cembre'],
+                dayNames: ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
+                dayNamesShort: ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'],
+                dayNamesMin: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+                weekHeader: 'Semaine',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+                today: 'Aujourd hui',
+                clear: 'Effacer'
+            };
+
+            PrimeFaces.locales['en'] = {
+                closeText: 'Close',
+                prevText: 'Previous',
+                nextText: 'Next',
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                dayNamesMin: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+                weekHeader: 'Week',
+                firstDay: 0,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+                today: 'Today',
+                clear: 'Clear'
+            };
+        </h:outputScript>
+
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon evaluation-page-icon"><i class="pi pi-chart-line"></i></span>
+                <div>
+                    <p class="eyebrow mb-1">#{msg['evaluations.section']}</p>
+                    <h1 class="h3 mb-1">
+                        #{evaluationEditBean.createMode ? msg['evaluations.create.title'] : msg['evaluations.edit.title']}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        #{evaluationEditBean.createMode ? msg['evaluations.create.subtitle'] : msg['evaluations.edit.subtitle']}
+                    </p>
+                </div>
+            </div>
+            <h:link outcome="/views/evaluations" styleClass="btn btn-outline-secondary">
+                <i class="pi pi-arrow-left"></i>
+                <span>#{msg['common.back']}</span>
+            </h:link>
+        </div>
+
+        <h:panelGroup id="evaluationEditContent" layout="block">
+            <h:form id="evaluationForm" styleClass="panel" rendered="#{not empty evaluationEditBean.evaluation}">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1 section-title">
+                            <i class="pi pi-id-card"></i>
+                            <span>#{msg['evaluations.form.title']}</span>
+                        </h2>
+                        <p class="text-muted mb-0">#{msg['evaluations.form.subtitle']}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="evaluationType" styleClass="form-label" value="#{msg['evaluations.type']} *"/>
+                        <h:selectOneMenu id="evaluationType"
+                                         styleClass="form-select"
+                                         required="true"
+                                         requiredMessage="#{msg['evaluations.error.type.required']}"
+                                         value="#{evaluationEditBean.selectedEvaluationType}">
+                            <f:selectItem itemLabel="#{msg['evaluations.type.placeholder']}" itemValue="#{null}"/>
+                            <f:selectItems value="#{evaluationEditBean.evaluationTypes}"
+                                           var="type"
+                                           itemLabel="#{msg[evaluationEditBean.getEvaluationTypeMessageKey(type)]}"
+                                           itemValue="#{type}"/>
+                            <p:ajax listener="#{evaluationEditBean.updateEvaluationName}"
+                                    update="evaluationName"/>
+                        </h:selectOneMenu>
+                        <p:message for="evaluationType" display="text"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="evaluationName" styleClass="form-label" value="#{msg['evaluations.name']} *"/>
+                        <h:inputText id="evaluationName"
+                                     styleClass="form-control"
+                                     required="true"
+                                     requiredMessage="#{msg['evaluations.error.name.required']}"
+                                     readonly="true"
+                                     pt:placeholder="#{msg['evaluations.name.placeholder']}"
+                                     value="#{evaluationEditBean.evaluation.evaluationName}"/>
+                        <small class="text-muted">#{msg['evaluations.name.generatedHelp']}</small>
+                        <p:message for="evaluationName" display="text"/>
+                    </div>
+
+                    <div class="col-md-6" jsf:rendered="#{not evaluationEditBean.createMode}">
+                        <h:outputLabel for="status" styleClass="form-label" value="#{msg['evaluations.status']}"/>
+                        <h:selectOneMenu id="status"
+                                         styleClass="form-select"
+                                         required="true"
+                                         requiredMessage="#{msg['evaluations.error.status.required']}"
+                                         value="#{evaluationEditBean.evaluation.status}">
+                            <f:selectItems value="#{evaluationEditBean.evaluationStatuses}"
+                                           var="status"
+                                           itemLabel="#{msg[evaluationEditBean.getStatusMessageKey(status)]}"
+                                           itemValue="#{status}"/>
+                        </h:selectOneMenu>
+                        <p:message for="status" display="text"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="employee" styleClass="form-label" value="#{msg['evaluations.employee']} *"/>
+                        <p:autoComplete id="employee"
+                                        styleClass="w-100"
+                                        inputStyleClass="form-control"
+                                        value="#{evaluationEditBean.selectedEmployeeId}"
+                                        completeMethod="#{evaluationEditBean.completeEmployee}"
+                                        var="employee"
+                                        itemLabel="#{evaluationEditBean.getEmployeeLabel(employee)}"
+                                        itemValue="#{employee.id}"
+                                        forceSelection="true"
+                                        dropdown="true"
+                                        required="true"
+                                        requiredMessage="#{msg['evaluations.error.employee.required']}"
+                                        placeholder="#{msg['evaluations.employee.autocomplete.placeholder']}">
+                            <p:ajax event="itemSelect"
+                                    listener="#{evaluationEditBean.updateEmployeeSelection}"
+                                    update="automaticEvaluatorPanel evaluationName"/>
+                        </p:autoComplete>
+                        <p:message for="employee" display="text"/>
+                        <small class="text-muted">#{msg['evaluations.evaluator.autoHelp']}</small>
+                    </div>
+
+                    <h:panelGroup id="automaticEvaluatorPanel" layout="block" styleClass="col-md-6">
+                        <h:panelGroup layout="block"
+                                      styleClass="evaluation-auto-evaluator evaluation-auto-evaluator-ok"
+                                      rendered="#{evaluationEditBean.automaticEvaluatorAvailable}">
+                            <i class="pi pi-user"></i>
+                            <span>#{msg['evaluations.evaluator.autoLabel']} #{evaluationEditBean.automaticEvaluatorName}</span>
+                        </h:panelGroup>
+                        <h:panelGroup layout="block"
+                                      styleClass="evaluation-auto-evaluator evaluation-auto-evaluator-missing"
+                                      rendered="#{not evaluationEditBean.automaticEvaluatorAvailable and not empty evaluationEditBean.selectedEmployeeId}">
+                            <i class="pi pi-exclamation-triangle"></i>
+                            <span>#{msg['evaluations.error.superior.notFound']}</span>
+                        </h:panelGroup>
+                    </h:panelGroup>
+
+                    <div class="col-md-4">
+                        <h:outputLabel for="evaluationDate" styleClass="form-label" value="#{msg['evaluations.date']} *"/>
+                        <p:datePicker id="evaluationDate"
+                                      styleClass="w-100"
+                                      inputStyleClass="form-control"
+                                      pattern="dd/MM/yyyy"
+                                      locale="#{languageBean.locale.language}"
+                                      required="true"
+                                      requiredMessage="#{msg['evaluations.error.date.required']}"
+                                      value="#{evaluationEditBean.evaluation.evaluationDate}"/>
+                        <p:message for="evaluationDate" display="text"/>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h:outputLabel for="periodStart" styleClass="form-label" value="#{msg['evaluations.periodStart']} *"/>
+                        <p:datePicker id="periodStart"
+                                      styleClass="w-100"
+                                      inputStyleClass="form-control"
+                                      pattern="dd/MM/yyyy"
+                                      locale="#{languageBean.locale.language}"
+                                      required="true"
+                                      requiredMessage="#{msg['evaluations.error.periodStart.required']}"
+                                      value="#{evaluationEditBean.evaluation.periodStart}"/>
+                        <p:message for="periodStart" display="text"/>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h:outputLabel for="periodEnd" styleClass="form-label" value="#{msg['evaluations.periodEnd']} *"/>
+                        <p:datePicker id="periodEnd"
+                                      styleClass="w-100"
+                                      inputStyleClass="form-control"
+                                      pattern="dd/MM/yyyy"
+                                      locale="#{languageBean.locale.language}"
+                                      required="true"
+                                      requiredMessage="#{msg['evaluations.error.periodEnd.required']}"
+                                      value="#{evaluationEditBean.evaluation.periodEnd}"/>
+                        <p:message for="periodEnd" display="text"/>
+                    </div>
+
+                    <div class="col-12">
+                        <small class="text-muted">#{msg['evaluations.period.help']}</small>
+                    </div>
+
+                    <div class="col-12">
+                        <h:outputLabel for="comments" styleClass="form-label" value="#{msg['evaluations.comments']}"/>
+                        <h:inputTextarea id="comments"
+                                         styleClass="form-control"
+                                         rows="5"
+                                         value="#{evaluationEditBean.evaluation.comments}"/>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <p:commandButton styleClass="btn btn-primary"
+                                     value="#{msg['evaluations.save']}"
+                                     action="#{evaluationEditBean.save}"
+                                     update=":evaluationEditContent :globalGrowl"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+    </ui:define>
+</ui:composition>
+</html>

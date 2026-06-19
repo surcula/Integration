@@ -54,6 +54,8 @@
                         <h:outputLabel for="jobOfferName" styleClass="form-label" value="#{msg['jobOffers.name']}"/>
                         <h:inputText id="jobOfferName"
                                      styleClass="form-control"
+                                     required="true"
+                                     requiredMessage="#{msg['jobOffers.error.name.required']}"
                                      value="#{jobOfferEditBean.jobOffer.jobOfferName}"/>
                     </div>
 
@@ -61,6 +63,8 @@
                         <h:outputLabel for="function" styleClass="form-label" value="#{msg['jobOffers.function']}"/>
                         <h:selectOneMenu id="function"
                                          styleClass="form-select"
+                                         required="true"
+                                         requiredMessage="#{msg['jobOffers.error.function.required']}"
                                          value="#{jobOfferEditBean.selectedFunctionId}">
                             <f:selectItem itemLabel="#{msg['jobOffers.function.placeholder']}" itemValue="#{null}"/>
                             <f:selectItems value="#{jobOfferEditBean.functions}"
@@ -74,7 +78,10 @@
                         <h:outputLabel for="email" styleClass="form-label" value="#{msg['jobOffers.email']}"/>
                         <h:inputText id="email"
                                      styleClass="form-control"
-                                     value="#{jobOfferEditBean.jobOffer.email}"/>
+                                     validatorMessage="#{msg['jobOffers.error.email.invalid']}"
+                                     value="#{jobOfferEditBean.jobOffer.email}">
+                            <f:validateRegex pattern="^$|^[^\s@]+@[^\s@]+\.[^\s@]+$"/>
+                        </h:inputText>
                     </div>
 
                     <div class="col-md-6">
@@ -95,17 +102,22 @@
                         <h:outputLabel for="numberOfOpenPositions" styleClass="form-label" value="#{msg['jobOffers.openPositions']}"/>
                         <h:inputText id="numberOfOpenPositions"
                                      styleClass="form-control"
-                                     value="#{jobOfferEditBean.jobOffer.numberOfOpenPositions}"/>
+                                     validatorMessage="#{msg['jobOffers.error.openPositions.positive']}"
+                                     value="#{jobOfferEditBean.jobOffer.numberOfOpenPositions}">
+                            <f:validateLongRange minimum="1"/>
+                        </h:inputText>
                     </div>
 
                     <div class="col-md-4">
                         <h:outputLabel for="status" styleClass="form-label" value="#{msg['jobOffers.status']}"/>
                         <h:selectOneMenu id="status"
                                          styleClass="form-select"
+                                         required="true"
+                                         requiredMessage="#{msg['jobOffers.error.status.required']}"
                                          value="#{jobOfferEditBean.jobOffer.status}">
                             <f:selectItems value="#{jobOfferEditBean.jobOfferStatuses}"
                                            var="status"
-                                           itemLabel="#{status.label}"
+                                           itemLabel="#{msg[jobOfferEditBean.getStatusMessageKey(status)]}"
                                            itemValue="#{status}"/>
                         </h:selectOneMenu>
                     </div>

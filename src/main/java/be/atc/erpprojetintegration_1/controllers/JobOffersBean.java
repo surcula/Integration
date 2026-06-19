@@ -142,6 +142,26 @@ public class JobOffersBean implements Serializable {
         return dateTime == null ? "" : dateTime.format(DATE_TIME_FORMATTER);
     }
 
+    /**
+     * Retourne le libelle traduit d'un statut d'offre.
+     *
+     * @param status statut de l'offre
+     * @return libelle traduit
+     */
+    public String getStatusLabel(JobOfferStatus status) {
+        return status == null ? "" : MessageUtils.getMessage(getStatusMessageKey(status));
+    }
+
+    /**
+     * Retourne la cle i18n d'un statut d'offre.
+     *
+     * @param status statut de l'offre
+     * @return cle du fichier messages
+     */
+    public String getStatusMessageKey(JobOfferStatus status) {
+        return status == null ? "" : "jobOffers.status." + status.getCode();
+    }
+
     public List<JobOffer> getJobOffers() {
         return jobOffers;
     }

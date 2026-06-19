@@ -161,7 +161,7 @@
 
                         <p:column headerText="#{msg['candidates.applicationStatus']}" sortBy="#{applicationItem.applicationStatus}">
                             <span class="#{candidatesBean.getStatusBadgeClass(applicationItem.applicationStatus)}">
-                                #{candidatesBean.getStatusLabel(applicationItem.applicationStatus)}
+                                #{msg[candidatesBean.getStatusMessageKey(applicationItem.applicationStatus)]}
                             </span>
                         </p:column>
 

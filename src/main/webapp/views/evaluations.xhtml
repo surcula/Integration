@@ -1,18 +1,198 @@
-<!DOCTYPE html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
 
 <ui:composition template="/WEB-INF/templates/app-template.xhtml">
-    <ui:define name="title">#{msg['nav.evaluations']} | ERP RH</ui:define>
+    <ui:define name="title">#{msg['evaluations.pageTitle']}</ui:define>
+
     <ui:define name="content">
+        <link rel="stylesheet"
+              href="#{request.contextPath}/app-assets/css/style.css?v=evaluations-20260618-final"/>
+
         <div class="page-heading">
             <div class="page-heading-copy">
-                <span class="page-icon"><i class="bi bi-clipboard-check" aria-hidden="true"></i></span>
+                <span class="page-icon evaluation-page-icon"><i class="pi pi-chart-line"></i></span>
                 <div>
-                    <p class="eyebrow mb-1">#{msg['nav.skills']}</p>
-                    <h1 class="h3 mb-1">#{msg['nav.evaluations']}</h1>
-                    <p class="text-muted mb-0">Module en cours de préparation.</p>
+                    <p class="eyebrow mb-1">#{msg['evaluations.section']}</p>
+                    <h1 class="h3 mb-1">#{msg['evaluations.title']}</h1>
+                    <p class="text-muted mb-0">#{msg['evaluations.subtitle']}</p>
                 </div>
+            </div>
+            <h:link outcome="/views/evaluation-edit"
+                    styleClass="btn btn-primary"
+                    rendered="#{evaluationsBean.createAllowed}">
+                <i class="pi pi-plus-circle"></i>
+                <span>#{msg['evaluations.add']}</span>
+            </h:link>
+        </div>
+
+        <h:form id="evaluationStatsForm">
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-6 col-xl">
+                    <p:commandLink styleClass="evaluation-card-link"
+                                   action="#{evaluationsBean.toggleStatusFilter(evaluationsBean.createdStatus)}"
+                                   update=":evaluationStatsForm :evaluationsTableForm:evaluationsTable">
+                        <div class="#{evaluationsBean.getStatusCardClass(evaluationsBean.createdStatus)}">
+                            <i class="#{evaluationsBean.getStatusIconClass(evaluationsBean.createdStatus)} evaluation-stat-icon"></i>
+                            <p class="text-muted mb-1">#{msg['evaluations.stats.created']}</p>
+                            <strong class="h3 mb-0">#{evaluationsBean.countByStatus(evaluationsBean.createdStatus)}</strong>
+                        </div>
+                    </p:commandLink>
+                </div>
+                <div class="col-12 col-md-6 col-xl">
+                    <p:commandLink styleClass="evaluation-card-link"
+                                   action="#{evaluationsBean.toggleStatusFilter(evaluationsBean.inProgressStatus)}"
+                                   update=":evaluationStatsForm :evaluationsTableForm:evaluationsTable">
+                        <div class="#{evaluationsBean.getStatusCardClass(evaluationsBean.inProgressStatus)}">
+                            <i class="#{evaluationsBean.getStatusIconClass(evaluationsBean.inProgressStatus)} evaluation-stat-icon"></i>
+                            <p class="text-muted mb-1">#{msg['evaluations.stats.inProgress']}</p>
+                            <strong class="h3 mb-0">#{evaluationsBean.countByStatus(evaluationsBean.inProgressStatus)}</strong>
+                        </div>
+                    </p:commandLink>
+                </div>
+                <div class="col-12 col-md-6 col-xl">
+                    <p:commandLink styleClass="evaluation-card-link"
+                                   action="#{evaluationsBean.toggleStatusFilter(evaluationsBean.completedStatus)}"
+                                   update=":evaluationStatsForm :evaluationsTableForm:evaluationsTable">
+                        <div class="#{evaluationsBean.getStatusCardClass(evaluationsBean.completedStatus)}">
+                            <i class="#{evaluationsBean.getStatusIconClass(evaluationsBean.completedStatus)} evaluation-stat-icon"></i>
+                            <p class="text-muted mb-1">#{msg['evaluations.stats.completed']}</p>
+                            <strong class="h3 mb-0">#{evaluationsBean.countByStatus(evaluationsBean.completedStatus)}</strong>
+                        </div>
+                    </p:commandLink>
+                </div>
+                <div class="col-12 col-md-6 col-xl">
+                    <p:commandLink styleClass="evaluation-card-link"
+                                   action="#{evaluationsBean.toggleStatusFilter(evaluationsBean.scoreCalculatedStatus)}"
+                                   update=":evaluationStatsForm :evaluationsTableForm:evaluationsTable">
+                        <div class="#{evaluationsBean.getStatusCardClass(evaluationsBean.scoreCalculatedStatus)}">
+                            <i class="#{evaluationsBean.getStatusIconClass(evaluationsBean.scoreCalculatedStatus)} evaluation-stat-icon"></i>
+                            <p class="text-muted mb-1">#{msg['evaluations.stats.scoreCalculated']}</p>
+                            <strong class="h3 mb-0">#{evaluationsBean.countByStatus(evaluationsBean.scoreCalculatedStatus)}</strong>
+                        </div>
+                    </p:commandLink>
+                </div>
+                <div class="col-12 col-md-6 col-xl">
+                    <p:commandLink styleClass="evaluation-card-link"
+                                   action="#{evaluationsBean.toggleStatusFilter(evaluationsBean.validatedStatus)}"
+                                   update=":evaluationStatsForm :evaluationsTableForm:evaluationsTable">
+                        <div class="#{evaluationsBean.getStatusCardClass(evaluationsBean.validatedStatus)}">
+                            <i class="#{evaluationsBean.getStatusIconClass(evaluationsBean.validatedStatus)} evaluation-stat-icon"></i>
+                            <p class="text-muted mb-1">#{msg['evaluations.stats.validated']}</p>
+                            <strong class="h3 mb-0">#{evaluationsBean.countByStatus(evaluationsBean.validatedStatus)}</strong>
+                        </div>
+                    </p:commandLink>
+                </div>
+            </div>
+        </h:form>
+
+        <h:form id="evaluationsFilters" styleClass="panel mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-10">
+                    <h:outputLabel for="keyword" styleClass="form-label" value="#{msg['evaluations.search']}"/>
+                    <p:inputText id="keyword"
+                                 styleClass="form-control"
+                                 value="#{evaluationsBean.keyword}"
+                                 placeholder="#{msg['evaluations.search.placeholder']}"/>
+                </div>
+                <div class="col-12 col-md-2">
+                    <p:commandButton styleClass="btn btn-primary w-100"
+                                     icon="pi pi-search"
+                                     value="#{msg['evaluations.filter']}"
+                                     action="#{evaluationsBean.filterEvaluations}"
+                                     update=":evaluationsTableForm:evaluationsTable"/>
+                </div>
+            </div>
+        </h:form>
+
+        <div class="panel">
+            <div class="table-responsive">
+                <h:form id="evaluationsTableForm">
+                    <p:dataTable id="evaluationsTable"
+                                 value="#{evaluationsBean.filteredEvaluations}"
+                                 var="evaluationItem"
+                                 styleClass="table align-middle mb-0 erp-data-table"
+                                 paginator="true"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,50"
+                                 paginatorPosition="bottom"
+                                 emptyMessage="#{msg['evaluations.empty']}">
+
+                        <p:column headerText="#{msg['evaluations.name']}" sortBy="#{evaluationItem.evaluationName}" styleClass="evaluation-name-column">
+                            <strong class="evaluation-table-text">#{evaluationItem.evaluationName}</strong>
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.employee']}" sortBy="#{evaluationItem.employee.lastName}">
+                            #{evaluationsBean.getEmployeeFullName(evaluationItem)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.evaluator']}" sortBy="#{evaluationItem.evaluator.lastName}">
+                            #{evaluationsBean.getEvaluatorFullName(evaluationItem)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.date']}" sortBy="#{evaluationItem.evaluationDate}">
+                            #{evaluationsBean.formatDate(evaluationItem.evaluationDate)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.period']}" styleClass="evaluation-period-column">
+                            <span class="evaluation-table-text">#{evaluationsBean.formatPeriod(evaluationItem)}</span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.status']}" sortBy="#{evaluationItem.status}">
+                            <span class="#{evaluationsBean.getStatusBadgeClass(evaluationItem.status)}">
+                                #{msg[evaluationsBean.getStatusMessageKey(evaluationItem.status)]}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.comments']}" styleClass="evaluation-comment-column">
+                            <span class="evaluation-table-text">#{evaluationsBean.formatCommentPreview(evaluationItem.comments)}</span>
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.globalScore']}" sortBy="#{evaluationItem.globalScore}">
+                            #{evaluationsBean.formatScore(evaluationItem.globalScore)}
+                        </p:column>
+
+                        <p:column headerText="#{msg['evaluations.action']}">
+                            <h:link outcome="/views/evaluation-edit"
+                                    styleClass="btn btn-sm btn-primary"
+                                    title="#{msg['evaluations.edit']}"
+                                    rendered="#{evaluationsBean.canEdit(evaluationItem)}">
+                                <i class="pi pi-pencil"></i>
+                                <span class="visually-hidden">#{msg['evaluations.edit']}</span>
+                                <f:param name="id" value="#{evaluationItem.id}"/>
+                            </h:link>
+
+                            <p:commandLink styleClass="btn btn-sm btn-outline-danger ms-2"
+                                           title="#{msg['evaluations.delete']}"
+                                           action="#{evaluationsBean.softDelete(evaluationItem.id)}"
+                                           rendered="#{evaluationsBean.canEdit(evaluationItem)}"
+                                           process="@this"
+                                           update="@form :globalGrowl">
+                                <i class="pi pi-trash"></i>
+                                <span class="visually-hidden">#{msg['evaluations.delete']}</span>
+                                <p:confirm header="#{msg['evaluations.delete']}"
+                                           message="#{msg['evaluations.delete.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"
+                                         icon="pi pi-check"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-secondary"
+                                         icon="pi pi-times"/>
+                    </p:confirmDialog>
+                </h:form>
             </div>
         </div>
     </ui:define>

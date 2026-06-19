@@ -8,6 +8,7 @@ import be.atc.erpprojetintegration_1.entities.JobOffersCandidate;
 import be.atc.erpprojetintegration_1.enums.CandidateApplicationStatus;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
+import org.apache.log4j.Logger;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
@@ -24,6 +25,8 @@ import java.util.List;
 @Named
 @ViewScoped
 public class CandidateEditBean implements Serializable {
+
+    private static final Logger log = Logger.getLogger(CandidateEditBean.class);
 
     @Inject
     private CandidateBusiness candidateBusiness;
@@ -70,6 +73,8 @@ public class CandidateEditBean implements Serializable {
      * @return navigation JSF
      */
     public String save() {
+        boolean createMode = application != null && application.getId() == null;
+
         Result<JobOffersCandidate> result = candidateBusiness.saveApplication(application, selectedJobOfferId);
 
         if (!result.isSuccess()) {
@@ -77,7 +82,9 @@ public class CandidateEditBean implements Serializable {
             return null;
         }
 
-        MessageUtils.addInfoMessage(applicationId == null ? "candidates.create.success" : "candidates.edit.success");
+        log.info((createMode ? "Candidature creee" : "Candidature modifiee")
+                + " avec id: " + result.getData().getId());
+        MessageUtils.addInfoMessage(createMode ? "candidates.create.success" : "candidates.edit.success");
         FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
         return "/views/applications?faces-redirect=true";
     }
@@ -145,5 +152,15 @@ public class CandidateEditBean implements Serializable {
 
     public String getStatusLabel(CandidateApplicationStatus status) {
         return status == null ? "" : MessageUtils.getMessage("candidates.status." + status.getCode());
+    }
+
+    /**
+     * Retourne la cle i18n d'un statut de candidature.
+     *
+     * @param status statut de candidature
+     * @return cle du fichier messages
+     */
+    public String getStatusMessageKey(CandidateApplicationStatus status) {
+        return status == null ? "" : "candidates.status." + status.getCode();
     }
 }

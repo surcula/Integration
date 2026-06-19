@@ -71,6 +71,8 @@ public class JobOfferEditBean implements Serializable {
      * Enregistre le formulaire et redirige vers la liste quand l'opération réussit.
      */
     public String save() {
+        boolean createMode = jobOffer != null && jobOffer.getId() == null;
+
         Result<JobOffer> result = jobOfferBusiness.saveJobOffer(jobOffer, selectedFunctionId);
 
         if (!result.isSuccess()) {
@@ -78,7 +80,9 @@ public class JobOfferEditBean implements Serializable {
             return null;
         }
 
-        MessageUtils.addInfoMessage(jobOfferId == null ? "jobOffers.create.success" : "jobOffers.edit.success");
+        log.info((createMode ? "Offre creee" : "Offre modifiee")
+                + " avec id: " + result.getData().getId());
+        MessageUtils.addInfoMessage(createMode ? "jobOffers.create.success" : "jobOffers.edit.success");
         FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
         return "/views/job-offers?faces-redirect=true";
     }
@@ -130,5 +134,15 @@ public class JobOfferEditBean implements Serializable {
      */
     public JobOfferStatus[] getJobOfferStatuses() {
         return JobOfferStatus.values();
+    }
+
+    /**
+     * Retourne la cle i18n d'un statut d'offre.
+     *
+     * @param status statut de l'offre
+     * @return cle du fichier messages
+     */
+    public String getStatusMessageKey(JobOfferStatus status) {
+        return status == null ? "" : "jobOffers.status." + status.getCode();
     }
 }

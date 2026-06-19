@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Couche Business des offres d'emploi.
@@ -21,6 +22,8 @@ import java.util.Map;
  */
 @ApplicationScoped
 public class JobOfferBusiness {
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
     @Inject
     private IJobOfferService jobOfferService;
@@ -197,8 +200,17 @@ public class JobOfferBusiness {
         FormValidator.lengthBetween(jobOffer.getContact(), "contact", "jobOffers.error.contact.length", 0, 150, errors);
         FormValidator.lengthBetween(jobOffer.getDuration(), "duration", "jobOffers.error.duration.length", 0, 100, errors);
 
+        if (jobOffer.getEmail() != null && !jobOffer.getEmail().trim().isEmpty()
+                && !EMAIL_PATTERN.matcher(jobOffer.getEmail().trim()).matches()) {
+            errors.put("email", "jobOffers.error.email.invalid");
+        }
+
         if (functionId == null) {
             errors.put("function", "jobOffers.error.function.required");
+        }
+
+        if (jobOffer.getStatus() == null) {
+            errors.put("status", "jobOffers.error.status.required");
         }
 
         if (jobOffer.getNumberOfOpenPositions() != null && jobOffer.getNumberOfOpenPositions() <= 0) {

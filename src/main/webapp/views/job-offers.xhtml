@@ -80,10 +80,10 @@
 
                         <p:column headerText="#{msg['jobOffers.status']}"
                                   sortBy="#{offer.status}"
-                                  filterBy="#{offer.status.label}"
+                                  filterBy="#{jobOffersBean.getStatusLabel(offer.status)}"
                                   filterMatchMode="contains"
                                   filterStyle="display:none">
-                            #{offer.status.label}
+                            #{msg[jobOffersBean.getStatusMessageKey(offer.status)]}
                         </p:column>
 
                         <p:column headerText="#{msg['jobOffers.activeStatus']}"

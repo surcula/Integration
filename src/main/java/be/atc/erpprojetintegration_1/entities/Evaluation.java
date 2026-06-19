@@ -8,6 +8,23 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@NamedQueries({
+        @NamedQuery(
+                name = "getAllActiveEvaluations",
+                query = "SELECT e FROM Evaluation e " +
+                        "JOIN FETCH e.employee emp " +
+                        "JOIN FETCH e.evaluator ev " +
+                        "WHERE e.isActive = true " +
+                        "ORDER BY e.evaluationDate DESC, e.id DESC"
+        ),
+        @NamedQuery(
+                name = "getEvaluationById",
+                query = "SELECT e FROM Evaluation e " +
+                        "JOIN FETCH e.employee emp " +
+                        "JOIN FETCH e.evaluator ev " +
+                        "WHERE e.id = :id"
+        )
+})
 @Entity
 @Table(name = "evaluations")
 public class Evaluation {

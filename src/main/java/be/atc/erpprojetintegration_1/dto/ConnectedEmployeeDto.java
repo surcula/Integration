@@ -9,6 +9,7 @@ public class ConnectedEmployeeDto implements Serializable {
     private String email;
     private Integer roleId;
     private String roleName;
+    private Boolean mustChangePassword;
 
     public Integer getId() {
         return id;
@@ -56,5 +57,13 @@ public class ConnectedEmployeeDto implements Serializable {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public Boolean getMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(Boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 }

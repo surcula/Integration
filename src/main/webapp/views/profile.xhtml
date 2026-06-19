@@ -19,6 +19,11 @@
                     <p class="text-muted mb-0">#{msg['profile.subtitle']}</p>
                 </div>
             </div>
+            <h:link outcome="/change-password"
+                    styleClass="btn btn-primary">
+                <i class="bi bi-key"></i>
+                #{msg['profile.changePassword']}
+            </h:link>
             <h:messages globalOnly="true" styleClass="text-danger"/>
         </div>
         <section class="row g-3">

@@ -73,6 +73,8 @@
                                  paginator="true"
                                  rows="10"
                                  rowsPerPageTemplate="10,25,50"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {CurrentPageReport} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate="#{msg['common.itemsPerPage']}"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['superiors.empty']}">
 
@@ -116,18 +118,18 @@
                                     <f:param name="departmentId" value="#{superior.departmentId}"/>
                                 </h:link>
 
-                                <p:commandLink styleClass="#{superior.isActive ? 'btn btn-sm btn-outline-danger' : 'btn btn-sm btn-primary'}"
-                                               title="#{superior.isActive ? msg['superiors.departmentHead.delete'] : msg['superiors.departmentHead.activate']}"
-                                               action="#{superiorsBean.changeDepartmentHeadActiveStatus(superior.departmentHeadId, superior.isActive)}"
-                                               rendered="#{not empty superior.departmentHeadId and authBean.hasPermission('superior:delete')}"
+                                <p:commandLink styleClass="btn btn-sm btn-outline-danger"
+                                               title="#{msg['superiors.team.delete']}"
+                                               action="#{superiorsBean.removeTeam(superior.superiorEmployeeId, superior.departmentId)}"
+                                               rendered="#{superior.managedEmployeesCount gt 0 and authBean.hasPermission('superior:delete')}"
                                                process="@this"
                                                update="@form :globalGrowl">
-                                    <i class="#{superior.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
+                                    <i class="bi bi-trash"></i>
                                     <span class="visually-hidden">
-                                        #{superior.isActive ? msg['superiors.departmentHead.delete'] : msg['superiors.departmentHead.activate']}
+                                        #{msg['superiors.team.delete']}
                                     </span>
                                     <p:confirm header="#{msg['confirm.title']}"
-                                               message="#{superior.isActive ? msg['superiors.departmentHead.delete.confirm'] : msg['superiors.departmentHead.activate.confirm']}"
+                                               message="#{msg['superiors.team.delete.confirm']}"
                                                icon="pi pi-exclamation-triangle"/>
                                 </p:commandLink>
                             </div>

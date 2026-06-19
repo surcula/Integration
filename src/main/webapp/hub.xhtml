@@ -93,33 +93,37 @@
                     </div>
 
                     <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <h:link outcome="/views/employee-edit" styleClass="btn btn-primary w-100">
+                        <h:panelGroup layout="block" styleClass="col-12 col-md-6"
+                                      rendered="#{authBean.hasPermission('employee:create')}">
+                            <h:link outcome="/views/employee-edit"
+                                    styleClass="btn btn-primary w-100">
                                 <i class="bi bi-person-plus"></i>
                                 <span>#{msg['hub.quick.addEmployee']}</span>
                             </h:link>
-                        </div>
-                        <div class="col-12 col-md-6">
+                        </h:panelGroup>
+                        <h:panelGroup layout="block" styleClass="col-12 col-md-6"
+                                      rendered="#{authBean.hasPermission('profile:read')}">
                             <h:link outcome="/views/profile"
-                                    styleClass="btn btn-outline-secondary w-100"
-                                    rendered="#{authBean.hasPermission('profile:read')}">
+                                    styleClass="btn btn-outline-secondary w-100">
                                 <i class="bi bi-person-badge"></i>
                                 <span>#{msg['hub.quick.profile']}</span>
                             </h:link>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <h:link outcome="/views/planning" styleClass="btn btn-outline-secondary w-100">
+                        </h:panelGroup>
+                        <h:panelGroup layout="block" styleClass="col-12 col-md-6"
+                                      rendered="#{authBean.hasPermission('planning:read')}">
+                            <h:link outcome="/views/planning"
+                                    styleClass="btn btn-outline-secondary w-100">
                                 <i class="bi bi-calendar3"></i>
                                 <span>#{msg['hub.quick.planning']}</span>
                             </h:link>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <h:link outcome="/views/company" styleClass="btn btn-outline-secondary w-100"
-                                    rendered="#{authBean.hasRole('ADMIN')}">
+                        </h:panelGroup>
+                        <h:panelGroup layout="block" styleClass="col-12 col-md-6"
+                                      rendered="#{authBean.hasRole('ADMIN')}">
+                            <h:link outcome="/views/company" styleClass="btn btn-outline-secondary w-100">
                                 <i class="bi bi-building"></i>
                                 <span>#{msg['hub.quick.company']}</span>
                             </h:link>
-                        </div>
+                        </h:panelGroup>
                     </div>
                 </div>
             </div>

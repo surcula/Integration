@@ -1783,6 +1783,8 @@ html[data-theme="dark"] {
 .erp-data-table .ui-paginator-top {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
   padding: 0 0 1rem;
 }
 
@@ -1796,6 +1798,17 @@ html[data-theme="dark"] {
 
 .erp-data-table .ui-paginator-bottom .ui-paginator-rpp-options {
   display: none;
+}
+
+.erp-data-table .ui-paginator-bottom .ui-paginator-current {
+  display: none;
+}
+
+.erp-data-table .ui-paginator-top .ui-paginator-current {
+  margin: 0;
+  padding: 0;
+  color: var(--admin-muted);
+  font-size: 0.875rem;
 }
 
 .erp-data-table .ui-paginator .ui-paginator-page,

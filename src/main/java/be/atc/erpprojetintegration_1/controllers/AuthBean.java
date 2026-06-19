@@ -11,6 +11,7 @@ import org.apache.shiro.subject.Subject;
 import org.apache.log4j.Logger;
 
 import javax.enterprise.context.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
@@ -26,6 +27,9 @@ public class AuthBean implements Serializable {
     private String password;
     private ConnectedEmployeeDto connectedEmployee;
     private String loginCelebrationToken;
+    private String currentPassword;
+    private String newPassword;
+    private String passwordConfirmation;
     @Inject
     private EmployeeBusiness employeeBusiness;
 
@@ -64,8 +68,13 @@ public class AuthBean implements Serializable {
                     (ConnectedEmployeeDto) currentUser.getPrincipal();
 
             connect(connectedEmployee);
+            password = null;
 
             log.info("Login successful for employee id: " + connectedEmployee.getId());
+            if (Boolean.TRUE.equals(connectedEmployee.getMustChangePassword())) {
+                log.info("Password change required for employee id: " + connectedEmployee.getId());
+                return "/change-password?faces-redirect=true";
+            }
             return "hub?faces-redirect=true";
 
         } catch (AuthenticationException ex) {
@@ -90,8 +99,53 @@ public class AuthBean implements Serializable {
         loginCelebrationToken = null;
         email = null;
         password = null;
+        currentPassword = null;
+        newPassword = null;
+        passwordConfirmation = null;
 
         return "/login?faces-redirect=true";
+    }
+
+    /**
+     * Prevents access to the application while a password change is required.
+     *
+     * @return mandatory password page or no navigation outcome
+     */
+    public String enforcePasswordChange() {
+        return connectedEmployee != null
+                && Boolean.TRUE.equals(connectedEmployee.getMustChangePassword())
+                ? "/change-password?faces-redirect=true"
+                : null;
+    }
+
+    /**
+     * Changes the connected employee password and opens the application.
+     *
+     * @return JSF navigation outcome
+     */
+    public String changePassword() {
+        if (connectedEmployee == null) {
+            return "/login?faces-redirect=true";
+        }
+        boolean mandatoryChange = Boolean.TRUE.equals(connectedEmployee.getMustChangePassword());
+
+        Result<Void> result = employeeBusiness.changePassword(
+                connectedEmployee.getId(), currentPassword, !mandatoryChange,
+                newPassword, passwordConfirmation);
+
+        if (!result.isSuccess()) {
+            MessageUtils.addErrorMessages(result, "password.change.error");
+            return null;
+        }
+
+        connectedEmployee.setMustChangePassword(false);
+        currentPassword = null;
+        newPassword = null;
+        passwordConfirmation = null;
+        MessageUtils.addInfoMessage("password.change.success");
+        FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+        log.info("Password changed for employee id: " + connectedEmployee.getId());
+        return "/hub?faces-redirect=true";
     }
 
     public boolean isConnected() {
@@ -175,5 +229,34 @@ public class AuthBean implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    public String getPasswordConfirmation() {
+        return passwordConfirmation;
+    }
+
+    public void setPasswordConfirmation(String passwordConfirmation) {
+        this.passwordConfirmation = passwordConfirmation;
+    }
+
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
+    }
+
+    public boolean isPasswordChangeRequired() {
+        return connectedEmployee != null
+                && Boolean.TRUE.equals(connectedEmployee.getMustChangePassword());
     }
 }

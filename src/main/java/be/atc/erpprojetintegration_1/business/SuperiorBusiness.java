@@ -56,20 +56,13 @@ public class SuperiorBusiness {
             return Result.fail(departmentHeadsResult.getErrors());
         }
 
-        Result<List<Superior>> superiorAssignmentsResult = superiorService.getAll();
-        List<Superior> superiorAssignments = superiorAssignmentsResult.isSuccess()
-                ? superiorAssignmentsResult.getData()
-                : new ArrayList<>();
-        Result<List<EmployeeDepartment>> employeeDepartmentsResult = employeeDepartmentService.getEmployeeList();
-        List<EmployeeDepartment> employeeDepartments = employeeDepartmentsResult.isSuccess()
-                ? employeeDepartmentsResult.getData()
-                : new ArrayList<>();
+        Result<Map<String, Integer>> countResult = superiorService.getManagedEmployeeCountsBySuperiorAndDepartment();
 
-        List<SuperiorListDto> superiors = buildSuperiorList(
-                departmentHeadsResult.getData(),
-                superiorAssignments,
-                employeeDepartments
-        );
+        if (!countResult.isSuccess()) {
+            return Result.fail(countResult.getErrors());
+        }
+
+        List<SuperiorListDto> superiors = buildSuperiorList(departmentHeadsResult.getData(), countResult.getData());
 
         return Result.ok(superiors);
     }
@@ -410,6 +403,31 @@ public class SuperiorBusiness {
     }
 
     /**
+     * Removes all active employees from a superior team without removing the department head.
+     *
+     * @param superiorEmployeeId superior employee id
+     * @param departmentId department id
+     * @return operation result
+     */
+    public Result<Void> removeTeam(Integer superiorEmployeeId, Integer departmentId) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (superiorEmployeeId == null) {
+            errors.put("superiorId", "superiors.error.superior.required");
+        }
+
+        if (departmentId == null) {
+            errors.put("departmentId", "superiors.error.department.required");
+        }
+
+        if (!errors.isEmpty()) {
+            return Result.fail(errors);
+        }
+
+        return superiorService.deactivateTeam(superiorEmployeeId, departmentId);
+    }
+
+    /**
      * Removes a department head and deactivates supervised employees in that department.
      *
      * @param departmentHeadId department head id
@@ -709,6 +727,53 @@ public class SuperiorBusiness {
         });
 
         return superiors;
+    }
+
+    private List<SuperiorListDto> buildSuperiorList(List<DepartmentHead> departmentHeads, Map<String, Integer> managedEmployeeCounts) {
+        List<SuperiorListDto> superiors = new ArrayList<>();
+
+        if (departmentHeads != null) {
+            departmentHeads.stream()
+                    .filter(departmentHead -> departmentHead.getSuperior() != null)
+                    .map(departmentHead -> toDepartmentHeadListDto(departmentHead, managedEmployeeCounts))
+                    .forEach(superiors::add);
+        }
+
+        superiors.sort((left, right) -> {
+            int superiorCompare = compareNullableStrings(left.getSuperiorFullName(), right.getSuperiorFullName());
+            return superiorCompare != 0
+                    ? superiorCompare
+                    : compareNullableStrings(left.getDepartmentName(), right.getDepartmentName());
+        });
+
+        return superiors;
+    }
+
+    private SuperiorListDto toDepartmentHeadListDto(DepartmentHead departmentHead, Map<String, Integer> managedEmployeeCounts) {
+        SuperiorListDto dto = new SuperiorListDto();
+        Integer superiorEmployeeId = departmentHead.getSuperior() != null ? departmentHead.getSuperior().getId() : null;
+        Integer departmentId = departmentHead.getDepartment() != null ? departmentHead.getDepartment().getId() : null;
+
+        dto.setId(superiorEmployeeId);
+        dto.setDepartmentHeadId(departmentHead.getId());
+        dto.setDepartmentId(departmentId);
+        dto.setSuperiorEmployeeId(superiorEmployeeId);
+        dto.setSuperiorFullName(getEmployeeFullName(departmentHead.getSuperior()));
+        dto.setDepartmentName(departmentHead.getDepartment() != null ? departmentHead.getDepartment().getDepartmentName() : "");
+        dto.setStartDate(formatDate(departmentHead.getStartDate()));
+        dto.setEndDate(formatDate(departmentHead.getEndDate()));
+        dto.setIsActive(departmentHead.getIsActive());
+        dto.setManagedEmployeesCount(getManagedEmployeeCount(superiorEmployeeId, departmentId, managedEmployeeCounts));
+        return dto;
+    }
+
+    private Integer getManagedEmployeeCount(Integer superiorEmployeeId, Integer departmentId, Map<String, Integer> managedEmployeeCounts) {
+        if (superiorEmployeeId == null || departmentId == null || managedEmployeeCounts == null) {
+            return 0;
+        }
+
+        Integer count = managedEmployeeCounts.get(buildSuperiorDepartmentKey(superiorEmployeeId, departmentId));
+        return count != null ? count : 0;
     }
 
     private SuperiorListDto toLegacyDepartmentHeadListDto(Superior superior, Integer departmentId, List<Superior> superiorAssignments, List<EmployeeDepartment> employeeDepartments) {

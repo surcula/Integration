@@ -62,6 +62,95 @@ public class SuperiorServiceImpl implements ISuperiorService {
     }
 
     @Override
+    public Result<Map<String, Integer>> getManagedEmployeeCountsBySuperiorAndDepartment() {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Counting active managed employees by superior and department");
+
+            List<Object[]> rows = em.createQuery(
+                            "SELECT s.superior.id, ed.department.id, COUNT(s.id) " +
+                                    "FROM Superior s " +
+                                    "JOIN s.employee e " +
+                                    "JOIN s.superior sup " +
+                                    "JOIN e.employeeDepartments ed " +
+                                    "JOIN ed.department d " +
+                                    "WHERE s.isActive = true " +
+                                    "AND e.isActive = true " +
+                                    "AND sup.isActive = true " +
+                                    "AND ed.isActive = true " +
+                                    "AND d.isActive = true " +
+                                    "GROUP BY s.superior.id, ed.department.id",
+                            Object[].class)
+                    .getResultList();
+
+            Map<String, Integer> counts = new HashMap<>();
+
+            for (Object[] row : rows) {
+                Integer superiorId = (Integer) row[0];
+                Integer departmentId = (Integer) row[1];
+                Long count = (Long) row[2];
+                counts.put(buildSuperiorDepartmentKey(superiorId, departmentId), count.intValue());
+            }
+
+            log.info("Managed employee counts found: " + counts.size());
+            return Result.ok(counts);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "superiors.error.load");
+            log.error("Error while counting active managed employees by superior and department", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<Void> deactivateTeam(Integer superiorEmployeeId, Integer departmentId) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Deactivating team for superior id: " + superiorEmployeeId + ", department id: " + departmentId);
+
+            em.getTransaction().begin();
+            int updatedRows = em.createQuery(
+                            "UPDATE Superior s " +
+                                    "SET s.isActive = false " +
+                                    "WHERE s.superior.id = :superiorEmployeeId " +
+                                    "AND s.isActive = true " +
+                                    "AND s.employee.id IN (" +
+                                    "   SELECT ed.employee.id " +
+                                    "   FROM EmployeeDepartment ed " +
+                                    "   WHERE ed.department.id = :departmentId " +
+                                    "   AND ed.isActive = true" +
+                                    ")")
+                    .setParameter("superiorEmployeeId", superiorEmployeeId)
+                    .setParameter("departmentId", departmentId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+
+            log.info("Team deactivated. Updated superior assignments: " + updatedRows);
+            return Result.ok();
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "superiors.team.delete.error");
+            log.error("Error while deactivating team for superior id: " + superiorEmployeeId
+                    + ", department id: " + departmentId, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<Superior> getById(Integer id) {
         EntityManager em = EMF.getEM();
 
@@ -182,5 +271,9 @@ public class SuperiorServiceImpl implements ISuperiorService {
         } finally {
             em.close();
         }
+    }
+
+    private String buildSuperiorDepartmentKey(Integer superiorId, Integer departmentId) {
+        return String.valueOf(superiorId) + ":" + String.valueOf(departmentId);
     }
 }

@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `authorizations` (
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_authorizations_authorization_name` (`authorization_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `authorizations`
@@ -115,7 +115,11 @@ INSERT INTO `authorizations` (`id`, `authorization_name`, `is_active`) VALUES
 (24, 'company:read', 1),
 (25, 'company:edit', 1),
 (26, 'department:read', 1),
-(27, 'evaluation:read', 1);
+(27, 'evaluation:read', 1),
+(28, 'employee:reset-password', 1),
+(29, 'department:create', 1),
+(30, 'department:edit', 1),
+(31, 'department:delete', 1);
 
 -- --------------------------------------------------------
 
@@ -3624,7 +3628,7 @@ CREATE TABLE IF NOT EXISTS `roles_authorization` (
   PRIMARY KEY (`id`),
   KEY `fk_roles_authorization_role_id` (`role_id`),
   KEY `fk_roles_authorization_authorization_id` (`authorization_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `roles_authorization`
@@ -3709,7 +3713,11 @@ INSERT INTO `roles_authorization` (`id`, `role_authorization_name`, `is_active`,
 (100, 'HR_department_read', 1, 4, 26),
 (101, 'ADMIN_department_read', 1, 5, 26),
 (102, 'HR_evaluation_read', 1, 4, 27),
-(103, 'ADMIN_evaluation_read', 1, 5, 27);
+(103, 'ADMIN_evaluation_read', 1, 5, 27),
+(104, 'ADMIN_employee_reset_password', 1, 5, 28),
+(105, 'ADMIN_department_create', 1, 5, 29),
+(106, 'ADMIN_department_edit', 1, 5, 30),
+(107, 'ADMIN_department_delete', 1, 5, 31);
 
 -- --------------------------------------------------------
 

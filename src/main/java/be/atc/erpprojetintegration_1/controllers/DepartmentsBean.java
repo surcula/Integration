@@ -42,6 +42,11 @@ public class DepartmentsBean implements Serializable {
     }
 
     public void changeDepartmentActiveStatus(Integer id, boolean active) {
+        if (!authBean.hasPermission("department:delete")) {
+            MessageUtils.addErrorMessage("common.accessDenied");
+            return;
+        }
+
         Result<Void> result = departmentBusiness.setActive(id, !active);
 
         if (!result.isSuccess()) {

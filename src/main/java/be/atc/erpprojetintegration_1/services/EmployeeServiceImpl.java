@@ -244,6 +244,53 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
+    public Result<Void> resetPassword(Integer id, String hashedPassword) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Resetting password for employee id: " + id);
+            em.getTransaction().begin();
+
+            Employee employee = em.find(Employee.class, id);
+            if (employee == null) {
+                em.getTransaction().rollback();
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "employee.resetPassword.error.notFound");
+                log.warn("Password reset failed. Employee not found with id: " + id);
+                return Result.fail(errors);
+            }
+
+            if (!Boolean.TRUE.equals(employee.getIsActive())) {
+                em.getTransaction().rollback();
+                Map<String, String> errors = new HashMap<>();
+                errors.put("inactive", "employee.resetPassword.error.inactive");
+                log.warn("Password reset refused for inactive employee id: " + id);
+                return Result.fail(errors);
+            }
+
+            employee.setPassword(hashedPassword);
+            employee.setMustChangePassword(true);
+            em.getTransaction().commit();
+
+            log.info("Password reset completed for employee id: " + id);
+            return Result.ok();
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "employee.resetPassword.error");
+            log.error("Error while resetting password for employee id: " + id, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<Void> deactivate(Integer id) {
         EntityManager em = EMF.getEM();
 

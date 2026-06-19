@@ -40,6 +40,7 @@ public final class EmployeeMapper {
         dto.setFirstName(employee.getFirstName());
         dto.setLastName(employee.getLastName());
         dto.setEmail(employee.getEmail());
+        dto.setMustChangePassword(employee.getMustChangePassword());
 
         Role role = employee.getRole();
 

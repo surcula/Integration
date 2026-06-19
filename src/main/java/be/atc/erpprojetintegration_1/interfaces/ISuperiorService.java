@@ -4,6 +4,7 @@ import be.atc.erpprojetintegration_1.entities.Superior;
 import be.atc.erpprojetintegration_1.tools.Result;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Defines employee superior database operations.
@@ -18,6 +19,22 @@ public interface ISuperiorService {
     Result<List<Superior>> getAll();
 
     Result<List<Superior>> getActiveBySuperiorId(Integer superiorId);
+
+    /**
+     * Counts active supervised employees grouped by superior and department.
+     *
+     * @return map where key is superiorId:departmentId and value is managed employee count
+     */
+    Result<Map<String, Integer>> getManagedEmployeeCountsBySuperiorAndDepartment();
+
+    /**
+     * Deactivates active team assignments for a superior in a department.
+     *
+     * @param superiorEmployeeId superior employee id
+     * @param departmentId department id
+     * @return operation result
+     */
+    Result<Void> deactivateTeam(Integer superiorEmployeeId, Integer departmentId);
 
     /**
      * Retrieves a superior assignment by id.

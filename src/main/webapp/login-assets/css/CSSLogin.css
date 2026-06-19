@@ -523,6 +523,30 @@ iframe {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.password-change-actions {
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.login100-form-btn.password-return-button {
+  min-width: 230px;
+  color: #ffffff;
+  background: #40566f;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.login100-form-btn.password-return-button::before {
+  background-color: #26384b;
+}
+
+.login100-form-btn.password-return-button:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
 .login-error-message {
   color: #c80000;
   text-align: center;

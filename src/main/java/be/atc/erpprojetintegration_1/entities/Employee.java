@@ -87,6 +87,10 @@ public class Employee {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @NotNull
+    @Column(name = "must_change_password", nullable = false)
+    private Boolean mustChangePassword = true;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "civilite", length = 20)
     private Civilite civilite;
@@ -189,6 +193,14 @@ public class Employee {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean getMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(Boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 
     public Civilite getCivilite() {

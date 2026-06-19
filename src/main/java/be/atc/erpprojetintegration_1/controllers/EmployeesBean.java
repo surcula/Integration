@@ -5,6 +5,7 @@ import be.atc.erpprojetintegration_1.dto.EmployeeListDto;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
 import org.apache.log4j.Logger;
+import org.primefaces.PrimeFaces;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
@@ -13,6 +14,8 @@ import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Named
 @RequestScoped
@@ -25,6 +28,8 @@ public class EmployeesBean implements Serializable {
     private AuthBean authBean;
 
     private List<EmployeeListDto> employees;
+    private String searchTerm;
+    private String temporaryPassword;
     private boolean canViewEmployeeList;
 
     /**
@@ -112,8 +117,96 @@ public class EmployeesBean implements Serializable {
      * @return employee list
      */
     public List<EmployeeListDto> getEmployees() {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return employees;
+        }
+
+        String normalizedSearch = searchTerm.trim().toLowerCase(Locale.ROOT);
+
+        return employees.stream()
+                .filter(employee -> contains(employee.getFullName(), normalizedSearch)
+                        || contains(employee.getDepartmentName(), normalizedSearch)
+                        || contains(employee.getPhone(), normalizedSearch)
+                        || contains(employee.getEmail(), normalizedSearch))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Resets an employee password and displays the generated temporary password once.
+     *
+     * @param employeeId employee identifier
+     */
+    public void resetPassword(Integer employeeId) {
+        temporaryPassword = null;
+
+        if (!authBean.hasPermission("employee:reset-password")) {
+            log.warn("Unauthorized employee password reset attempt");
+            MessageUtils.addErrorMessage("common.accessDenied");
+            return;
+        }
+
+        if (authBean.getConnectedEmployee() != null
+                && employeeId != null
+                && employeeId.equals(authBean.getConnectedEmployee().getId())) {
+            MessageUtils.addErrorMessage("employee.resetPassword.error.self");
+            return;
+        }
+
+        log.info("Password reset requested for employee id: " + employeeId);
+        Result<String> result = employeeBusiness.resetPassword(employeeId);
+
+        if (!result.isSuccess()) {
+            log.warn("Password reset failed for employee id: " + employeeId);
+            MessageUtils.addErrorMessages(result, "employee.resetPassword.error");
+            return;
+        }
+
+        temporaryPassword = result.getData();
+        MessageUtils.addInfoMessage("employee.resetPassword.success");
+        PrimeFaces.current().executeScript("PF('temporaryPasswordDialog').show()");
+    }
+
+    /**
+     * Checks if a value contains the current search term.
+     *
+     * @param value value to inspect
+     * @param search normalized search term
+     * @return true when the value contains the search term
+     */
+    private boolean contains(String value, String search) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(search);
+    }
+
+    /**
+     * Returns the current search term used by the employee list.
+     *
+     * @return search term
+     */
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    /**
+     * Sets the current search term used by the employee list.
+     *
+     * @param searchTerm search term
+     */
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
+    }
+
+    /**
+     * Returns the complete employee list without search filtering.
+     *
+     * @return complete employee list
+     */
+    public List<EmployeeListDto> getAllEmployees() {
         return employees;
     }
 
     public boolean isCanViewEmployeeList() { return canViewEmployeeList; }
+
+    public String getTemporaryPassword() {
+        return temporaryPassword;
+    }
 }

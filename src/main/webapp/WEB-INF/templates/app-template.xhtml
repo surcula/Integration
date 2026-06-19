@@ -6,6 +6,9 @@
       xmlns:p="http://primefaces.org/ui">
 
 <f:view locale="#{languageBean.locale}">
+    <f:metadata>
+        <f:viewAction action="#{authBean.enforcePasswordChange}"/>
+    </f:metadata>
     <h:head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>

@@ -20,6 +20,9 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,12 @@ import java.util.stream.Collectors;
 public class EmployeeBusiness {
 
     private static final String TEMPORARY_PASSWORD = "ChangeMe123!";
+    private static final String PASSWORD_PATTERN = "^(?=.*[A-Z])(?=.*\\d).{8,255}$";
+    private static final String TEMPORARY_UPPERCASE = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    private static final String TEMPORARY_LOWERCASE = "abcdefghijkmnopqrstuvwxyz";
+    private static final String TEMPORARY_DIGITS = "23456789";
+    private static final String TEMPORARY_SYMBOLS = "!@#$%";
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Inject
     private IEmployeeService employeeService;
@@ -64,6 +73,36 @@ public class EmployeeBusiness {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
+    /**
+     * Generates a random temporary password that satisfies the password policy.
+     *
+     * @return temporary plain password
+     */
+    private String generateTemporaryPassword() {
+        List<Character> characters = new ArrayList<>();
+        characters.add(randomCharacter(TEMPORARY_UPPERCASE));
+        characters.add(randomCharacter(TEMPORARY_LOWERCASE));
+        characters.add(randomCharacter(TEMPORARY_DIGITS));
+        characters.add(randomCharacter(TEMPORARY_SYMBOLS));
+
+        String allCharacters = TEMPORARY_UPPERCASE + TEMPORARY_LOWERCASE
+                + TEMPORARY_DIGITS + TEMPORARY_SYMBOLS;
+        while (characters.size() < 12) {
+            characters.add(randomCharacter(allCharacters));
+        }
+
+        Collections.shuffle(characters, SECURE_RANDOM);
+        StringBuilder password = new StringBuilder(characters.size());
+        for (Character character : characters) {
+            password.append(character);
+        }
+        return password.toString();
+    }
+
+    private char randomCharacter(String characters) {
+        return characters.charAt(SECURE_RANDOM.nextInt(characters.length()));
+    }
+
 
     /**
      * Validates the login form before sending credentials to Shiro.
@@ -84,6 +123,98 @@ public class EmployeeBusiness {
         }
 
         return Result.ok();
+    }
+
+    /**
+     * Validates and replaces the temporary password of an employee.
+     *
+     * @param employeeId connected employee id
+     * @param currentPassword current plain password, required for a voluntary change
+     * @param currentPasswordRequired whether the current password must be checked
+     * @param newPassword new plain password
+     * @param passwordConfirmation repeated new password
+     * @return password update result
+     */
+    public Result<Void> changePassword(Integer employeeId, String currentPassword,
+                                       boolean currentPasswordRequired, String newPassword,
+                                       String passwordConfirmation) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (employeeId == null) {
+            errors.put("employeeId", "password.change.error.employee.required");
+        }
+
+        FormValidator.required(newPassword, "newPassword",
+                "password.change.error.required", errors);
+        FormValidator.required(passwordConfirmation, "passwordConfirmation",
+                "password.change.error.confirmation.required", errors);
+        if (currentPasswordRequired) {
+            FormValidator.required(currentPassword, "currentPassword",
+                    "password.change.error.current.required", errors);
+        }
+
+        if (newPassword != null && !newPassword.isEmpty()
+                && !newPassword.matches(PASSWORD_PATTERN)) {
+            errors.put("newPassword", "password.change.error.format");
+        }
+
+        if (newPassword != null && !newPassword.isEmpty()
+                && passwordConfirmation != null && !passwordConfirmation.isEmpty()
+                && !newPassword.equals(passwordConfirmation)) {
+            errors.put("passwordConfirmation", "password.change.error.mismatch");
+        }
+
+        if (!errors.isEmpty()) {
+            return Result.fail(errors);
+        }
+
+        Result<Employee> employeeResult = employeeService.getById(employeeId);
+        if (!employeeResult.isSuccess()) {
+            return Result.fail(employeeResult.getErrors());
+        }
+
+        Employee employee = employeeResult.getData();
+
+        if (currentPasswordRequired
+                && !checkPassword(currentPassword, employee.getPassword())) {
+            errors.put("currentPassword", "password.change.error.current.invalid");
+            return Result.fail(errors);
+        }
+
+        if (checkPassword(newPassword, employee.getPassword())) {
+            errors.put("newPassword", "password.change.error.same");
+            return Result.fail(errors);
+        }
+
+        employee.setPassword(hashPassword(newPassword));
+        employee.setMustChangePassword(false);
+
+        Result<Employee> updateResult = employeeService.update(employee);
+        return updateResult.isSuccess()
+                ? Result.ok()
+                : Result.fail(updateResult.getErrors());
+    }
+
+    /**
+     * Generates and stores a temporary password for an active employee.
+     *
+     * @param employeeId employee identifier
+     * @return temporary plain password, displayed once to the administrator
+     */
+    public Result<String> resetPassword(Integer employeeId) {
+        if (employeeId == null) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("employeeId", "employee.resetPassword.error.id.required");
+            return Result.fail(errors);
+        }
+
+        String temporaryPassword = generateTemporaryPassword();
+        Result<Void> resetResult = employeeService.resetPassword(
+                employeeId, hashPassword(temporaryPassword));
+
+        return resetResult.isSuccess()
+                ? Result.ok(temporaryPassword)
+                : Result.fail(resetResult.getErrors());
     }
 
     /**
@@ -243,6 +374,7 @@ public class EmployeeBusiness {
 
         Employee employee = EmployeeMapper.toEmployee(dto);
         employee.setPassword(hashPassword(TEMPORARY_PASSWORD));
+        employee.setMustChangePassword(true);
 
         Result<Employee> createResult = employeeService.create(employee);
 

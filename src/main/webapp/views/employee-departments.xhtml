@@ -42,7 +42,10 @@
                 </div>
                 <p:dataTable id="assignmentsTable" value="#{employeeDepartmentsBean.assignmentRows}" var="row"
                              paginator="true" rows="10"
-                             rowsPerPageTemplate="10,25,50" paginatorPosition="bottom"
+                             rowsPerPageTemplate="10,25,50"
+                             paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {CurrentPageReport} {RowsPerPageDropdown}"
+                             currentPageReportTemplate="#{msg['common.itemsPerPage']}"
+                             paginatorPosition="both"
                              emptyMessage="#{msg['employeeDepartments.empty']}" styleClass="erp-data-table">
                     <p:column headerText="#{msg['common.employee']}" sortBy="#{row.assignment.employee.lastName}">
                         <strong>#{row.assignment.employee.firstName} #{row.assignment.employee.lastName}</strong><div class="text-muted">#{row.assignment.employee.email}</div>

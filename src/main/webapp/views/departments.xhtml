@@ -30,7 +30,7 @@
                     <i class="pi pi-users"></i><span>#{msg['departments.assignments']}</span>
                 </h:link>
                 <h:link outcome="/views/department-edit" styleClass="btn btn-primary"
-                        rendered="#{authBean.hasRole('ADMIN')}">
+                        rendered="#{authBean.hasPermission('department:create')}">
                     <i class="pi pi-plus-circle"></i><span>#{msg['departments.add']}</span>
                 </h:link>
             </div>
@@ -106,6 +106,8 @@
                                  paginator="true"
                                  rows="10"
                                  rowsPerPageTemplate="10,25,50"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {CurrentPageReport} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate="#{msg['common.itemsPerPage']}"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['departments.empty']}">
 
@@ -132,16 +134,20 @@
                             #{department.email}
                         </p:column>
 
-                        <p:column headerText="#{msg['departments.status']}" sortBy="#{department.isActive}">
+                        <p:column headerText="#{msg['departments.status']}"
+                                  sortBy="#{department.isActive}"
+                                  rendered="#{authBean.hasPermission('department:create') or authBean.hasPermission('department:edit') or authBean.hasPermission('department:delete')}">
                             <span class="#{department.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
                                 #{department.isActive ? msg['departments.status.active'] : msg['departments.status.inactive']}
                             </span>
                         </p:column>
 
-                        <p:column headerText="#{msg['departments.action']}" rendered="#{authBean.hasRole('ADMIN')}">
+                        <p:column headerText="#{msg['departments.action']}"
+                                  rendered="#{authBean.hasPermission('department:edit') or authBean.hasPermission('department:delete')}">
                             <h:link outcome="/views/department-edit"
                                     styleClass="btn btn-sm btn-primary"
-                                    title="#{msg['departments.edit']}">
+                                    title="#{msg['departments.edit']}"
+                                    rendered="#{authBean.hasPermission('department:edit')}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="visually-hidden">#{msg['departments.edit']}</span>
                                 <f:param name="id" value="#{department.id}"/>
@@ -152,6 +158,7 @@
                                            action="#{departmentsBean.changeDepartmentActiveStatus(department.id, department.isActive)}"
                                            process="@this"
                                            immediate="true"
+                                           rendered="#{authBean.hasPermission('department:delete')}"
                                            update="@form :globalGrowl">
                                 <i class="#{department.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
                                 <span class="visually-hidden">

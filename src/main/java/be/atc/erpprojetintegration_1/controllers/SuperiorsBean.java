@@ -81,6 +81,24 @@ public class SuperiorsBean implements Serializable {
     }
 
     /**
+     * Removes all employees from a superior team without removing the department head.
+     *
+     * @param superiorEmployeeId superior employee id
+     * @param departmentId department id
+     */
+    public void removeTeam(Integer superiorEmployeeId, Integer departmentId) {
+        Result<Void> result = superiorBusiness.removeTeam(superiorEmployeeId, departmentId);
+
+        if (!result.isSuccess()) {
+            MessageUtils.addErrorMessages(result, "superiors.team.delete.error");
+            return;
+        }
+
+        MessageUtils.addInfoMessage("superiors.team.delete.success");
+        loadSuperiors();
+    }
+
+    /**
      * Clears the department filter and reloads the displayed list.
      */
     public void clearDepartmentFilter() {

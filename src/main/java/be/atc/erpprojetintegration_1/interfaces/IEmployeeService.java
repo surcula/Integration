@@ -73,6 +73,15 @@ public interface IEmployeeService {
     Result<Employee> update(Employee employee);
 
     /**
+     * Replaces an employee password with a temporary hashed password.
+     *
+     * @param id employee identifier
+     * @param hashedPassword BCrypt hashed temporary password
+     * @return a successful result when the password is reset
+     */
+    Result<Void> resetPassword(Integer id, String hashedPassword);
+
+    /**
      * Deactivates an employee without deleting them from the database.
      *
      * @param id the unique identifier of the employee to deactivate

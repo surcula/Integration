@@ -42,52 +42,48 @@
                         <span class="p-input-icon-left table-global-search">
                             <i class="bi bi-search"></i>
                             <p:inputText id="globalFilter"
+                                         value="#{employeesBean.searchTerm}"
                                          styleClass="form-control"
-                                         onkeyup="PF('employeesTable').filter()"
-                                         placeholder="#{msg['employees.search']}"/>
+                                         placeholder="#{msg['employees.search']}">
+                                <p:ajax event="keyup"
+                                        delay="250"
+                                        process="@this"
+                                        update="employeesTable"/>
+                            </p:inputText>
                         </span>
                     </div>
 
                     <p:dataTable value="#{employeesBean.employees}"
                                  var="employee"
+                                 id="employeesTable"
                                  widgetVar="employeesTable"
                                  styleClass="table align-middle mb-0 erp-data-table"
                                  paginator="true"
                                  rows="10"
                                  rowsPerPageTemplate="10,25,50"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {CurrentPageReport} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate="#{msg['common.itemsPerPage']}"
                                  paginatorPosition="both"
                                  emptyMessage="#{msg['employees.empty']}">
 
                         <p:column headerText="#{msg['employees.fullName']}"
-                                  sortBy="#{employee.fullName}"
-                                  filterBy="#{employee.fullName}"
-                                  filterMatchMode="contains"
-                                  filterStyle="display:none">
+                                  sortBy="#{employee.fullName}">
                             <strong>
                                 #{employee.fullName}
                             </strong>
                         </p:column>
 
                         <p:column headerText="#{msg['employees.department']}"
-                                  sortBy="#{employee.departmentName}"
-                                  filterBy="#{employee.departmentName}"
-                                  filterMatchMode="contains"
-                                  filterStyle="display:none">
+                                  sortBy="#{employee.departmentName}">
                             #{employee.departmentName}
                         </p:column>
 
-                        <p:column headerText="#{msg['employees.phone']}"
-                                  filterBy="#{employee.phone}"
-                                  filterMatchMode="contains"
-                                  filterStyle="display:none">
+                        <p:column headerText="#{msg['employees.phone']}">
                             #{employee.phone}
                         </p:column>
 
                         <p:column headerText="#{msg['employees.email']}"
-                                  sortBy="#{employee.email}"
-                                  filterBy="#{employee.email}"
-                                  filterMatchMode="contains"
-                                  filterStyle="display:none">
+                                  sortBy="#{employee.email}">
                             #{employee.email}
                         </p:column>
 
@@ -100,7 +96,7 @@
                         </p:column>
 
                         <p:column headerText="#{msg['employees.action']}"
-                                  rendered="#{authBean.hasPermission('employee:edit') or authBean.hasPermission('employee:delete')}">
+                                  rendered="#{authBean.hasPermission('employee:edit') or authBean.hasPermission('employee:delete') or authBean.hasPermission('employee:reset-password')}">
                             <h:link outcome="/views/employee-edit"
                                     styleClass="btn btn-sm btn-primary"
                                     title="#{msg['employees.edit']}"
@@ -125,8 +121,40 @@
                                            message="#{employee.active ? msg['employees.delete.confirm'] : msg['employees.activate.confirm']}"
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandLink>
+
+                            <p:commandLink styleClass="btn btn-sm btn-outline-warning ms-2"
+                                           title="#{msg['employees.resetPassword']}"
+                                           rendered="#{authBean.hasPermission('employee:reset-password') and employee.active and employee.id ne authBean.connectedEmployee.id}"
+                                           action="#{employeesBean.resetPassword(employee.id)}"
+                                           process="@this"
+                                           immediate="true"
+                                           update=":employeesForm:temporaryPasswordDialog :globalGrowl">
+                                <i class="bi bi-key"></i>
+                                <span class="visually-hidden">#{msg['employees.resetPassword']}</span>
+                                <p:confirm header="#{msg['employees.resetPassword']}"
+                                           message="#{msg['employees.resetPassword.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
                         </p:column>
                     </p:dataTable>
+
+                    <p:dialog id="temporaryPasswordDialog"
+                              widgetVar="temporaryPasswordDialog"
+                              header="#{msg['employees.resetPassword.dialog.title']}"
+                              modal="true"
+                              resizable="false"
+                              closable="true"
+                              onHide="document.getElementById('employeesForm:temporaryPasswordValue').value = '';"
+                              width="440">
+                        <p class="mb-3">#{msg['employees.resetPassword.dialog.message']}</p>
+                        <p:inputText id="temporaryPasswordValue"
+                                     value="#{employeesBean.temporaryPassword}"
+                                     readonly="true"
+                                     styleClass="form-control w-100"/>
+                        <p class="text-warning mt-3 mb-0">
+                            #{msg['employees.resetPassword.dialog.warning']}
+                        </p>
+                    </p:dialog>
 
                     <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
                         <p:commandButton value="#{msg['common.yes']}"

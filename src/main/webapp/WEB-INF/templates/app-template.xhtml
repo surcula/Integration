@@ -119,7 +119,7 @@
                     <ui:fragment rendered="#{authBean.hasPermission('superior:read')}">
                         <a class="nav-link" href="#{request.contextPath}/views/superiors.xhtml">
                             <span class="nav-icon"><i class="bi bi-person-workspace" aria-hidden="true"></i></span>
-                            <span class="nav-text">#{msg['superiors.title']}</span>
+                            <span class="nav-text">#{msg['nav.teamManagement']}</span>
                         </a>
                     </ui:fragment>
                     <ui:fragment rendered="#{authBean.hasRole('ADMIN')}">

@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.PrimeFaces;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Named
-@RequestScoped
+@ViewScoped
 public class EmployeesBean implements Serializable {
     private static final Logger log = Logger.getLogger(EmployeesBean.class);
 

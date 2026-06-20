@@ -353,10 +353,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
             int closedSuperiorAssignments = em.createQuery(
                             "UPDATE Superior s " +
-                                    "SET s.isActive = false, s.endDate = :endDate " +
+                                    "SET s.isActive = false " +
                                     "WHERE (s.employee.id = :employeeId OR s.superior.id = :employeeId) " +
                                     "AND s.isActive = true")
-                    .setParameter("endDate", endDate)
                     .setParameter("employeeId", id)
                     .executeUpdate();
 
@@ -383,7 +382,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
             }
 
             Map<String, String> errors = new HashMap<>();
-            errors.put("message", ex.getMessage());
+            errors.put("message", "employee.delete.error");
 
             log.error("Error while deactivating employee with id: " + id, ex);
             return Result.fail(errors);

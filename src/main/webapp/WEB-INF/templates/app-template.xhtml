@@ -90,20 +90,24 @@
                         <span class="nav-icon"><i class="bi bi-award" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.certifications']}</span>
                     </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/evaluations.xhtml">
-                        <span class="nav-icon"><i class="bi bi-clipboard-check" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.evaluations']}</span>
-                    </a>
+                    <ui:fragment rendered="#{authBean.hasPermission('evaluation:read')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/evaluations.xhtml">
+                            <span class="nav-icon"><i class="bi bi-clipboard-check" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.evaluations']}</span>
+                        </a>
+                    </ui:fragment>
                     <a class="nav-link" href="#{request.contextPath}/views/trainings.xhtml">
                         <span class="nav-icon"><i class="bi bi-mortarboard" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.trainings']}</span>
                     </a>
 
                     <span class="nav-section-title">#{msg['nav.recruitment']}</span>
-                    <a class="nav-link" href="#{request.contextPath}/views/applications.xhtml">
-                        <span class="nav-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.applications']}</span>
-                    </a>
+                    <ui:fragment rendered="#{authBean.hasPermission('candidate:read')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/applications.xhtml">
+                            <span class="nav-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.applications']}</span>
+                        </a>
+                    </ui:fragment>
                     <a class="nav-link" href="#{request.contextPath}/views/job-offers-public.xhtml">
                         <span class="nav-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.jobOffers']}</span>

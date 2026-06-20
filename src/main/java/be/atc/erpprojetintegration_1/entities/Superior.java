@@ -23,6 +23,15 @@ import java.time.LocalDate;
                         "AND s.isActive = true " +
                         "AND e.isActive = true " +
                         "ORDER BY e.lastName, e.firstName"
+        ),
+        @NamedQuery(
+                name = "getActiveSuperiorByEmployeeId",
+                query = "SELECT s FROM Superior s " +
+                        "JOIN FETCH s.employee e " +
+                        "JOIN FETCH s.superior sup " +
+                        "WHERE s.isActive = true " +
+                        "AND e.id = :employeeId " +
+                        "ORDER BY s.startDate DESC, s.id DESC"
         )
 })
 @Entity

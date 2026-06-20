@@ -62,6 +62,38 @@ public class SuperiorServiceImpl implements ISuperiorService {
     }
 
     @Override
+    public Result<Superior> getActiveByEmployeeId(Integer employeeId) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching active superior assignment by employee id: " + employeeId);
+            List<Superior> assignments = em.createNamedQuery(
+                            "getActiveSuperiorByEmployeeId", Superior.class)
+                    .setParameter("employeeId", employeeId)
+                    .setMaxResults(1)
+                    .getResultList();
+
+            if (assignments.isEmpty()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "superiors.error.notFound");
+                return Result.fail(errors);
+            }
+
+            return Result.ok(assignments.get(0));
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "superiors.error.load");
+            log.error("Error while searching active superior assignment by employee id: "
+                    + employeeId, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<Map<String, Integer>> getManagedEmployeeCountsBySuperiorAndDepartment() {
         EntityManager em = EMF.getEM();
 

@@ -17,6 +17,7 @@
         <class>be.atc.erpprojetintegration_1.entities.DepartmentHead</class>
         <class>be.atc.erpprojetintegration_1.entities.Superior</class>
         <class>be.atc.erpprojetintegration_1.entities.EmployeeDepartment</class>
+        <class>be.atc.erpprojetintegration_1.entities.Superior</class>
         <class>be.atc.erpprojetintegration_1.entities.Company</class>
         <class>be.atc.erpprojetintegration_1.entities.Function</class>
         <class>be.atc.erpprojetintegration_1.entities.JobOffer</class>

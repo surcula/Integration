@@ -34,6 +34,9 @@ public class JobOfferEditBean implements Serializable {
     @Inject
     private FunctionBusiness functionBusiness;
 
+    @Inject
+    private AuthBean authBean;
+
     private Integer jobOfferId;
     private Integer selectedFunctionId;
     private JobOffer jobOffer;
@@ -46,8 +49,20 @@ public class JobOfferEditBean implements Serializable {
         loadFunctions();
 
         if (jobOfferId == null) {
+            if (!authBean.hasPermission("job-offer:create")) {
+                jobOffer = null;
+                MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+                return;
+            }
+
             jobOffer = new JobOffer();
             jobOffer.setStatus(JobOfferStatus.NOT_PUBLISHED);
+            return;
+        }
+
+        if (!authBean.hasPermission("job-offer:edit")) {
+            jobOffer = null;
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
             return;
         }
 
@@ -71,6 +86,18 @@ public class JobOfferEditBean implements Serializable {
      * Enregistre le formulaire et redirige vers la liste quand l'opération réussit.
      */
     public String save() {
+        boolean createMode = jobOffer != null && jobOffer.getId() == null;
+
+        if (createMode && !authBean.hasPermission("job-offer:create")) {
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+            return null;
+        }
+
+        if (!createMode && !authBean.hasPermission("job-offer:edit")) {
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+            return null;
+        }
+
         Result<JobOffer> result = jobOfferBusiness.saveJobOffer(jobOffer, selectedFunctionId);
 
         if (!result.isSuccess()) {
@@ -78,7 +105,9 @@ public class JobOfferEditBean implements Serializable {
             return null;
         }
 
-        MessageUtils.addInfoMessage(jobOfferId == null ? "jobOffers.create.success" : "jobOffers.edit.success");
+        log.info((createMode ? "Offre creee" : "Offre modifiee")
+                + " avec id: " + result.getData().getId());
+        MessageUtils.addInfoMessage(createMode ? "jobOffers.create.success" : "jobOffers.edit.success");
         FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
         return "/views/job-offers?faces-redirect=true";
     }
@@ -130,5 +159,15 @@ public class JobOfferEditBean implements Serializable {
      */
     public JobOfferStatus[] getJobOfferStatuses() {
         return JobOfferStatus.values();
+    }
+
+    /**
+     * Retourne la cle i18n d'un statut d'offre.
+     *
+     * @param status statut de l'offre
+     * @return cle du fichier messages
+     */
+    public String getStatusMessageKey(JobOfferStatus status) {
+        return status == null ? "" : "jobOffers.status." + status.getCode();
     }
 }

@@ -21,6 +21,14 @@ public interface ISuperiorService {
     Result<List<Superior>> getActiveBySuperiorId(Integer superiorId);
 
     /**
+     * Retrieves the active superior assignment of an employee.
+     *
+     * @param employeeId supervised employee id
+     * @return active superior assignment result
+     */
+    Result<Superior> getActiveByEmployeeId(Integer employeeId);
+
+    /**
      * Counts active supervised employees grouped by superior and department.
      *
      * @return map where key is superiorId:departmentId and value is managed employee count

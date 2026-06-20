@@ -97,7 +97,8 @@ public class HubBean implements Serializable {
     }
 
     private void loadEvaluationCount() {
-        Result<List<Evaluation>> result = evaluationBusiness.getActiveEvaluations();
+        Result<List<Evaluation>> result = evaluationBusiness.getVisibleEvaluations(
+                authBean.getConnectedEmployee());
 
         if (result.isSuccess()) {
             evaluationCount = result.getData().size();

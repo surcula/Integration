@@ -32,6 +32,9 @@ public class CandidatesBean implements Serializable {
     @Inject
     private CandidateBusiness candidateBusiness;
 
+    @Inject
+    private AuthBean authBean;
+
     private List<JobOffersCandidate> applications;
     private List<JobOffersCandidate> filteredApplications;
     private String keyword;
@@ -103,6 +106,11 @@ public class CandidatesBean implements Serializable {
      * @param id identifiant de la candidature
      */
     public void softDelete(Integer id) {
+        if (!authBean.hasPermission("candidate:delete")) {
+            MessageUtils.addErrorMessage("candidates.access.denied");
+            return;
+        }
+
         Result<Void> result = candidateBusiness.softDeleteApplication(id);
 
         if (!result.isSuccess()) {
@@ -171,7 +179,7 @@ public class CandidatesBean implements Serializable {
                 || contains(application.getCandidate().getPhone(), search)
                 || contains(application.getJobOfferName(), search)
                 || (application.getJobOffers() != null && contains(application.getJobOffers().getJobOfferName(), search))
-                || (application.getApplicationStatus() != null && contains(application.getApplicationStatus().getLabel(), search));
+                || contains(getStatusLabel(application.getApplicationStatus()), search);
     }
 
     private boolean contains(String value, String search) {
@@ -249,6 +257,16 @@ public class CandidatesBean implements Serializable {
 
     public String getStatusLabel(CandidateApplicationStatus status) {
         return status == null ? "" : MessageUtils.getMessage("candidates.status." + status.getCode());
+    }
+
+    /**
+     * Retourne la cle i18n d'un statut de candidature.
+     *
+     * @param status statut de candidature
+     * @return cle du fichier messages
+     */
+    public String getStatusMessageKey(CandidateApplicationStatus status) {
+        return status == null ? "" : "candidates.status." + status.getCode();
     }
 
     /**

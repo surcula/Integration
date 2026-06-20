@@ -1,6 +1,7 @@
 package be.atc.erpprojetintegration_1.business;
 
 import be.atc.erpprojetintegration_1.dto.EmployeeListDto;
+import be.atc.erpprojetintegration_1.dto.EmployeeDetailsDto;
 import be.atc.erpprojetintegration_1.dto.AddressEditDto;
 import be.atc.erpprojetintegration_1.dto.EmployeeEditDto;
 import be.atc.erpprojetintegration_1.dto.EmployeeProfileDto;
@@ -326,6 +327,25 @@ public class EmployeeBusiness {
         }
 
         return Result.ok(EmployeeMapper.toEmployeeEditDto(employeeResult.getData()));
+    }
+
+    /**
+     * Retrieves and maps the read-only details of an employee.
+     *
+     * @param employeeId employee identifier
+     * @return employee details result
+     */
+    public Result<EmployeeDetailsDto> getEmployeeDetails(Integer employeeId) {
+        if (employeeId == null) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("employeeId", "employees.details.error.id.required");
+            return Result.fail(errors);
+        }
+
+        Result<Employee> result = employeeService.getDetailsById(employeeId);
+        return result.isSuccess()
+                ? Result.ok(EmployeeMapper.toEmployeeDetailsDto(result.getData()))
+                : Result.fail(result.getErrors());
     }
 
     /**

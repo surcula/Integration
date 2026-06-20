@@ -830,6 +830,100 @@ html[data-theme="dark"] .profile-button .avatar-sm {
   text-align: right;
 }
 
+.employee-details-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+body .employee-details-dialog.ui-dialog,
+body .employee-details-dialog .ui-dialog-titlebar,
+body .employee-details-dialog .ui-dialog-content,
+body .employee-details-dialog .ui-dialog-footer {
+  border-color: var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+body .employee-details-dialog .ui-dialog-titlebar {
+  border-bottom: 1px solid var(--admin-border);
+}
+
+body .employee-details-dialog .ui-dialog-title,
+body .employee-details-dialog .ui-dialog-titlebar-icon {
+  color: var(--admin-text);
+}
+
+body .employee-details-dialog .ui-dialog-footer {
+  border-top: 1px solid var(--admin-border);
+}
+
+.employee-details-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.employee-details-heading h2 {
+  margin: 0 0 0.25rem;
+  color: var(--admin-text);
+  font-size: 1.25rem;
+}
+
+.employee-details-heading div > span {
+  color: var(--admin-muted);
+  font-size: 0.875rem;
+}
+
+.employee-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.employee-details-grid > div {
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface-soft);
+}
+
+.employee-details-grid span,
+.employee-details-grid strong {
+  display: block;
+}
+
+.employee-details-grid span {
+  margin-bottom: 0.3rem;
+  color: var(--admin-muted);
+  font-size: 0.8rem;
+}
+
+.employee-details-grid strong {
+  overflow-wrap: anywhere;
+  color: var(--admin-text);
+}
+
+.employee-details-grid .employee-details-address {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .employee-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-details-grid .employee-details-address {
+    grid-column: auto;
+  }
+}
+
 .mini-card {
   display: grid;
   gap: 0.35rem;

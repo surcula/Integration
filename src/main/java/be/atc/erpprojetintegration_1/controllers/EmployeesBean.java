@@ -2,6 +2,7 @@ package be.atc.erpprojetintegration_1.controllers;
 
 import be.atc.erpprojetintegration_1.business.EmployeeBusiness;
 import be.atc.erpprojetintegration_1.dto.EmployeeListDto;
+import be.atc.erpprojetintegration_1.dto.EmployeeDetailsDto;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
 import org.apache.log4j.Logger;
@@ -30,6 +31,7 @@ public class EmployeesBean implements Serializable {
     private List<EmployeeListDto> employees;
     private String searchTerm;
     private String temporaryPassword;
+    private EmployeeDetailsDto selectedEmployeeDetails;
     private boolean canViewEmployeeList;
 
     /**
@@ -87,8 +89,7 @@ public class EmployeesBean implements Serializable {
      * Loads the employee list and includes inactive employees when the user has delete permission.
      */
     private void loadEmployees() {
-        boolean globalAccess = authBean.isHrOrAdmin();
-        canViewEmployeeList = globalAccess;
+        canViewEmployeeList = authBean.hasPermission("employee:read");
         employees = new ArrayList<>();
 
         if (!canViewEmployeeList) {
@@ -167,6 +168,29 @@ public class EmployeesBean implements Serializable {
     }
 
     /**
+     * Loads an employee's read-only details and opens the detail dialog.
+     *
+     * @param employeeId employee identifier
+     */
+    public void showEmployeeDetails(Integer employeeId) {
+        selectedEmployeeDetails = null;
+
+        if (!authBean.hasPermission("employee:read")) {
+            MessageUtils.addErrorMessage("common.accessDenied");
+            return;
+        }
+
+        Result<EmployeeDetailsDto> result = employeeBusiness.getEmployeeDetails(employeeId);
+        if (!result.isSuccess()) {
+            MessageUtils.addErrorMessages(result, "employees.details.error.load");
+            return;
+        }
+
+        selectedEmployeeDetails = result.getData();
+        PrimeFaces.current().executeScript("PF('employeeDetailsDialog').show()");
+    }
+
+    /**
      * Checks if a value contains the current search term.
      *
      * @param value value to inspect
@@ -208,5 +232,9 @@ public class EmployeesBean implements Serializable {
 
     public String getTemporaryPassword() {
         return temporaryPassword;
+    }
+
+    public EmployeeDetailsDto getSelectedEmployeeDetails() {
+        return selectedEmployeeDetails;
     }
 }

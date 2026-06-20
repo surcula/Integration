@@ -49,6 +49,34 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
+    public Result<Employee> getDetailsById(Integer id) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching employee details by id: " + id);
+            Employee employee = em.createNamedQuery("getEmployeeDetailsById", Employee.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            return Result.ok(employee);
+
+        } catch (NoResultException ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("notFound", "employees.details.error.notFound");
+            log.warn("No employee details found for id: " + id);
+            return Result.fail(errors);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "employees.details.error.load");
+            log.error("Error while loading employee details for id: " + id, ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<Employee> getByEmail(String email) {
         EntityManager em = EMF.getEM();
 

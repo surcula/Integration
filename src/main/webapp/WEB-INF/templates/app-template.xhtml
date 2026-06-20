@@ -19,7 +19,7 @@
 
         <link rel="stylesheet" href="#{request.contextPath}/app-assets/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="#{request.contextPath}/app-assets/vendors/bootstrap-icons/bootstrap-icons.css"/>
-        <link rel="stylesheet" href="#{request.contextPath}/app-assets/css/style.css"/>
+        <link rel="stylesheet" href="#{request.contextPath}/app-assets/css/style.css?v=3"/>
     </h:head>
 
     <h:body>
@@ -64,10 +64,12 @@
                         <span class="nav-icon"><i class="bi bi-hospital" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.departments']}</span>
                     </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/employees.xhtml">
-                        <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.employees']}</span>
-                    </a>
+                    <h:panelGroup rendered="#{authBean.hasPermission('employee:read')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/employees.xhtml">
+                            <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.employees']}</span>
+                        </a>
+                    </h:panelGroup>
 
                     <span class="nav-section-title">#{msg['nav.timePlanning']}</span>
                     <a class="nav-link" href="#{request.contextPath}/views/absences.xhtml">

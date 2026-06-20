@@ -3,6 +3,7 @@ package be.atc.erpprojetintegration_1.mappers;
 import be.atc.erpprojetintegration_1.dto.ConnectedEmployeeDto;
 import be.atc.erpprojetintegration_1.dto.AddressEditDto;
 import be.atc.erpprojetintegration_1.dto.EmployeeEditDto;
+import be.atc.erpprojetintegration_1.dto.EmployeeDetailsDto;
 import be.atc.erpprojetintegration_1.dto.EmployeeListDto;
 import be.atc.erpprojetintegration_1.dto.EmployeeProfileDto;
 import be.atc.erpprojetintegration_1.entities.Address;
@@ -16,9 +17,13 @@ import be.atc.erpprojetintegration_1.enums.EmploymentStatus;
 import be.atc.erpprojetintegration_1.enums.Gender;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public final class EmployeeMapper {
+
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private EmployeeMapper() {
     }
@@ -155,6 +160,59 @@ public final class EmployeeMapper {
                     dto.setDepartmentName(employeeDepartment.getDepartment().getDepartmentName());
                     break;
                 }
+            }
+        }
+
+        return dto;
+    }
+
+    /**
+     * Maps an Employee into the read-only detail DTO.
+     *
+     * @param employee employee entity with fetched relations
+     * @return employee details dto
+     */
+    public static EmployeeDetailsDto toEmployeeDetailsDto(Employee employee) {
+        if (employee == null) {
+            return null;
+        }
+
+        EmployeeDetailsDto dto = new EmployeeDetailsDto();
+        dto.setId(employee.getId());
+        dto.setFirstName(employee.getFirstName());
+        dto.setLastName(employee.getLastName());
+        dto.setEmail(employee.getEmail());
+        dto.setPhone(employee.getPhone());
+        dto.setBirthDate(employee.getBirthDate() != null
+                ? employee.getBirthDate().format(DISPLAY_DATE_FORMAT) : null);
+        dto.setPlaceOfBirth(employee.getPlaceOfBirth());
+        dto.setCivilite(employee.getCivilite() != null ? employee.getCivilite().getLabel() : null);
+        dto.setGender(employee.getGender() != null ? employee.getGender().getLabel() : null);
+        dto.setEmploymentStatus(employee.getEmploymentStatus() != null
+                ? employee.getEmploymentStatus().getLabel() : null);
+        dto.setEmployeeNumber(employee.getEmployeeNumber());
+        dto.setActive(employee.getIsActive());
+
+        if (employee.getEmployeeDepartments() != null) {
+            for (EmployeeDepartment relation : employee.getEmployeeDepartments()) {
+                if (Boolean.TRUE.equals(relation.getIsActive())
+                        && relation.getDepartment() != null
+                        && Boolean.TRUE.equals(relation.getDepartment().getIsActive())) {
+                    dto.setDepartmentName(relation.getDepartment().getDepartmentName());
+                    break;
+                }
+            }
+        }
+
+        Address address = employee.getAddress();
+        if (address != null) {
+            dto.setStreetName(address.getStreetName());
+            dto.setStreetNumber(address.getStreetNumber());
+            dto.setBoxNumber(address.getBoxNumber());
+
+            if (address.getCity() != null) {
+                dto.setZipCode(String.valueOf(address.getCity().getZipCode()));
+                dto.setCityName(address.getCity().getCityName());
             }
         }
 

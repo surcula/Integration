@@ -108,6 +108,16 @@
 
                         <p:column headerText="#{msg['superiors.action']}">
                             <div class="d-flex gap-2">
+                                <p:commandLink styleClass="btn btn-sm btn-outline-info"
+                                               title="#{msg['employees.details.action']}"
+                                               rendered="#{authBean.hasPermission('employee:read')}"
+                                               action="#{superiorsBean.showEmployeeDetails(superior.superiorEmployeeId)}"
+                                               process="@this" immediate="true"
+                                               update=":superiorsForm:superiorDetailsDialog :globalGrowl">
+                                    <i class="bi bi-eye"></i>
+                                    <span class="visually-hidden">#{msg['employees.details.action']}</span>
+                                </p:commandLink>
+
                                 <h:link outcome="/views/superior-edit"
                                         styleClass="btn btn-sm btn-primary"
                                         title="#{msg['superiors.edit']}"
@@ -135,6 +145,60 @@
                             </div>
                         </p:column>
                     </p:dataTable>
+
+                    <p:dialog id="superiorDetailsDialog"
+                              widgetVar="superiorDetailsDialog"
+                              header="#{msg['employees.details.title']}"
+                              styleClass="employee-details-dialog"
+                              modal="true" resizable="false" closable="true"
+                              width="720" responsive="true">
+                        <h:panelGroup layout="block" rendered="#{not empty superiorsBean.selectedEmployeeDetails}">
+                            <div class="employee-details-heading">
+                                <div>
+                                    <h2>#{superiorsBean.selectedEmployeeDetails.fullName}</h2>
+                                    <span>#{superiorsBean.selectedEmployeeDetails.employeeNumber}</span>
+                                </div>
+                                <span class="#{superiorsBean.selectedEmployeeDetails.active ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                    #{superiorsBean.selectedEmployeeDetails.active ? msg['employees.status.active'] : msg['employees.status.inactive']}
+                                </span>
+                            </div>
+                            <div class="employee-details-grid">
+                                <div><span>#{msg['employees.details.email']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.email ? '-' : superiorsBean.selectedEmployeeDetails.email}</strong></div>
+                                <div><span>#{msg['employees.details.phone']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.phone ? '-' : superiorsBean.selectedEmployeeDetails.phone}</strong></div>
+                                <div><span>#{msg['employees.details.department']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.departmentName ? '-' : superiorsBean.selectedEmployeeDetails.departmentName}</strong></div>
+                                <div><span>#{msg['employees.details.employmentStatus']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.employmentStatus ? '-' : superiorsBean.selectedEmployeeDetails.employmentStatus}</strong></div>
+                                <div><span>#{msg['employees.details.birthDate']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.birthDate ? '-' : superiorsBean.selectedEmployeeDetails.birthDate}</strong></div>
+                                <div><span>#{msg['employees.details.placeOfBirth']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.placeOfBirth ? '-' : superiorsBean.selectedEmployeeDetails.placeOfBirth}</strong></div>
+                                <div><span>#{msg['employees.details.civilite']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.civilite ? '-' : superiorsBean.selectedEmployeeDetails.civilite}</strong></div>
+                                <div><span>#{msg['employees.details.gender']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.gender ? '-' : superiorsBean.selectedEmployeeDetails.gender}</strong></div>
+                                <div class="employee-details-address"><span>#{msg['employees.details.address']}</span><strong>#{empty superiorsBean.selectedEmployeeDetails.streetName ? '-' : superiorsBean.selectedEmployeeDetails.streetName} #{superiorsBean.selectedEmployeeDetails.streetNumber} #{superiorsBean.selectedEmployeeDetails.boxNumber} #{superiorsBean.selectedEmployeeDetails.zipCode} #{superiorsBean.selectedEmployeeDetails.cityName}</strong></div>
+                            </div>
+                        </h:panelGroup>
+                        <f:facet name="footer">
+                            <div class="employee-details-actions">
+                                <h:link outcome="/views/employee-edit"
+                                        styleClass="btn btn-primary"
+                                        rendered="#{authBean.hasPermission('employee:edit') and not empty superiorsBean.selectedEmployeeDetails}">
+                                    <i class="bi bi-pencil"></i>
+                                    <span>#{msg['employees.edit']}</span>
+                                    <f:param name="id" value="#{superiorsBean.selectedEmployeeDetails.id}"/>
+                                </h:link>
+
+                                <p:commandLink styleClass="#{superiorsBean.selectedEmployeeDetails.active ? 'btn btn-outline-danger' : 'btn btn-outline-success'}"
+                                               rendered="#{authBean.hasPermission('employee:delete') and not empty superiorsBean.selectedEmployeeDetails}"
+                                               action="#{superiorsBean.changeEmployeeActiveStatus(superiorsBean.selectedEmployeeDetails.id, superiorsBean.selectedEmployeeDetails.active)}"
+                                               process="@this" immediate="true"
+                                               update="@form :globalGrowl"
+                                               oncomplete="PF('superiorDetailsDialog').hide()">
+                                    <i class="#{superiorsBean.selectedEmployeeDetails.active ? 'bi bi-person-x' : 'bi bi-person-check'}"></i>
+                                    <span>#{superiorsBean.selectedEmployeeDetails.active ? msg['employees.delete'] : msg['employees.activate']}</span>
+                                    <p:confirm header="#{msg['confirm.title']}"
+                                               message="#{superiorsBean.selectedEmployeeDetails.active ? msg['employees.delete.confirm'] : msg['employees.activate.confirm']}"
+                                               icon="pi pi-exclamation-triangle"/>
+                                </p:commandLink>
+                            </div>
+                        </f:facet>
+                    </p:dialog>
 
                     <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
                         <p:commandButton value="#{msg['confirm.yes']}"

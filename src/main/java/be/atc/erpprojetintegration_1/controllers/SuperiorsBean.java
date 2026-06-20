@@ -1,10 +1,13 @@
 package be.atc.erpprojetintegration_1.controllers;
 
 import be.atc.erpprojetintegration_1.business.SuperiorBusiness;
+import be.atc.erpprojetintegration_1.business.EmployeeBusiness;
+import be.atc.erpprojetintegration_1.dto.EmployeeDetailsDto;
 import be.atc.erpprojetintegration_1.dto.SuperiorListDto;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
 import org.apache.log4j.Logger;
+import org.primefaces.PrimeFaces;
 
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
@@ -25,8 +28,15 @@ public class SuperiorsBean implements Serializable {
     @Inject
     private SuperiorBusiness superiorBusiness;
 
+    @Inject
+    private EmployeeBusiness employeeBusiness;
+
+    @Inject
+    private AuthBean authBean;
+
     private List<SuperiorListDto> superiors;
     private String selectedDepartmentName;
+    private EmployeeDetailsDto selectedEmployeeDetails;
 
     @PostConstruct
     public void init() {
@@ -99,6 +109,57 @@ public class SuperiorsBean implements Serializable {
     }
 
     /**
+     * Loads the selected superior's employee information and opens the detail dialog.
+     *
+     * @param employeeId superior employee identifier
+     */
+    public void showEmployeeDetails(Integer employeeId) {
+        selectedEmployeeDetails = null;
+
+        if (!authBean.hasPermission("employee:read")) {
+            MessageUtils.addErrorMessage("common.accessDenied");
+            return;
+        }
+
+        Result<EmployeeDetailsDto> result = employeeBusiness.getEmployeeDetails(employeeId);
+        if (!result.isSuccess()) {
+            MessageUtils.addErrorMessages(result, "employees.details.error.load");
+            return;
+        }
+
+        selectedEmployeeDetails = result.getData();
+        PrimeFaces.current().executeScript("PF('superiorDetailsDialog').show()");
+    }
+
+    /**
+     * Activates or deactivates the employee displayed in the superior detail dialog.
+     *
+     * @param employeeId employee identifier
+     * @param active current active status
+     */
+    public void changeEmployeeActiveStatus(Integer employeeId, boolean active) {
+        if (!authBean.hasPermission("employee:delete")) {
+            MessageUtils.addErrorMessage("common.accessDenied");
+            return;
+        }
+
+        Result<Void> result = active
+                ? employeeBusiness.deactivateEmployee(employeeId)
+                : employeeBusiness.activateEmployee(employeeId);
+
+        if (!result.isSuccess()) {
+            MessageUtils.addErrorMessages(result,
+                    active ? "employee.delete.error" : "employee.activate.error");
+            return;
+        }
+
+        MessageUtils.addInfoMessage(
+                active ? "employee.delete.success" : "employee.activate.success");
+        selectedEmployeeDetails = null;
+        loadSuperiors();
+    }
+
+    /**
      * Clears the department filter and reloads the displayed list.
      */
     public void clearDepartmentFilter() {
@@ -151,5 +212,9 @@ public class SuperiorsBean implements Serializable {
 
     public void setSelectedDepartmentName(String selectedDepartmentName) {
         this.selectedDepartmentName = selectedDepartmentName;
+    }
+
+    public EmployeeDetailsDto getSelectedEmployeeDetails() {
+        return selectedEmployeeDetails;
     }
 }

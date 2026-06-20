@@ -17,6 +17,14 @@ public interface IEmployeeService {
     Result<Employee> getById(Integer id);
 
     /**
+     * Retrieves an employee with address and department data for a detail view.
+     *
+     * @param id employee identifier
+     * @return employee detail source entity
+     */
+    Result<Employee> getDetailsById(Integer id);
+
+    /**
      * Retrieves an employee by their email address.
      *
      * @param email the email address used to search for the employee

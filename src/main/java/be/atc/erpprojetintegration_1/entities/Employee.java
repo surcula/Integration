@@ -21,6 +21,15 @@ import java.util.List;
                 query = "SELECT e FROM Employee e LEFT JOIN FETCH e.role WHERE e.email = :email"
         ),
         @NamedQuery(
+                name = "getEmployeeDetailsById",
+                query = "SELECT DISTINCT e FROM Employee e " +
+                        "LEFT JOIN FETCH e.address a " +
+                        "LEFT JOIN FETCH a.city " +
+                        "LEFT JOIN FETCH e.employeeDepartments ed " +
+                        "LEFT JOIN FETCH ed.department " +
+                        "WHERE e.id = :id"
+        ),
+        @NamedQuery(
                 name = "getAllActiveEmployees",
                 query = "SELECT e FROM Employee e WHERE e.isActive = true ORDER BY e.lastName, e.firstName"
         ),

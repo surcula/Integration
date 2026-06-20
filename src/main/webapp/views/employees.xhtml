@@ -96,9 +96,20 @@
                         </p:column>
 
                         <p:column headerText="#{msg['employees.action']}"
-                                  rendered="#{authBean.hasPermission('employee:edit') or authBean.hasPermission('employee:delete') or authBean.hasPermission('employee:reset-password')}">
+                                  rendered="#{authBean.hasPermission('employee:read') or authBean.hasPermission('employee:edit') or authBean.hasPermission('employee:delete') or authBean.hasPermission('employee:reset-password')}">
+                            <p:commandLink styleClass="btn btn-sm btn-outline-info"
+                                           title="#{msg['employees.details.action']}"
+                                           rendered="#{authBean.hasPermission('employee:read')}"
+                                           action="#{employeesBean.showEmployeeDetails(employee.id)}"
+                                           process="@this"
+                                           immediate="true"
+                                           update=":employeesForm:employeeDetailsDialog :globalGrowl">
+                                <i class="bi bi-eye"></i>
+                                <span class="visually-hidden">#{msg['employees.details.action']}</span>
+                            </p:commandLink>
+
                             <h:link outcome="/views/employee-edit"
-                                    styleClass="btn btn-sm btn-primary"
+                                    styleClass="btn btn-sm btn-primary ms-2"
                                     title="#{msg['employees.edit']}"
                                     rendered="#{authBean.hasPermission('employee:edit')}">
                                 <i class="bi bi-pencil"></i>
@@ -137,6 +148,60 @@
                             </p:commandLink>
                         </p:column>
                     </p:dataTable>
+
+                    <p:dialog id="employeeDetailsDialog"
+                              widgetVar="employeeDetailsDialog"
+                              header="#{msg['employees.details.title']}"
+                              styleClass="employee-details-dialog"
+                              modal="true" resizable="false" closable="true"
+                              width="720" responsive="true">
+                        <h:panelGroup layout="block" rendered="#{not empty employeesBean.selectedEmployeeDetails}">
+                            <div class="employee-details-heading">
+                                <div>
+                                    <h2>#{employeesBean.selectedEmployeeDetails.fullName}</h2>
+                                    <span>#{employeesBean.selectedEmployeeDetails.employeeNumber}</span>
+                                </div>
+                                <span class="#{employeesBean.selectedEmployeeDetails.active ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                    #{employeesBean.selectedEmployeeDetails.active ? msg['employees.status.active'] : msg['employees.status.inactive']}
+                                </span>
+                            </div>
+                            <div class="employee-details-grid">
+                                <div><span>#{msg['employees.details.email']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.email ? '-' : employeesBean.selectedEmployeeDetails.email}</strong></div>
+                                <div><span>#{msg['employees.details.phone']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.phone ? '-' : employeesBean.selectedEmployeeDetails.phone}</strong></div>
+                                <div><span>#{msg['employees.details.department']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.departmentName ? '-' : employeesBean.selectedEmployeeDetails.departmentName}</strong></div>
+                                <div><span>#{msg['employees.details.employmentStatus']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.employmentStatus ? '-' : employeesBean.selectedEmployeeDetails.employmentStatus}</strong></div>
+                                <div><span>#{msg['employees.details.birthDate']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.birthDate ? '-' : employeesBean.selectedEmployeeDetails.birthDate}</strong></div>
+                                <div><span>#{msg['employees.details.placeOfBirth']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.placeOfBirth ? '-' : employeesBean.selectedEmployeeDetails.placeOfBirth}</strong></div>
+                                <div><span>#{msg['employees.details.civilite']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.civilite ? '-' : employeesBean.selectedEmployeeDetails.civilite}</strong></div>
+                                <div><span>#{msg['employees.details.gender']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.gender ? '-' : employeesBean.selectedEmployeeDetails.gender}</strong></div>
+                                <div class="employee-details-address"><span>#{msg['employees.details.address']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.streetName ? '-' : employeesBean.selectedEmployeeDetails.streetName} #{employeesBean.selectedEmployeeDetails.streetNumber} #{employeesBean.selectedEmployeeDetails.boxNumber} #{employeesBean.selectedEmployeeDetails.zipCode} #{employeesBean.selectedEmployeeDetails.cityName}</strong></div>
+                            </div>
+                        </h:panelGroup>
+                        <f:facet name="footer">
+                            <div class="employee-details-actions">
+                                <h:link outcome="/views/employee-edit"
+                                        styleClass="btn btn-primary"
+                                        rendered="#{authBean.hasPermission('employee:edit') and not empty employeesBean.selectedEmployeeDetails}">
+                                    <i class="bi bi-pencil"></i>
+                                    <span>#{msg['employees.edit']}</span>
+                                    <f:param name="id" value="#{employeesBean.selectedEmployeeDetails.id}"/>
+                                </h:link>
+
+                                <p:commandLink styleClass="#{employeesBean.selectedEmployeeDetails.active ? 'btn btn-outline-danger' : 'btn btn-outline-success'}"
+                                               rendered="#{authBean.hasPermission('employee:delete') and not empty employeesBean.selectedEmployeeDetails}"
+                                               action="#{employeesBean.changeEmployeeActiveStatus(employeesBean.selectedEmployeeDetails.id, employeesBean.selectedEmployeeDetails.active)}"
+                                               process="@this" immediate="true"
+                                               update="@form :globalGrowl"
+                                               oncomplete="PF('employeeDetailsDialog').hide()">
+                                    <i class="#{employeesBean.selectedEmployeeDetails.active ? 'bi bi-person-x' : 'bi bi-person-check'}"></i>
+                                    <span>#{employeesBean.selectedEmployeeDetails.active ? msg['employees.delete'] : msg['employees.activate']}</span>
+                                    <p:confirm header="#{msg['confirm.title']}"
+                                               message="#{employeesBean.selectedEmployeeDetails.active ? msg['employees.delete.confirm'] : msg['employees.activate.confirm']}"
+                                               icon="pi pi-exclamation-triangle"/>
+                                </p:commandLink>
+                            </div>
+                        </f:facet>
+                    </p:dialog>
 
                     <p:dialog id="temporaryPasswordDialog"
                               widgetVar="temporaryPasswordDialog"

@@ -1167,7 +1167,7 @@ private Department findSelectedDepartment() {
     }
 
     public boolean isCanEditPlanning() {
-        return globalPlanningAccess || !managedDepartmentIds.isEmpty();
+        return authBean.hasPermission("planning:create") || !managedDepartmentIds.isEmpty();
     }
 
     public boolean isDepartmentHeadManager() {

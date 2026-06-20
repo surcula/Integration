@@ -54,9 +54,21 @@ public class EvaluationEditBean implements Serializable {
         loadEmployees();
 
         if (evaluationId == null) {
+            if (!authBean.hasPermission("evaluation:create")) {
+                evaluation = null;
+                MessageUtils.addErrorMessage("evaluations.error.access.denied");
+                return;
+            }
+
             evaluation = new Evaluation();
             evaluation.setIsActive(true);
             evaluation.setStatus(EvaluationStatus.CREATED);
+            return;
+        }
+
+        if (!authBean.hasPermission("evaluation:edit")) {
+            evaluation = null;
+            MessageUtils.addErrorMessage("evaluations.error.access.denied");
             return;
         }
 
@@ -80,6 +92,16 @@ public class EvaluationEditBean implements Serializable {
      */
     public String save() {
         boolean createMode = evaluation != null && evaluation.getId() == null;
+
+        if (createMode && !authBean.hasPermission("evaluation:create")) {
+            MessageUtils.addErrorMessage("evaluations.error.access.denied");
+            return null;
+        }
+
+        if (!createMode && !authBean.hasPermission("evaluation:edit")) {
+            MessageUtils.addErrorMessage("evaluations.error.access.denied");
+            return null;
+        }
 
         if (selectedEvaluationType == null || selectedEvaluationType.trim().isEmpty()) {
             MessageUtils.addErrorMessage("evaluations.error.type.required");

@@ -96,6 +96,11 @@ public class EvaluationsBean implements Serializable {
      * @param id identifiant de l'evaluation
      */
     public void softDelete(Integer id) {
+        if (!authBean.hasPermission("evaluation:delete")) {
+            MessageUtils.addErrorMessage("evaluations.error.access.denied");
+            return;
+        }
+
         Result<Void> result = evaluationBusiness.softDelete(id, authBean.getConnectedEmployee());
 
         if (!result.isSuccess()) {
@@ -179,7 +184,8 @@ public class EvaluationsBean implements Serializable {
      * @return true si la creation est autorisee
      */
     public boolean isCreateAllowed() {
-        return evaluationBusiness.canCreate(authBean.getConnectedEmployee());
+        return authBean.hasPermission("evaluation:create")
+                && evaluationBusiness.canCreate(authBean.getConnectedEmployee());
     }
 
     /**
@@ -189,7 +195,19 @@ public class EvaluationsBean implements Serializable {
      * @return true si la modification est autorisee
      */
     public boolean canEdit(Evaluation evaluation) {
-        return evaluationBusiness.canEdit(evaluation, authBean.getConnectedEmployee());
+        return authBean.hasPermission("evaluation:edit")
+                && evaluationBusiness.canEdit(evaluation, authBean.getConnectedEmployee());
+    }
+
+    /**
+     * Indique si une evaluation peut etre supprimee logiquement.
+     *
+     * @param evaluation evaluation concernee
+     * @return true si la suppression logique est autorisee
+     */
+    public boolean canDelete(Evaluation evaluation) {
+        return authBean.hasPermission("evaluation:delete")
+                && evaluationBusiness.canEdit(evaluation, authBean.getConnectedEmployee());
     }
 
     /**

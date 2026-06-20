@@ -22,7 +22,7 @@
             </div>
             <h:link outcome="/views/job-offers"
                     styleClass="btn btn-outline-primary"
-                    rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                    rendered="#{authBean.hasPermission('job-offer:read')}">
                 <i class="pi pi-cog"></i>
                 <span>#{msg['jobOffers.public.manage']}</span>
             </h:link>

@@ -34,6 +34,9 @@ public class CandidateEditBean implements Serializable {
     @Inject
     private JobOfferBusiness jobOfferBusiness;
 
+    @Inject
+    private AuthBean authBean;
+
     private Integer applicationId;
     private Integer selectedJobOfferId;
     private JobOffersCandidate application;
@@ -46,10 +49,22 @@ public class CandidateEditBean implements Serializable {
         loadPublishedJobOffers();
 
         if (applicationId == null) {
+            if (!authBean.hasPermission("candidate:create")) {
+                application = null;
+                MessageUtils.addErrorMessage("candidates.access.denied");
+                return;
+            }
+
             application = new JobOffersCandidate();
             application.setCandidate(new Candidate());
             application.setApplicationStatus(CandidateApplicationStatus.RECEIVED);
             application.setIsActive(true);
+            return;
+        }
+
+        if (!authBean.hasPermission("candidate:edit")) {
+            application = null;
+            MessageUtils.addErrorMessage("candidates.access.denied");
             return;
         }
 
@@ -74,6 +89,16 @@ public class CandidateEditBean implements Serializable {
      */
     public String save() {
         boolean createMode = application != null && application.getId() == null;
+
+        if (createMode && !authBean.hasPermission("candidate:create")) {
+            MessageUtils.addErrorMessage("candidates.access.denied");
+            return null;
+        }
+
+        if (!createMode && !authBean.hasPermission("candidate:edit")) {
+            MessageUtils.addErrorMessage("candidates.access.denied");
+            return null;
+        }
 
         Result<JobOffersCandidate> result = candidateBusiness.saveApplication(application, selectedJobOfferId);
 

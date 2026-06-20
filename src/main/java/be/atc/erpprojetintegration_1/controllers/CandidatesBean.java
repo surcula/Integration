@@ -32,6 +32,9 @@ public class CandidatesBean implements Serializable {
     @Inject
     private CandidateBusiness candidateBusiness;
 
+    @Inject
+    private AuthBean authBean;
+
     private List<JobOffersCandidate> applications;
     private List<JobOffersCandidate> filteredApplications;
     private String keyword;
@@ -103,6 +106,11 @@ public class CandidatesBean implements Serializable {
      * @param id identifiant de la candidature
      */
     public void softDelete(Integer id) {
+        if (!authBean.hasPermission("candidate:delete")) {
+            MessageUtils.addErrorMessage("candidates.access.denied");
+            return;
+        }
+
         Result<Void> result = candidateBusiness.softDeleteApplication(id);
 
         if (!result.isSuccess()) {

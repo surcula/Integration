@@ -465,18 +465,66 @@ ALTER TABLE `job_offers_candidates`
 
 INSERT INTO `roles` (`role_name`, `is_active`) VALUES
 ('ADMIN', 1),
-('RH', 1),
-('MANAGER', 1),
+('HR', 1),
+('SERVICE_MANAGER', 1),
+('SECRETARY', 1),
+('STAGIAIRE', 1),
+('STAGIAIRE 2', 1),
 ('EMPLOYEE', 1);
 
 INSERT INTO `authorizations` (`authorization_name`, `is_active`) VALUES
-('EMPLOYEE_READ', 1),
-('EMPLOYEE_WRITE', 1),
-('PLANNING_READ', 1),
-('PLANNING_WRITE', 1),
-('ABSENCE_READ', 1),
-('ABSENCE_WRITE', 1),
-('EVALUATION_READ', 1),
-('EVALUATION_WRITE', 1),
-('TRAINING_READ', 1),
-('TRAINING_WRITE', 1);
+('hub:access', 1),
+('employee:create', 1),
+('employee:edit', 1),
+('employee:delete', 1),
+('job-offer:read', 1),
+('job-offer:create', 1),
+('job-offer:edit', 1),
+('job-offer:publish', 1),
+('job-offer:archive', 1),
+('job-offer:delete', 1),
+('candidate:read', 1),
+('candidate:create', 1),
+('candidate:edit', 1),
+('candidate:delete', 1),
+('evaluation:read', 1),
+('evaluation:create', 1),
+('evaluation:edit', 1),
+('evaluation:delete', 1);
+
+INSERT INTO `roles_authorization` (`role_authorization_name`, `is_active`, `role_id`, `authorization_id`)
+SELECT CONCAT(r.`role_name`, '_', a.`authorization_name`), 1, r.`id`, a.`id`
+FROM `roles` r
+JOIN `authorizations` a
+WHERE r.`role_name` = 'ADMIN';
+
+INSERT INTO `roles_authorization` (`role_authorization_name`, `is_active`, `role_id`, `authorization_id`)
+SELECT CONCAT(r.`role_name`, '_', a.`authorization_name`), 1, r.`id`, a.`id`
+FROM `roles` r
+JOIN `authorizations` a
+WHERE r.`role_name` = 'HR'
+  AND a.`authorization_name` IN (
+      'hub:access',
+      'employee:create', 'employee:edit', 'employee:delete',
+      'job-offer:read', 'job-offer:create', 'job-offer:edit',
+      'job-offer:publish', 'job-offer:archive', 'job-offer:delete',
+      'candidate:read', 'candidate:create', 'candidate:edit', 'candidate:delete',
+      'evaluation:read', 'evaluation:create', 'evaluation:edit', 'evaluation:delete'
+  );
+
+INSERT INTO `roles_authorization` (`role_authorization_name`, `is_active`, `role_id`, `authorization_id`)
+SELECT CONCAT(r.`role_name`, '_', a.`authorization_name`), 1, r.`id`, a.`id`
+FROM `roles` r
+JOIN `authorizations` a
+WHERE r.`role_name` = 'SERVICE_MANAGER'
+  AND a.`authorization_name` IN (
+      'hub:access',
+      'evaluation:read', 'evaluation:create', 'evaluation:edit', 'evaluation:delete'
+  );
+
+INSERT INTO `roles_authorization` (`role_authorization_name`, `is_active`, `role_id`, `authorization_id`)
+SELECT CONCAT(r.`role_name`, '_', a.`authorization_name`), 1, r.`id`, a.`id`
+FROM `roles` r
+JOIN `authorizations` a
+WHERE r.`role_name` IN ('EMPLOYEE', 'SECRETARY', 'STAGIAIRE', 'STAGIAIRE 2')
+  AND a.`authorization_name` IN ('hub:access', 'evaluation:read');

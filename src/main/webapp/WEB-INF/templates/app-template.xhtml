@@ -101,10 +101,12 @@
                         <span class="nav-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span>
                         <span class="nav-text">#{msg['nav.jobOffers']}</span>
                     </a>
-                    <a class="nav-link" href="#{request.contextPath}/views/applications.xhtml">
-                        <span class="nav-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
-                        <span class="nav-text">#{msg['nav.applications']}</span>
-                    </a>
+                    <ui:fragment rendered="#{authBean.hasPermission('candidate:read')}">
+                        <a class="nav-link" href="#{request.contextPath}/views/applications.xhtml">
+                            <span class="nav-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
+                            <span class="nav-text">#{msg['nav.applications']}</span>
+                        </a>
+                    </ui:fragment>
 
                     <span class="nav-section-title">#{msg['nav.administration']}</span>
                     <ui:fragment rendered="#{authBean.hasRole('ADMIN')}">

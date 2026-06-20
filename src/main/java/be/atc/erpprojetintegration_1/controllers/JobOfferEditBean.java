@@ -34,6 +34,9 @@ public class JobOfferEditBean implements Serializable {
     @Inject
     private FunctionBusiness functionBusiness;
 
+    @Inject
+    private AuthBean authBean;
+
     private Integer jobOfferId;
     private Integer selectedFunctionId;
     private JobOffer jobOffer;
@@ -46,8 +49,20 @@ public class JobOfferEditBean implements Serializable {
         loadFunctions();
 
         if (jobOfferId == null) {
+            if (!authBean.hasPermission("job-offer:create")) {
+                jobOffer = null;
+                MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+                return;
+            }
+
             jobOffer = new JobOffer();
             jobOffer.setStatus(JobOfferStatus.NOT_PUBLISHED);
+            return;
+        }
+
+        if (!authBean.hasPermission("job-offer:edit")) {
+            jobOffer = null;
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
             return;
         }
 
@@ -72,6 +87,16 @@ public class JobOfferEditBean implements Serializable {
      */
     public String save() {
         boolean createMode = jobOffer != null && jobOffer.getId() == null;
+
+        if (createMode && !authBean.hasPermission("job-offer:create")) {
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+            return null;
+        }
+
+        if (!createMode && !authBean.hasPermission("job-offer:edit")) {
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+            return null;
+        }
 
         Result<JobOffer> result = jobOfferBusiness.saveJobOffer(jobOffer, selectedFunctionId);
 

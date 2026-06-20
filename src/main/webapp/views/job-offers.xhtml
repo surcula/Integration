@@ -20,7 +20,7 @@
             </div>
             <h:panelGroup layout="block"
                           styleClass="d-flex gap-2 flex-wrap"
-                          rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                          rendered="#{authBean.hasPermission('job-offer:read')}">
                 <h:link outcome="/views/job-offers-public"
                         styleClass="btn btn-outline-primary">
                     <i class="pi pi-briefcase"></i>
@@ -28,7 +28,8 @@
                 </h:link>
 
                 <h:link outcome="/views/job-offer-edit"
-                        styleClass="btn btn-primary">
+                        styleClass="btn btn-primary"
+                        rendered="#{authBean.hasPermission('job-offer:create')}">
                     <i class="pi pi-plus-circle"></i>
                     <span>#{msg['jobOffers.add']}</span>
                 </h:link>
@@ -129,10 +130,14 @@
                         </p:column>
 
                         <p:column headerText="#{msg['jobOffers.action']}"
-                                  rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                                  rendered="#{authBean.hasPermission('job-offer:edit')
+                                      or authBean.hasPermission('job-offer:publish')
+                                      or authBean.hasPermission('job-offer:archive')
+                                      or authBean.hasPermission('job-offer:delete')}">
                             <h:link outcome="/views/job-offer-edit"
                                     styleClass="btn btn-sm btn-primary"
-                                    title="#{msg['jobOffers.edit']}">
+                                    title="#{msg['jobOffers.edit']}"
+                                    rendered="#{authBean.hasPermission('job-offer:edit')}">
                                 <i class="pi pi-pencil"></i>
                                 <span class="visually-hidden">#{msg['jobOffers.edit']}</span>
                                 <f:param name="id" value="#{offer.id}"/>
@@ -141,7 +146,7 @@
                             <p:commandLink styleClass="btn btn-sm btn-outline-success ms-2"
                                            title="#{msg['jobOffers.publish']}"
                                            action="#{jobOffersBean.publish(offer.id)}"
-                                           rendered="#{jobOffersBean.canPublish(offer)}"
+                                           rendered="#{authBean.hasPermission('job-offer:publish') and jobOffersBean.canPublish(offer)}"
                                            process="@this"
                                            update="@form :globalGrowl">
                                 <i class="pi pi-send"></i>
@@ -154,7 +159,7 @@
                             <p:commandLink styleClass="btn btn-sm btn-outline-secondary ms-2"
                                            title="#{msg['jobOffers.archive']}"
                                            action="#{jobOffersBean.archive(offer.id)}"
-                                           rendered="#{jobOffersBean.canArchive(offer)}"
+                                           rendered="#{authBean.hasPermission('job-offer:archive') and jobOffersBean.canArchive(offer)}"
                                            process="@this"
                                            update="@form :globalGrowl">
                                 <i class="pi pi-folder"></i>
@@ -167,7 +172,7 @@
                             <p:commandLink styleClass="btn btn-sm btn-outline-danger ms-2"
                                            title="#{msg['jobOffers.delete']}"
                                            action="#{jobOffersBean.softDelete(offer.id)}"
-                                           rendered="#{jobOffersBean.canDelete(offer)}"
+                                           rendered="#{authBean.hasPermission('job-offer:delete') and jobOffersBean.canDelete(offer)}"
                                            process="@this"
                                            update="@form :globalGrowl">
                                 <i class="pi pi-trash"></i>

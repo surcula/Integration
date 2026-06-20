@@ -170,7 +170,7 @@
                             <p:commandLink styleClass="btn btn-sm btn-outline-danger ms-2"
                                            title="#{msg['evaluations.delete']}"
                                            action="#{evaluationsBean.softDelete(evaluationItem.id)}"
-                                           rendered="#{evaluationsBean.canEdit(evaluationItem)}"
+                                           rendered="#{evaluationsBean.canDelete(evaluationItem)}"
                                            process="@this"
                                            update="@form :globalGrowl">
                                 <i class="pi pi-trash"></i>

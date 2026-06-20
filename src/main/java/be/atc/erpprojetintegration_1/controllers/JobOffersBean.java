@@ -33,6 +33,9 @@ public class JobOffersBean implements Serializable {
     @Inject
     private JobOfferBusiness jobOfferBusiness;
 
+    @Inject
+    private AuthBean authBean;
+
     private List<JobOffer> jobOffers;
 
     @PostConstruct
@@ -44,6 +47,11 @@ public class JobOffersBean implements Serializable {
      * Gère le bouton de publication depuis la liste de gestion.
      */
     public void publish(Integer id) {
+        if (!authBean.hasPermission("job-offer:publish")) {
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+            return;
+        }
+
         Result<Void> result = jobOfferBusiness.publish(id);
 
         if (!result.isSuccess()) {
@@ -59,6 +67,11 @@ public class JobOffersBean implements Serializable {
      * Gère le bouton d'archivage depuis la liste de gestion.
      */
     public void archive(Integer id) {
+        if (!authBean.hasPermission("job-offer:archive")) {
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+            return;
+        }
+
         Result<Void> result = jobOfferBusiness.archive(id);
 
         if (!result.isSuccess()) {
@@ -74,6 +87,11 @@ public class JobOffersBean implements Serializable {
      * Gère le bouton de suppression logique depuis la liste de gestion.
      */
     public void softDelete(Integer id) {
+        if (!authBean.hasPermission("job-offer:delete")) {
+            MessageUtils.addErrorMessage("jobOffers.error.access.denied");
+            return;
+        }
+
         Result<Void> result = jobOfferBusiness.softDelete(id);
 
         if (!result.isSuccess()) {

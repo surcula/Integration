@@ -22,20 +22,20 @@
             </div>
             <h:link outcome="/views/candidate-edit"
                     styleClass="btn btn-primary"
-                    rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                    rendered="#{authBean.hasPermission('candidate:create')}">
                 <i class="pi pi-plus-circle"></i>
                 <span>#{msg['candidates.add']}</span>
             </h:link>
         </div>
 
         <h:panelGroup layout="block"
-                      rendered="#{not (authBean.hasRole('ADMIN') or authBean.hasRole('HR'))}"
+                      rendered="#{not authBean.hasPermission('candidate:read')}"
                       styleClass="alert alert-warning">
             <i class="pi pi-lock"></i>
             <span>#{msg['candidates.access.denied']}</span>
         </h:panelGroup>
 
-        <h:panelGroup layout="block" rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+        <h:panelGroup layout="block" rendered="#{authBean.hasPermission('candidate:read')}">
         <h:form id="candidateStatsForm">
         <div class="row g-3 mb-4">
             <div class="col-12 col-md-6 col-xl">
@@ -180,10 +180,11 @@
                         </p:column>
 
                         <p:column headerText="#{msg['candidates.action']}"
-                                  rendered="#{authBean.hasRole('ADMIN') or authBean.hasRole('HR')}">
+                                  rendered="#{authBean.hasPermission('candidate:edit') or authBean.hasPermission('candidate:delete')}">
                             <h:link outcome="/views/candidate-edit"
                                     styleClass="btn btn-sm btn-primary"
-                                    title="#{msg['candidates.edit']}">
+                                    title="#{msg['candidates.edit']}"
+                                    rendered="#{authBean.hasPermission('candidate:edit')}">
                                 <i class="pi pi-pencil"></i>
                                 <span class="visually-hidden">#{msg['candidates.edit']}</span>
                                 <f:param name="id" value="#{applicationItem.id}"/>
@@ -192,7 +193,7 @@
                             <p:commandLink styleClass="btn btn-sm btn-outline-danger ms-2"
                                            title="#{msg['candidates.delete']}"
                                            action="#{candidatesBean.softDelete(applicationItem.id)}"
-                                           rendered="#{applicationItem.isActive}"
+                                           rendered="#{authBean.hasPermission('candidate:delete') and applicationItem.isActive}"
                                            process="@this"
                                            update="@form :globalGrowl">
                                 <i class="pi pi-trash"></i>

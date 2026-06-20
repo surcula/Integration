@@ -2,7 +2,6 @@ package be.atc.erpprojetintegration_1.controllers;
 
 import be.atc.erpprojetintegration_1.business.EmployeeBusiness;
 import be.atc.erpprojetintegration_1.dto.EmployeeListDto;
-import be.atc.erpprojetintegration_1.dto.EmployeeDetailsDto;
 import be.atc.erpprojetintegration_1.tools.MessageUtils;
 import be.atc.erpprojetintegration_1.tools.Result;
 import org.apache.log4j.Logger;
@@ -31,7 +30,7 @@ public class EmployeesBean implements Serializable {
     private List<EmployeeListDto> employees;
     private String searchTerm;
     private String temporaryPassword;
-    private EmployeeDetailsDto selectedEmployeeDetails;
+    private EmployeeListDto selectedEmployeeDetails;
     private boolean canViewEmployeeList;
 
     /**
@@ -180,13 +179,16 @@ public class EmployeesBean implements Serializable {
             return;
         }
 
-        Result<EmployeeDetailsDto> result = employeeBusiness.getEmployeeDetails(employeeId);
-        if (!result.isSuccess()) {
-            MessageUtils.addErrorMessages(result, "employees.details.error.load");
+        selectedEmployeeDetails = employees.stream()
+                .filter(employee -> employee.getId().equals(employeeId))
+                .findFirst()
+                .orElse(null);
+
+        if (selectedEmployeeDetails == null) {
+            MessageUtils.addErrorMessage("employees.details.error.notFound");
             return;
         }
 
-        selectedEmployeeDetails = result.getData();
         PrimeFaces.current().executeScript("PF('employeeDetailsDialog').show()");
     }
 
@@ -234,7 +236,7 @@ public class EmployeesBean implements Serializable {
         return temporaryPassword;
     }
 
-    public EmployeeDetailsDto getSelectedEmployeeDetails() {
+    public EmployeeListDto getSelectedEmployeeDetails() {
         return selectedEmployeeDetails;
     }
 }

@@ -159,22 +159,11 @@
                             <div class="employee-details-heading">
                                 <div>
                                     <h2>#{employeesBean.selectedEmployeeDetails.fullName}</h2>
-                                    <span>#{employeesBean.selectedEmployeeDetails.employeeNumber}</span>
                                 </div>
-                                <span class="#{employeesBean.selectedEmployeeDetails.active ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
-                                    #{employeesBean.selectedEmployeeDetails.active ? msg['employees.status.active'] : msg['employees.status.inactive']}
-                                </span>
                             </div>
                             <div class="employee-details-grid">
                                 <div><span>#{msg['employees.details.email']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.email ? '-' : employeesBean.selectedEmployeeDetails.email}</strong></div>
                                 <div><span>#{msg['employees.details.phone']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.phone ? '-' : employeesBean.selectedEmployeeDetails.phone}</strong></div>
-                                <div><span>#{msg['employees.details.department']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.departmentName ? '-' : employeesBean.selectedEmployeeDetails.departmentName}</strong></div>
-                                <div><span>#{msg['employees.details.employmentStatus']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.employmentStatus ? '-' : employeesBean.selectedEmployeeDetails.employmentStatus}</strong></div>
-                                <div><span>#{msg['employees.details.birthDate']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.birthDate ? '-' : employeesBean.selectedEmployeeDetails.birthDate}</strong></div>
-                                <div><span>#{msg['employees.details.placeOfBirth']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.placeOfBirth ? '-' : employeesBean.selectedEmployeeDetails.placeOfBirth}</strong></div>
-                                <div><span>#{msg['employees.details.civilite']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.civilite ? '-' : employeesBean.selectedEmployeeDetails.civilite}</strong></div>
-                                <div><span>#{msg['employees.details.gender']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.gender ? '-' : employeesBean.selectedEmployeeDetails.gender}</strong></div>
-                                <div class="employee-details-address"><span>#{msg['employees.details.address']}</span><strong>#{empty employeesBean.selectedEmployeeDetails.streetName ? '-' : employeesBean.selectedEmployeeDetails.streetName} #{employeesBean.selectedEmployeeDetails.streetNumber} #{employeesBean.selectedEmployeeDetails.boxNumber} #{employeesBean.selectedEmployeeDetails.zipCode} #{employeesBean.selectedEmployeeDetails.cityName}</strong></div>
                             </div>
                         </h:panelGroup>
                         <f:facet name="footer">

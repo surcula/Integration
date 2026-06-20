@@ -33,19 +33,38 @@
         </div>
 
         <div class="panel">
-            <div class="table-responsive">
-                <h:form id="rolesForm">
-                    <div class="table-search-toolbar">
-                        <span class="p-input-icon-left table-global-search">
-                            <i class="bi bi-search"></i>
-                            <p:inputText id="globalFilter"
-                                         styleClass="form-control"
-                                         onkeyup="PF('rolesTable').filter()"
-                                         placeholder="#{msg['roles.search']}"/>
-                        </span>
-                    </div>
+            <h:form id="rolesForm">
+                <h:panelGroup id="activeFilter" layout="block" styleClass="role-filter-grid">
+                    <p:commandLink action="#{rolesBean.toggleActiveFilter}"
+                                   process="@this"
+                                   update="activeFilter rolesTable"
+                                   styleClass="role-filter-link">
+                        <div class="role-active-filter-card #{rolesBean.activeOnly ? 'role-active-filter-card-selected' : ''}">
+                            <span class="role-filter-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </span>
+                            <span class="role-filter-copy">
+                                <strong>#{msg['roles.filter.activeOnly']}</strong>
+                                <small>#{msg['roles.filter.activeOnly.help']}</small>
+                            </span>
+                            <span class="role-filter-count">#{rolesBean.activeRoleCount}</span>
+                        </div>
+                    </p:commandLink>
+                </h:panelGroup>
 
-                    <p:dataTable value="#{rolesBean.roles}"
+                <div class="table-search-toolbar">
+                    <span class="p-input-icon-left table-global-search">
+                        <i class="bi bi-search"></i>
+                        <p:inputText id="globalFilter"
+                                     styleClass="form-control"
+                                     onkeyup="PF('rolesTable').filter()"
+                                     placeholder="#{msg['roles.search']}"/>
+                    </span>
+                </div>
+
+                <div class="table-responsive">
+                    <p:dataTable id="rolesTable"
+                                 value="#{rolesBean.roles}"
                                  var="role"
                                  widgetVar="rolesTable"
                                  styleClass="table align-middle mb-0 erp-data-table"
@@ -65,6 +84,13 @@
                             <strong>#{role.roleName}</strong>
                         </p:column>
 
+                        <p:column headerText="#{msg['roles.status']}"
+                                  sortBy="#{role.isActive}">
+                            <span class="#{role.isActive ? 'status-badge status-badge-active' : 'status-badge status-badge-inactive'}">
+                                #{role.isActive ? msg['roles.status.active'] : msg['roles.status.inactive']}
+                            </span>
+                        </p:column>
+
                         <p:column headerText="#{msg['roles.action']}">
                             <h:link outcome="/views/role-edit"
                                     styleClass="btn btn-sm btn-primary"
@@ -73,10 +99,34 @@
                                 <span class="visually-hidden">#{msg['roles.edit']}</span>
                                 <f:param name="id" value="#{role.id}"/>
                             </h:link>
+
+                            <p:commandLink styleClass="#{role.isActive ? 'btn btn-sm btn-outline-danger ms-2' : 'btn btn-sm btn-outline-success ms-2'}"
+                                           title="#{role.isActive ? msg['roles.delete'] : msg['roles.activate']}"
+                                           action="#{rolesBean.changeRoleActiveStatus(role.id, role.isActive)}"
+                                           process="@this"
+                                           immediate="true"
+                                           update="@form :globalGrowl">
+                                <i class="#{role.isActive ? 'bi bi-trash' : 'bi bi-arrow-clockwise'}"></i>
+                                <span class="visually-hidden">
+                                    #{role.isActive ? msg['roles.delete'] : msg['roles.activate']}
+                                </span>
+                                <p:confirm header="#{role.isActive ? msg['roles.delete'] : msg['roles.activate']}"
+                                           message="#{role.isActive ? msg['roles.delete.confirm'] : msg['roles.activate.confirm']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandLink>
                         </p:column>
                     </p:dataTable>
-                </h:form>
-            </div>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.yes']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-yes btn btn-primary"/>
+                        <p:commandButton value="#{msg['common.no']}"
+                                         type="button"
+                                         styleClass="ui-confirmdialog-no btn btn-outline-secondary"/>
+                    </p:confirmDialog>
+                </div>
+            </h:form>
         </div>
     </ui:define>
 </ui:composition>

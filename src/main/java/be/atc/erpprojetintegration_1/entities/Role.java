@@ -8,6 +8,10 @@ import javax.validation.constraints.Size;
         @NamedQuery(
                 name = "getAllActiveRoles",
                 query = "SELECT r FROM Role r WHERE r.isActive = true ORDER BY r.roleName"
+        ),
+        @NamedQuery(
+                name = "getAllRoles",
+                query = "SELECT r FROM Role r ORDER BY r.roleName"
         )
 })
 @Entity

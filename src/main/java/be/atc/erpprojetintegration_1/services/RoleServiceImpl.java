@@ -44,6 +44,27 @@ public class RoleServiceImpl implements IRoleService {
     }
 
     @Override
+    public Result<List<Role>> getAll() {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Searching all roles");
+            List<Role> roles = em.createNamedQuery("getAllRoles", Role.class).getResultList();
+            log.info("Roles found: " + roles.size());
+            return Result.ok(roles);
+
+        } catch (Exception ex) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", "roles.error.load");
+            log.error("Error while searching all roles", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Result<Role> getById(Integer id) {
         EntityManager em = EMF.getEM();
 
@@ -97,6 +118,42 @@ public class RoleServiceImpl implements IRoleService {
             errors.put("message", "roles.create.error");
 
             log.error("Error while creating role", ex);
+            return Result.fail(errors);
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Result<Void> setActive(Integer id, boolean active) {
+        EntityManager em = EMF.getEM();
+
+        try {
+            log.info("Updating role active status. Id: " + id + ", active: " + active);
+            em.getTransaction().begin();
+            Role role = em.find(Role.class, id);
+
+            if (role == null) {
+                em.getTransaction().rollback();
+                Map<String, String> errors = new HashMap<>();
+                errors.put("notFound", "roles.error.notFound");
+                return Result.fail(errors);
+            }
+
+            role.setIsActive(active);
+            em.merge(role);
+            em.getTransaction().commit();
+            return Result.ok();
+
+        } catch (Exception ex) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+
+            Map<String, String> errors = new HashMap<>();
+            errors.put("message", active ? "roles.activate.error" : "roles.delete.error");
+            log.error("Error while updating role active status. Id: " + id, ex);
             return Result.fail(errors);
 
         } finally {

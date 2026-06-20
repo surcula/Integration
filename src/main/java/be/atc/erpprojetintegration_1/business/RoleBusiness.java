@@ -31,6 +31,26 @@ public class RoleBusiness {
     }
 
     /**
+     * Retrieves active and inactive roles for administration.
+     *
+     * @return complete role list result
+     */
+    public Result<List<Role>> getAllRoles() {
+        return roleService.getAll();
+    }
+
+    /**
+     * Activates or deactivates a role.
+     *
+     * @param roleId role id
+     * @param active new active state
+     * @return operation result
+     */
+    public Result<Void> setRoleActive(Integer roleId, boolean active) {
+        return roleService.setActive(roleId, active);
+    }
+
+    /**
      * Retrieves a role by id.
      *
      * @param roleId role id

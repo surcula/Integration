@@ -7,6 +7,8 @@ import be.atc.erpprojetintegration_1.entities.Absence;
 import be.atc.erpprojetintegration_1.enums.AbsenceStatus;
 import be.atc.erpprojetintegration_1.enums.AbsenceType;
 import be.atc.erpprojetintegration_1.tools.Result;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.file.UploadedFile;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +45,7 @@ public class AbsencesBean implements Serializable {
     private Absence selectedAbsence;
     private Integer selectedEmployeeId;
     private UploadedFile document;
+    private StreamedContent documentFile;
     private String reviewComment;
     private boolean departmentHead;
 
@@ -163,6 +167,38 @@ public class AbsencesBean implements Serializable {
                 || Boolean.TRUE.equals(selectedAbsence.getCertificateValidated()));
     }
     public boolean canAccessDocument() { return authBean.isHrOrAdmin(); }
+    public void prepareDocument(Absence absence) {
+        documentFile = null;
+        if (!canAccessDocument()) {
+            message(FacesMessage.SEVERITY_ERROR, "Acces refuse.");
+            return;
+        }
+        if (absence == null || absence.getDocumentPath() == null || absence.getDocumentPath().trim().isEmpty()) {
+            message(FacesMessage.SEVERITY_ERROR, "Aucun justificatif disponible.");
+            return;
+        }
+
+        Path file = Paths.get(absence.getDocumentPath());
+        if (!Files.exists(file) || !Files.isRegularFile(file)) {
+            message(FacesMessage.SEVERITY_ERROR, "Le justificatif est introuvable sur le serveur.");
+            return;
+        }
+
+        String fileName = absence.getDocumentName() == null || absence.getDocumentName().trim().isEmpty()
+                ? file.getFileName().toString()
+                : absence.getDocumentName();
+        documentFile = DefaultStreamedContent.builder()
+                .name(fileName)
+                .contentType(resolveContentType(file))
+                .stream(() -> {
+                    try {
+                        return Files.newInputStream(file);
+                    } catch (IOException ex) {
+                        throw new IllegalStateException("Impossible d'ouvrir le justificatif.", ex);
+                    }
+                })
+                .build();
+    }
     public boolean getCanAccessDocument() { return canAccessDocument(); }
     public boolean getCanValidateCertificate() { return canValidateCertificate(); }
     public boolean isDepartmentHead() { return departmentHead; }
@@ -239,6 +275,14 @@ public class AbsencesBean implements Serializable {
     private Integer connectedId() { return authBean.getConnectedEmployee() == null ? null : authBean.getConnectedEmployee().getId(); }
     private String firstError(Result<?> result) { return result.getErrors() == null || result.getErrors().isEmpty() ? "Operation impossible." : result.getErrors().values().iterator().next(); }
     private void message(FacesMessage.Severity severity, String text) { FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, text, null)); }
+    private String resolveContentType(Path file) {
+        try {
+            String contentType = Files.probeContentType(file);
+            return contentType == null ? "application/octet-stream" : contentType;
+        } catch (IOException ex) {
+            return "application/octet-stream";
+        }
+    }
 
     public AbsenceType[] getTypes() { return AbsenceType.values(); }
     public AbsenceStatus[] getStatuses() { return AbsenceStatus.values(); }
@@ -258,6 +302,7 @@ public class AbsencesBean implements Serializable {
     public List<EmployeeListDto> getEmployees() { return employees; }
     public Absence getSelectedAbsence() { return selectedAbsence; }
     public void setSelectedAbsence(Absence selectedAbsence) { this.selectedAbsence = selectedAbsence; }
+    public StreamedContent getDocumentFile() { return documentFile; }
     public Integer getSelectedEmployeeId() { return selectedEmployeeId; }
     public void setSelectedEmployeeId(Integer selectedEmployeeId) { this.selectedEmployeeId = selectedEmployeeId; }
     public UploadedFile getDocument() { return document; }

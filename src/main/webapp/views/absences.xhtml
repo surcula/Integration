@@ -20,7 +20,7 @@
             <h:form>
                 <p:commandButton value="#{msg['absences.newRequest']}" icon="bi bi-plus-circle" styleClass="btn btn-primary"
                                  process="@this" actionListener="#{absencesBean.prepareNew}"
-                                 update=":absenceForm:absenceDialog" oncomplete="PF('absenceDialogWidget').show();"/>
+                                 update=":absenceDialogForm:absenceDialog" oncomplete="PF('absenceDialogWidget').show();"/>
             </h:form>
         </div>
 
@@ -30,7 +30,7 @@
                     <p:commandLink styleClass="absence-summary-link"
                                    action="#{absencesBean.toggleStatusFilter(absencesBean.pendingStatus)}"
                                    process="@this"
-                                   update=":absenceStatsForm :absenceForm:absenceTable">
+                                   update=":absenceStatsForm :absenceTableForm:absenceTable">
                         <div class="absence-summary-item absence-summary-pending #{absencesBean.isStatusSelected(absencesBean.pendingStatus) ? 'absence-summary-selected' : ''}">
                             <span class="absence-summary-icon"><i class="bi bi-clock" aria-hidden="true"></i></span>
                             <div>
@@ -42,7 +42,7 @@
                     <p:commandLink styleClass="absence-summary-link"
                                    action="#{absencesBean.toggleStatusFilter(absencesBean.approvedStatus)}"
                                    process="@this"
-                                   update=":absenceStatsForm :absenceForm:absenceTable">
+                                   update=":absenceStatsForm :absenceTableForm:absenceTable">
                         <div class="absence-summary-item absence-summary-approved #{absencesBean.isStatusSelected(absencesBean.approvedStatus) ? 'absence-summary-selected' : ''}">
                             <span class="absence-summary-icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span>
                             <div>
@@ -54,7 +54,7 @@
                     <p:commandLink styleClass="absence-summary-link"
                                    action="#{absencesBean.toggleStatusFilter(absencesBean.refusedStatus)}"
                                    process="@this"
-                                   update=":absenceStatsForm :absenceForm:absenceTable">
+                                   update=":absenceStatsForm :absenceTableForm:absenceTable">
                         <div class="absence-summary-item absence-summary-refused #{absencesBean.isStatusSelected(absencesBean.refusedStatus) ? 'absence-summary-selected' : ''}">
                             <span class="absence-summary-icon"><i class="bi bi-x-circle" aria-hidden="true"></i></span>
                             <div>
@@ -66,7 +66,7 @@
                 </div>
             </h:form>
 
-            <h:form id="absenceForm" enctype="multipart/form-data">
+            <h:form id="absenceTableForm">
                 <p:dataTable id="absenceTable" value="#{absencesBean.absences}" var="absence"
                              widgetVar="absenceTableWidget" paginator="true" rows="10"
                              styleClass="table align-middle mb-0 erp-data-table"
@@ -110,19 +110,19 @@
                     </p:column>
                     <p:column headerText="#{msg['absences.document']}">
                         <h:panelGroup rendered="#{not empty absence.documentName and absencesBean.canAccessDocument}">
-                            <h:outputLink value="#{request.contextPath}/absence-document"
-                                          target="_blank" title="#{msg['common.view']}"
-                                          styleClass="btn btn-sm btn-outline-primary">
-                                <f:param name="id" value="#{absence.id}"/>
-                                <i class="bi bi-eye" aria-hidden="true"></i>
-                            </h:outputLink>
-                            <h:outputLink value="#{request.contextPath}/absence-document"
-                                          title="#{msg['common.download']}"
-                                          styleClass="btn btn-sm btn-outline-secondary ms-2">
-                                <f:param name="id" value="#{absence.id}"/>
-                                <f:param name="download" value="true"/>
-                                <i class="bi bi-download" aria-hidden="true"></i>
-                            </h:outputLink>
+                            <p:commandButton icon="bi bi-eye" title="#{msg['common.view']}"
+                                             styleClass="btn btn-sm btn-outline-primary"
+                                             actionListener="#{absencesBean.prepareDocument(absence)}"
+                                             ajax="false">
+                                <p:fileDownload value="#{absencesBean.documentFile}"
+                                                contentDisposition="inline"/>
+                            </p:commandButton>
+                            <p:commandButton icon="bi bi-download" title="#{msg['common.download']}"
+                                             styleClass="btn btn-sm btn-outline-secondary ms-2"
+                                             actionListener="#{absencesBean.prepareDocument(absence)}"
+                                             ajax="false">
+                                <p:fileDownload value="#{absencesBean.documentFile}"/>
+                            </p:commandButton>
                         </h:panelGroup>
                         <h:outputText value="#{msg['absences.document.deposited']}" styleClass="status-badge status-badge-active"
                                       rendered="#{not empty absence.documentName and not absencesBean.canAccessDocument}"/>
@@ -137,7 +137,7 @@
                     <p:column headerText="#{msg['common.actions']}" style="white-space: nowrap">
                         <p:commandButton icon="bi bi-eye" title="#{msg['common.view']}" styleClass="btn btn-sm btn-outline-primary"
                                          process="@this" actionListener="#{absencesBean.edit(absence)}"
-                                         update=":absenceForm:absenceDialog" oncomplete="PF('absenceDialogWidget').show();"/>
+                                         update=":absenceDialogForm:absenceDialog" oncomplete="PF('absenceDialogWidget').show();"/>
                         <p:commandButton icon="bi bi-x-circle" title="#{msg['common.cancel']}" styleClass="btn btn-sm btn-outline-danger ms-2"
                                          rendered="#{absencesBean.canCancel(absence)}" process="@this"
                                          actionListener="#{absencesBean.cancel(absence)}" update="@form :globalGrowl">
@@ -145,7 +145,13 @@
                         </p:commandButton>
                     </p:column>
                 </p:dataTable>
+                <p:confirmDialog global="true" responsive="true">
+                    <p:commandButton value="#{msg['common.yes']}" type="button" styleClass="ui-confirmdialog-yes btn btn-danger"/>
+                    <p:commandButton value="#{msg['common.no']}" type="button" styleClass="ui-confirmdialog-no btn btn-outline-secondary"/>
+                </p:confirmDialog>
+            </h:form>
 
+            <h:form id="absenceDialogForm" enctype="multipart/form-data">
                 <p:dialog id="absenceDialog" widgetVar="absenceDialogWidget" header="#{msg['absences.dialog.title']}"
                           modal="true" responsive="true" width="760" closeOnEscape="true">
                     <div class="row g-3">
@@ -207,19 +213,19 @@
                                           rendered="#{not empty absencesBean.selectedAbsence.documentName and absencesBean.canAccessDocument}">
                                 <h:outputText styleClass="absence-document-name"
                                               value="#{absencesBean.selectedAbsence.documentName}"/>
-                                <h:outputLink value="#{request.contextPath}/absence-document"
-                                              target="_blank" title="#{msg['common.view']}"
-                                              styleClass="btn btn-sm btn-outline-primary">
-                                    <f:param name="id" value="#{absencesBean.selectedAbsence.id}"/>
-                                    <i class="bi bi-eye" aria-hidden="true"></i>
-                                </h:outputLink>
-                                <h:outputLink value="#{request.contextPath}/absence-document"
-                                              title="#{msg['common.download']}"
-                                              styleClass="btn btn-sm btn-outline-secondary">
-                                    <f:param name="id" value="#{absencesBean.selectedAbsence.id}"/>
-                                    <f:param name="download" value="true"/>
-                                    <i class="bi bi-download" aria-hidden="true"></i>
-                                </h:outputLink>
+                                <p:commandButton icon="bi bi-eye" title="#{msg['common.view']}"
+                                                 styleClass="btn btn-sm btn-outline-primary"
+                                                 actionListener="#{absencesBean.prepareDocument(absencesBean.selectedAbsence)}"
+                                                 ajax="false">
+                                    <p:fileDownload value="#{absencesBean.documentFile}"
+                                                    contentDisposition="inline"/>
+                                </p:commandButton>
+                                <p:commandButton icon="bi bi-download" title="#{msg['common.download']}"
+                                                 styleClass="btn btn-sm btn-outline-secondary"
+                                                 actionListener="#{absencesBean.prepareDocument(absencesBean.selectedAbsence)}"
+                                                 ajax="false">
+                                    <p:fileDownload value="#{absencesBean.documentFile}"/>
+                                </p:commandButton>
                                 <p:commandButton value="#{msg['absences.certificate.validate']}" icon="pi pi-check-circle"
                                                  styleClass="ui-button-success"
                                                  rendered="#{absencesBean.canValidateCertificate}"
@@ -285,10 +291,6 @@
                         </h:panelGroup>
                     </f:facet>
                 </p:dialog>
-                <p:confirmDialog global="true" responsive="true">
-                    <p:commandButton value="#{msg['common.yes']}" type="button" styleClass="ui-confirmdialog-yes btn btn-danger"/>
-                    <p:commandButton value="#{msg['common.no']}" type="button" styleClass="ui-confirmdialog-no btn btn-outline-secondary"/>
-                </p:confirmDialog>
             </h:form>
         </div>
 

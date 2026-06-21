@@ -52,7 +52,7 @@ public interface IPlanningEmployeeService {
     /**
      * Replaces all active employee assignments for a planning entry.
      *
-     * @param planning planning entry
+     * @param planning    planning entry
      * @param employeeIds employee ids to assign
      * @return operation result
      */
@@ -61,10 +61,10 @@ public interface IPlanningEmployeeService {
     /**
      * Finds selected employees assigned to an incompatible planning entry on the same date.
      *
-     * @param date planning date
-     * @param startHour start hour, or null for an all-day entry
-     * @param endHour end hour, or null for an all-day entry
-     * @param employeeIds selected employee ids
+     * @param date              planning date
+     * @param startHour         start hour, or null for an all-day entry
+     * @param endHour           end hour, or null for an all-day entry
+     * @param employeeIds       selected employee ids
      * @param excludedPlanningId planning id excluded during edition
      * @return conflicting employee list result
      */
@@ -80,6 +80,13 @@ public interface IPlanningEmployeeService {
     /**
      * Finds employees who would not have 11 hours of rest between two service shifts.
      * Split shifts on the same calendar day are allowed.
+     *
+     * @param date              planning date
+     * @param startHour         start hour
+     * @param endHour           end hour
+     * @param employeeIds       selected employee ids
+     * @param excludedPlanningId planning id excluded during edition
+     * @return employee list result
      */
     Result<List<Employee>> findInsufficientRestEmployees(
             LocalDate date,
@@ -92,6 +99,11 @@ public interface IPlanningEmployeeService {
     /**
      * Finds employees who would exceed seven consecutive service days.
      * Multiple service shifts on the same day count as one worked day.
+     *
+     * @param date              planning date
+     * @param employeeIds       selected employee ids
+     * @param excludedPlanningId planning id excluded during edition
+     * @return employee list result
      */
     Result<List<Employee>> findExcessiveConsecutiveServiceEmployees(
             LocalDate date,

@@ -1,10 +1,10 @@
 package be.atc.erpprojetintegration_1.interfaces;
 
 import be.atc.erpprojetintegration_1.entities.Planning;
+import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 import be.atc.erpprojetintegration_1.tools.Result;
 
 import java.util.List;
-import be.atc.erpprojetintegration_1.enums.PlanningStatus;
 
 /**
  * Defines planning-related database operations.
@@ -37,7 +37,7 @@ public interface IPlanningService {
     /**
      * Retrieves a planning entry only when it is assigned to the employee.
      *
-     * @param id planning id
+     * @param id         planning id
      * @param employeeId connected employee id
      * @return assigned planning result
      */
@@ -54,7 +54,7 @@ public interface IPlanningService {
     /**
      * Updates planning active status.
      *
-     * @param id planning id
+     * @param id     planning id
      * @param active active status
      * @return operation result
      */
@@ -73,7 +73,7 @@ public interface IPlanningService {
      * Retrieves all planning entries assigned to an employee for a given month.
      *
      * @param year       target year
-     * @param month      target month (1–12)
+     * @param month      target month (1-12)
      * @param employeeId employee id
      * @return planning list result
      */
@@ -83,7 +83,7 @@ public interface IPlanningService {
      * Retrieves all planning entries belonging to a department for a given month.
      *
      * @param year         target year
-     * @param month        target month (1–12)
+     * @param month        target month (1-12)
      * @param departmentId department id
      * @return planning list result
      */

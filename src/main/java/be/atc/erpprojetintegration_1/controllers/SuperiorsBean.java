@@ -14,6 +14,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ public class SuperiorsBean implements Serializable {
     private List<SuperiorListDto> superiors;
     private String selectedDepartmentName;
     private EmployeeDetailsDto selectedEmployeeDetails;
+    private LocalDate departmentHeadEndDate;
 
     @PostConstruct
     public void init() {
@@ -67,7 +69,7 @@ public class SuperiorsBean implements Serializable {
      * @param departmentHeadId department head id
      */
     public void removeDepartmentHead(Integer departmentHeadId) {
-        Result<Void> result = superiorBusiness.removeDepartmentHead(departmentHeadId);
+        Result<Void> result = superiorBusiness.removeDepartmentHead(departmentHeadId, departmentHeadEndDate);
 
         if (!result.isSuccess()) {
             MessageUtils.addErrorMessages(result, "superiors.departmentHead.delete.error");
@@ -79,7 +81,9 @@ public class SuperiorsBean implements Serializable {
     }
 
     public void changeDepartmentHeadActiveStatus(Integer departmentHeadId, boolean active) {
-        Result<Void> result = superiorBusiness.setDepartmentHeadActive(departmentHeadId, !active);
+        Result<Void> result = active
+                ? superiorBusiness.removeDepartmentHead(departmentHeadId, departmentHeadEndDate)
+                : superiorBusiness.reactivateDepartmentHead(departmentHeadId);
 
         if (!result.isSuccess()) {
             MessageUtils.addErrorMessages(result, active ? "superiors.delete.error" : "superiors.activate.error");
@@ -216,5 +220,13 @@ public class SuperiorsBean implements Serializable {
 
     public EmployeeDetailsDto getSelectedEmployeeDetails() {
         return selectedEmployeeDetails;
+    }
+
+    public LocalDate getDepartmentHeadEndDate() {
+        return departmentHeadEndDate;
+    }
+
+    public void setDepartmentHeadEndDate(LocalDate departmentHeadEndDate) {
+        this.departmentHeadEndDate = departmentHeadEndDate;
     }
 }

@@ -255,7 +255,7 @@ public class SuperiorBusiness {
 
         for (DepartmentHead existingDepartmentHead : departmentHeadsResult.getData()) {
             if (isSameDepartmentHead(existingDepartmentHead, superiorEmployeeId, departmentId)) {
-                return departmentHeadService.setActive(existingDepartmentHead.getId(), true);
+                return departmentHeadService.reactivate(existingDepartmentHead.getId());
             }
         }
 
@@ -431,12 +431,18 @@ public class SuperiorBusiness {
      * Removes a department head and deactivates supervised employees in that department.
      *
      * @param departmentHeadId department head id
+     * @param endDate mandate end date
      * @return operation result
      */
-    public Result<Void> removeDepartmentHead(Integer departmentHeadId) {
+    public Result<Void> removeDepartmentHead(Integer departmentHeadId, LocalDate endDate) {
+        Map<String, String> errors = new HashMap<>();
         if (departmentHeadId == null) {
-            Map<String, String> errors = new HashMap<>();
             errors.put("id", "superiors.departmentHead.id.required");
+        }
+        if (endDate == null) {
+            errors.put("endDate", "superiors.departmentHead.endDate.required");
+        }
+        if (!errors.isEmpty()) {
             return Result.fail(errors);
         }
 
@@ -463,17 +469,17 @@ public class SuperiorBusiness {
             }
         }
 
-        return departmentHeadService.deactivate(departmentHeadId);
+        return departmentHeadService.deactivate(departmentHeadId, endDate);
     }
 
-    public Result<Void> setDepartmentHeadActive(Integer departmentHeadId, boolean active) {
+    public Result<Void> reactivateDepartmentHead(Integer departmentHeadId) {
         if (departmentHeadId == null) {
             Map<String, String> errors = new HashMap<>();
             errors.put("id", "superiors.departmentHead.id.required");
             return Result.fail(errors);
         }
 
-        return departmentHeadService.setActive(departmentHeadId, active);
+        return departmentHeadService.reactivate(departmentHeadId);
     }
 
     private Result<Void> validateSuperior(SuperiorEditDto dto) {

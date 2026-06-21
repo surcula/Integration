@@ -154,7 +154,7 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
     }
 
     @Override
-    public Result<Void> setActive(Integer id, boolean active) {
+    public Result<Void> reactivate(Integer id) {
         EntityManager em = EMF.getEM();
         try {
             em.getTransaction().begin();
@@ -163,25 +163,20 @@ public class DepartmentHeadServiceImpl implements IDepartmentHeadService {
                 em.getTransaction().rollback();
                 return Result.fail(error("notFound", "superiors.departmentHead.notFound"));
             }
-            departmentHead.setIsActive(active);
-            departmentHead.setEndDate(active ? null : LocalDate.now());
-            if (active && departmentHead.getStartDate() == null) {
+            departmentHead.setIsActive(true);
+            departmentHead.setEndDate(null);
+            if (departmentHead.getStartDate() == null) {
                 departmentHead.setStartDate(LocalDate.now());
             }
             em.getTransaction().commit();
             return Result.ok();
         } catch (Exception ex) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            log.error("Error while changing department head active status", ex);
-            return Result.fail(error("message", active ? "superiors.activate.error" : "superiors.delete.error"));
+            log.error("Error while reactivating department head", ex);
+            return Result.fail(error("message", "superiors.activate.error"));
         } finally {
             em.close();
         }
-    }
-
-    @Override
-    public Result<Void> deactivate(Integer id) {
-        return deactivate(id, LocalDate.now());
     }
 
     @Override

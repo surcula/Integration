@@ -80,6 +80,13 @@ public interface IPlanningEmployeeService {
     /**
      * Finds employees who would not have 11 hours of rest between two service shifts.
      * Split shifts on the same calendar day are allowed.
+     *
+     * @param date planning date
+     * @param startHour planned start hour
+     * @param endHour planned end hour
+     * @param employeeIds selected employee ids
+     * @param excludedPlanningId planning id excluded during edition
+     * @return employee list result containing insufficient-rest conflicts
      */
     Result<List<Employee>> findInsufficientRestEmployees(
             LocalDate date,
@@ -92,6 +99,11 @@ public interface IPlanningEmployeeService {
     /**
      * Finds employees who would exceed seven consecutive service days.
      * Multiple service shifts on the same day count as one worked day.
+     *
+     * @param date planning date
+     * @param employeeIds selected employee ids
+     * @param excludedPlanningId planning id excluded during edition
+     * @return employee list result containing consecutive-service conflicts
      */
     Result<List<Employee>> findExcessiveConsecutiveServiceEmployees(
             LocalDate date,
